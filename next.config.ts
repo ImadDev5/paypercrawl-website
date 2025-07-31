@@ -1,24 +1,87 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Production optimizations for Hostinger
+  output: 'standalone',
+  trailingSlash: true,
+
+  // TypeScript configuration
   typescript: {
     ignoreBuildErrors: true,
   },
-  // 禁用 Next.js 热重载，由 nodemon 处理重编译
+
+  // ESLint configuration
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  // React configuration
   reactStrictMode: false,
-  webpack: (config, { dev }) => {
+
+  // Image optimization (compatible with Hostinger)
+  images: {
+    unoptimized: false,
+    domains: ['paypercrawl.tech', 'localhost'],
+    formats: ['image/webp', 'image/avif'],
+  },
+
+  // Webpack configuration
+  webpack: (config, { dev, isServer }) => {
     if (dev) {
-      // 禁用 webpack 的热模块替换
       config.watchOptions = {
-        ignored: ['**/*'], // 忽略所有文件变化
+        ignored: ['**/*'],
       };
     }
+
+    // Hostinger compatibility fixes
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+
     return config;
   },
-  eslint: {
-    // 构建时忽略ESLint错误
-    ignoreDuringBuilds: true,
+
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+        ],
+      },
+    ];
+  },
+
+  // Redirects for SEO
+  async redirects() {
+    return [
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+    ];
   },
 };
 
