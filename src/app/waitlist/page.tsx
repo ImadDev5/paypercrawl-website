@@ -9,8 +9,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Shield, CheckCircle, Users, ArrowRight, Mail, Globe, Zap } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { useToast } from "@/hooks/use-toast"
 
 export default function WaitlistPage() {
+  const { toast } = useToast()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,12 +21,57 @@ export default function WaitlistPage() {
     whyJoin: ''
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Here you would typically send the data to your backend
-    console.log('Form submitted:', formData)
-    setIsSubmitted(true)
+    setIsLoading(true)
+
+    try {
+      // Map form data to API expected format
+      const apiData = {
+        name: formData.name,
+        email: formData.email,
+        website: formData.website,
+        companySize: 'medium', // Default value since not in form
+        useCase: `Monthly visitors: ${formData.monthlyVisitors}. Reason: ${formData.whyJoin}`
+      }
+
+      const response = await fetch('/api/waitlist/join/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        console.log('Waitlist submission successful:', result)
+        toast({
+          title: "Success!",
+          description: "Successfully joined waitlist! Check your email for confirmation.",
+        })
+        setIsSubmitted(true)
+      } else {
+        console.error('Waitlist submission failed:', result)
+        toast({
+          title: "Error",
+          description: result.error || 'Failed to join waitlist. Please try again.',
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('Network error:', error)
+      toast({
+        title: "Network Error",
+        description: 'Please check your connection and try again.',
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -256,9 +303,14 @@ export default function WaitlistPage() {
                   </ul>
                 </div>
 
-                <Button type="submit" size="lg" className="w-full bg-purple-600 hover:bg-purple-700">
-                  Apply for Beta Access
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full bg-purple-600 hover:bg-purple-700"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Submitting...' : 'Apply for Beta Access'}
+                  {!isLoading && <ArrowRight className="ml-2 h-5 w-5" />}
                 </Button>
               </form>
             </CardContent>
