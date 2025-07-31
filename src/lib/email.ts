@@ -32,7 +32,8 @@ async function sendEmail({ to, subject, html, from = 'PayPerCrawl <onboarding@re
 
     if (error) {
       console.error('Email send error:', error)
-      throw new Error(`Failed to send email: ${error.message}`)
+      console.error('Error details:', JSON.stringify(error, null, 2))
+      throw new Error(`Failed to send email: ${error.message || JSON.stringify(error)}`)
     }
 
     return data
