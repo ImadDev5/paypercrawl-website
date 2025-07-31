@@ -100,9 +100,25 @@ export async function POST(request: NextRequest) {
 
         // Send invite email
         try {
-          await sendBetaInvite(email, waitlistEntry.name, updatedEntry.inviteToken!)
+          console.log('Attempting to send beta invite email to:', email)
+          console.log('Name:', waitlistEntry.name)
+          console.log('Token:', updatedEntry.inviteToken)
+          console.log('RESEND_API_KEY exists:', !!process.env.RESEND_API_KEY)
+          console.log('NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL)
+
+          const emailResult = await sendBetaInvite(email, waitlistEntry.name, updatedEntry.inviteToken!)
+          console.log('Beta invite email sent successfully:', emailResult)
         } catch (emailError) {
           console.error('Failed to send beta invite:', emailError)
+          console.error('Email error details:', emailError instanceof Error ? emailError.message : String(emailError))
+          console.error('Email error stack:', emailError instanceof Error ? emailError.stack : 'No stack trace')
+
+          // Return error response so we can see what's happening
+          return NextResponse.json({
+            error: 'Email sending failed',
+            details: emailError instanceof Error ? emailError.message : String(emailError),
+            entry: updatedEntry
+          }, { status: 500 })
         }
 
         return NextResponse.json({
