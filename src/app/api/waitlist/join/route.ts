@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { z } from 'zod'
 import { generateInviteToken } from '@/lib/utils'
+import { sendWaitlistConfirmation } from '@/lib/email'
 
 const waitlistSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -42,9 +43,14 @@ export async function POST(request: NextRequest) {
     
     // Get waitlist position
     const position = await getWaitlistPosition(validatedData.email)
-    
-    // TODO: Send confirmation email
-    // await sendWaitlistConfirmationEmail(validatedData.email, validatedData.name, position)
+
+    // Send confirmation email
+    try {
+      await sendWaitlistConfirmation(validatedData.email, validatedData.name, position)
+    } catch (emailError) {
+      console.error('Failed to send confirmation email:', emailError)
+      // Continue with success response even if email fails
+    }
     
     return NextResponse.json({
       message: 'Successfully joined waitlist',
@@ -56,7 +62,7 @@ export async function POST(request: NextRequest) {
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.errors },
+        { error: 'Validation failed', details: error.issues },
         { status: 400 }
       )
     }

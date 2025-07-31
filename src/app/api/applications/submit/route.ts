@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { z } from 'zod'
+import { sendApplicationConfirmation } from '@/lib/email'
 
 // Validation schema
 const applicationSchema = z.object({
@@ -43,8 +44,13 @@ export async function POST(request: NextRequest) {
       }
     })
     
-    // TODO: Send confirmation email
-    // await sendConfirmationEmail(validatedData.email, validatedData.name)
+    // Send confirmation email
+    try {
+      await sendApplicationConfirmation(validatedData.email, validatedData.name)
+    } catch (emailError) {
+      console.error('Failed to send confirmation email:', emailError)
+      // Continue with success response even if email fails
+    }
     
     return NextResponse.json({
       message: 'Application submitted successfully',
@@ -56,7 +62,7 @@ export async function POST(request: NextRequest) {
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.errors },
+        { error: 'Validation failed', details: error.issues },
         { status: 400 }
       )
     }
