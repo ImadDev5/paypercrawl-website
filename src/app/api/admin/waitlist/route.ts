@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { sendBetaInvite } from '@/lib/email'
+import { generateInviteToken } from '@/lib/utils'
 
 function verifyAdminAuth(request: NextRequest): boolean {
   const authHeader = request.headers.get('authorization')
@@ -86,18 +87,20 @@ export async function POST(request: NextRequest) {
           )
         }
 
-        // Update status
+        // Update status and generate invite token if not exists
+        const inviteToken = waitlistEntry.inviteToken || generateInviteToken()
         const updatedEntry = await db.waitlistEntry.update({
           where: { email },
           data: {
             status: 'invited',
+            inviteToken: inviteToken,
             invitedAt: new Date()
           }
         })
 
         // Send invite email
         try {
-          await sendBetaInvite(email, waitlistEntry.name, waitlistEntry.inviteToken!)
+          await sendBetaInvite(email, waitlistEntry.name, updatedEntry.inviteToken!)
         } catch (emailError) {
           console.error('Failed to send beta invite:', emailError)
         }
@@ -120,18 +123,20 @@ export async function POST(request: NextRequest) {
               continue
             }
 
-            // Update status
+            // Update status and generate invite token if not exists
+            const inviteToken = waitlistEntry.inviteToken || generateInviteToken()
             const updatedEntry = await db.waitlistEntry.update({
               where: { email: emailAddr },
               data: {
                 status: 'invited',
+                inviteToken: inviteToken,
                 invitedAt: new Date()
               }
             })
 
             // Send invite email
             try {
-              await sendBetaInvite(emailAddr, waitlistEntry.name, waitlistEntry.inviteToken!)
+              await sendBetaInvite(emailAddr, waitlistEntry.name, updatedEntry.inviteToken!)
               results.push({ email: emailAddr, success: true })
             } catch (emailError) {
               console.error(`Failed to send beta invite to ${emailAddr}:`, emailError)
