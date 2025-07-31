@@ -10,7 +10,7 @@ interface EmailOptions {
   from?: string
 }
 
-async function sendEmail({ to, subject, html, from = 'PayPerCrawl <noreply@paypercrawl.tech>' }: EmailOptions) {
+async function sendEmail({ to, subject, html, from = 'PayPerCrawl <onboarding@resend.dev>' }: EmailOptions) {
   try {
     const { data, error } = await resend.emails.send({
       from,
@@ -224,9 +224,12 @@ export async function sendContactNotification(name: string, email: string, subje
     </html>
   `
   
-  return sendEmail({ 
-    to: 'support@paypercrawl.tech', 
-    subject: emailSubject, 
-    html 
+  // Send to admin email from environment or fallback
+  const adminEmail = process.env.ADMIN_EMAIL || 'imaduddin.dev@gmail.com'
+
+  return sendEmail({
+    to: adminEmail,
+    subject: emailSubject,
+    html
   })
 }
