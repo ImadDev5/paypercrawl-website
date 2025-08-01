@@ -14,21 +14,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
+  title: "PayPerCrawl - AI Content Monetization Platform",
+  description: "Turn AI bot traffic into revenue. PayPerCrawl detects AI bots crawling your content and converts them into paying customers. Built for WordPress with enterprise-grade security.",
+  keywords: ["AI monetization", "WordPress", "content protection", "bot detection", "revenue generation", "AI training data"],
+  authors: [{ name: "PayPerCrawl Team" }],
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-    url: "https://chat.z.ai",
-    siteName: "Z.ai",
+    title: "PayPerCrawl - AI Content Monetization Platform",
+    description: "Turn AI bot traffic into revenue with advanced bot detection and monetization",
+    url: "https://paypercrawl.tech",
+    siteName: "PayPerCrawl",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
+    title: "PayPerCrawl - AI Content Monetization Platform",
+    description: "Turn AI bot traffic into revenue with advanced bot detection and monetization",
   },
 };
 
