@@ -10,6 +10,7 @@ import Link from "next/link"
 export default function BlogPage() {
   const blogPosts = [
     {
+      id: "ai-revolutionizing-content-revenue",
       title: "How AI is Revolutionizing Content Revenue Models",
       excerpt: "The shift from ad-based revenue to AI licensing: How ChatGPT and Perplexity are changing the way publishers monetize content.",
       author: "Md Imad",
@@ -19,6 +20,7 @@ export default function BlogPage() {
       featured: true
     },
     {
+      id: "blog-readers-to-ai-models",
       title: "From Blog Readers to AI Models: The New Attention Economy",
       excerpt: "Understanding how AI assistants are becoming the primary consumers of content and what it means for publisher revenue streams.",
       author: "Md Imad",
@@ -28,6 +30,7 @@ export default function BlogPage() {
       featured: false
     },
     {
+      id: "cloudflare-http-402-payment-layer",
       title: "Cloudflare's HTTP 402: Building the Payment Layer for AI Content",
       excerpt: "How Cloudflare's Pay-Per-Crawl initiative is creating the infrastructure for the future of content monetization.",
       author: "Md Imad",
@@ -37,6 +40,7 @@ export default function BlogPage() {
       featured: false
     },
     {
+      id: "decline-ad-revenue-ai-licensing",
       title: "The Decline of Ad Revenue: Why AI Licensing is the Future",
       excerpt: "As users shift from traditional browsing to AI queries, publishers need new monetization strategies beyond display advertising.",
       author: "Md Imad",
@@ -46,6 +50,7 @@ export default function BlogPage() {
       featured: false
     },
     {
+      id: "chatgpt-vs-google-ai-search",
       title: "ChatGPT vs. Google: How AI Search is Changing Content Discovery",
       excerpt: "The fundamental shift in how users find and consume information, and what it means for content creators and publishers.",
       author: "Md Imad",
@@ -55,6 +60,7 @@ export default function BlogPage() {
       featured: false
     },
     {
+      id: "building-sustainable-revenue-ai",
       title: "Building Sustainable Revenue in the Age of AI",
       excerpt: "Practical strategies for WordPress publishers to thrive as AI becomes the primary interface for information consumption.",
       author: "Md Imad",
@@ -64,6 +70,7 @@ export default function BlogPage() {
       featured: false
     },
     {
+      id: "ethics-ai-content-licensing",
       title: "The Ethics of AI Content Licensing: Fair Compensation for Creators",
       excerpt: "Exploring the moral imperative of ensuring content creators are compensated when AI models use their work.",
       author: "Md Imad",
@@ -73,6 +80,7 @@ export default function BlogPage() {
       featured: false
     },
     {
+      id: "perplexity-claude-ai-research",
       title: "Perplexity, Claude, and the Rise of AI Research Assistants",
       excerpt: "How AI research tools are changing academic and professional research, creating new opportunities for specialized content.",
       author: "Md Imad",
@@ -82,6 +90,7 @@ export default function BlogPage() {
       featured: false
     },
     {
+      id: "wordpress-ai-content-economy",
       title: "Preparing Your WordPress Site for the AI Content Economy",
       excerpt: "Technical and strategic preparations WordPress publishers need to make to capitalize on the AI content licensing revolution.",
       author: "Md Imad",
@@ -183,10 +192,12 @@ export default function BlogPage() {
                     <span>8 min read</span>
                   </div>
                 </div>
-                <Button size="lg">
-                  Read Article
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                <Link href={`/blog/${blogPosts[0].id}`}>
+                  <Button size="lg">
+                    Read Article
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
               </div>
               <div className="bg-white rounded-lg p-6 shadow-lg">
                 <div className="space-y-4">
@@ -235,9 +246,11 @@ export default function BlogPage() {
                             </Badge>
                           ))}
                         </div>
-                        <CardTitle className="text-xl hover:text-blue-600 transition-colors cursor-pointer">
-                          {post.title}
-                        </CardTitle>
+                        <Link href={`/blog/${post.id}`}>
+                          <CardTitle className="text-xl hover:text-blue-600 transition-colors cursor-pointer">
+                            {post.title}
+                          </CardTitle>
+                        </Link>
                         <CardDescription className="text-base">
                           {post.excerpt}
                         </CardDescription>
@@ -258,10 +271,12 @@ export default function BlogPage() {
                               <span>{post.readTime}</span>
                             </div>
                           </div>
-                          <Button variant="ghost" size="sm">
-                            Read More
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
+                          <Link href={`/blog/${post.id}`}>
+                            <Button variant="ghost" size="sm">
+                              Read More
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          </Link>
                         </div>
                       </CardContent>
                     </Card>
