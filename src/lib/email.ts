@@ -10,7 +10,7 @@ interface EmailOptions {
   from?: string
 }
 
-async function sendEmail({ to, subject, html, from = 'PayPerCrawl <onboarding@resend.dev>' }: EmailOptions) {
+async function sendEmail({ to, subject, html, from = 'PayPerCrawl <noreply@paypercrawl.tech>' }: EmailOptions) {
   try {
     const { data, error } = await resend.emails.send({
       from,
