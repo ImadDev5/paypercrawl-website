@@ -1,431 +1,503 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { Shield, Users, Mail, FileText, Send, Loader2, Eye, EyeOff } from 'lucide-react'
-import { toast } from 'sonner'
-import { formatDate } from '@/lib/utils'
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Shield,
+  Users,
+  Mail,
+  FileText,
+  Send,
+  Loader2,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import { toast } from "sonner";
+import { formatDate } from "@/lib/utils";
+import { ModeToggle } from "@/components/mode-toggle";
+import Link from "next/link";
 
 interface Application {
-  id: string
-  name: string
-  email: string
-  position: string
-  phone?: string
-  website?: string
-  coverLetter?: string
-  status: string
-  notes?: string
-  createdAt: string
-  updatedAt: string
+  id: string;
+  name: string;
+  email: string;
+  position: string;
+  phone?: string;
+  website?: string;
+  coverLetter?: string;
+  status: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface WaitlistEntry {
-  id: string
-  name: string
-  email: string
-  website?: string
-  companySize?: string
-  useCase?: string
-  status: string
-  inviteToken?: string
-  invitedAt?: string
-  createdAt: string
-  updatedAt: string
+  id: string;
+  name: string;
+  email: string;
+  website?: string;
+  companySize?: string;
+  useCase?: string;
+  status: string;
+  inviteToken?: string;
+  invitedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function AdminDashboard() {
-  const [adminKey, setAdminKey] = useState('')
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [showKey, setShowKey] = useState(false)
-  const [applications, setApplications] = useState<Application[]>([])
-  const [waitlistEntries, setWaitlistEntries] = useState<WaitlistEntry[]>([])
-  const [loading, setLoading] = useState(false)
-  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
-  const [applicationNotes, setApplicationNotes] = useState('')
-  const [applicationStatus, setApplicationStatus] = useState('')
+  const [adminKey, setAdminKey] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showKey, setShowKey] = useState(false);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [waitlistEntries, setWaitlistEntries] = useState<WaitlistEntry[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedApplication, setSelectedApplication] =
+    useState<Application | null>(null);
+  const [applicationNotes, setApplicationNotes] = useState("");
+  const [applicationStatus, setApplicationStatus] = useState("");
+
+  useEffect(() => {
+    const key = localStorage.getItem("adminKey");
+    if (key) {
+      setAdminKey(key);
+    }
+  }, []);
 
   const authenticate = () => {
-    if (adminKey === '***REDACTED_ADMIN_KEY***') {
-      setIsAuthenticated(true)
-      toast.success('Authentication successful')
-      loadData()
+    if (adminKey === "***REDACTED_ADMIN_KEY***") {
+      localStorage.setItem("adminKey", adminKey);
+      setIsAuthenticated(true);
+      toast.success("Authentication successful");
+      loadData();
     } else {
-      toast.error('Invalid admin key')
+      toast.error("Invalid admin key");
     }
-  }
+  };
 
   const loadData = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       const [appsResponse, waitlistResponse] = await Promise.all([
-        fetch('/api/admin/applications', {
+        fetch("/api/admin/applications", {
           headers: {
-            'Authorization': `Bearer ${adminKey}`
-          }
+            Authorization: `Bearer ${adminKey}`,
+          },
         }),
-        fetch('/api/admin/waitlist', {
+        fetch("/api/admin/waitlist", {
           headers: {
-            'Authorization': `Bearer ${adminKey}`
-          }
-        })
-      ])
+            Authorization: `Bearer ${adminKey}`,
+          },
+        }),
+      ]);
 
       if (appsResponse.ok) {
-        const appsData = await appsResponse.json()
-        setApplications(appsData.applications)
+        const appsData = await appsResponse.json();
+        setApplications(appsData.applications);
       }
 
       if (waitlistResponse.ok) {
-        const waitlistData = await waitlistResponse.json()
-        setWaitlistEntries(waitlistData.waitlistEntries)
+        const waitlistData = await waitlistResponse.json();
+        setWaitlistEntries(waitlistData.waitlistEntries);
       }
     } catch (error) {
-      console.error('Error loading data:', error)
-      toast.error('Failed to load data')
+      console.error("Error loading data:", error);
+      toast.error("Failed to load data");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const updateApplicationStatus = async () => {
-    if (!selectedApplication) return
+    if (!selectedApplication) return;
 
     try {
-      const response = await fetch('/api/admin/applications', {
-        method: 'PATCH',
+      const response = await fetch(`/api/admin/applications`, {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${adminKey}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminKey}`,
         },
         body: JSON.stringify({
-          applicationId: selectedApplication.id,
+          id: selectedApplication.id,
           status: applicationStatus,
-          notes: applicationNotes
-        })
-      })
+          notes: applicationNotes,
+        }),
+      });
 
       if (response.ok) {
-        toast.success('Application updated successfully')
-        loadData()
-        setSelectedApplication(null)
-        setApplicationNotes('')
-        setApplicationStatus('')
+        toast.success("Application updated successfully");
+        loadData();
+        setSelectedApplication(null);
       } else {
-        toast.error('Failed to update application')
+        toast.error("Failed to update application");
       }
     } catch (error) {
-      console.error('Error updating application:', error)
-      toast.error('Failed to update application')
+      console.error("Error updating application:", error);
+      toast.error("An error occurred while updating the application");
     }
-  }
+  };
 
-  const sendBetaInvite = async (email: string) => {
+  const sendInvite = async (email: string) => {
     try {
-      const response = await fetch('/api/admin/waitlist', {
-        method: 'POST',
+      const response = await fetch("/api/waitlist/invite", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${adminKey}`
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          action: 'invite',
-          email
-        })
-      })
+          email,
+          adminKey,
+        }),
+      });
 
       if (response.ok) {
-        toast.success('Beta invite sent successfully')
-        loadData()
+        toast.success("Invite sent successfully");
+        loadData();
       } else {
-        const error = await response.json()
-        toast.error(error.error || 'Failed to send invite')
+        const errorData = await response.json();
+        toast.error(`Failed to send invite: ${errorData.error}`);
       }
     } catch (error) {
-      console.error('Error sending invite:', error)
-      toast.error('Failed to send invite')
+      console.error("Error sending invite:", error);
+      toast.error("An error occurred while sending the invite");
     }
-  }
+  };
+
+  useEffect(() => {
+    if (selectedApplication) {
+      setApplicationNotes(selectedApplication.notes || "");
+      setApplicationStatus(selectedApplication.status);
+    }
+  }, [selectedApplication]);
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-4">
         <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <Shield className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-            <CardTitle>Admin Dashboard</CardTitle>
-            <CardDescription>Enter admin key to access dashboard</CardDescription>
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center">
+              <Shield className="mr-2 h-6 w-6" /> Admin Access
+            </CardTitle>
+            <CardDescription>
+              Enter your secret key to access the dashboard.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="adminKey">Admin Key</Label>
-              <div className="relative">
-                <Input
-                  id="adminKey"
-                  type={showKey ? 'text' : 'password'}
-                  value={adminKey}
-                  onChange={(e) => setAdminKey(e.target.value)}
-                  placeholder="Enter admin key"
-                  onKeyPress={(e) => e.key === 'Enter' && authenticate()}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3"
-                  onClick={() => setShowKey(!showKey)}
-                >
-                  {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="admin-key">Admin Key</Label>
+                <div className="relative">
+                  <Input
+                    id="admin-key"
+                    type={showKey ? "text" : "password"}
+                    value={adminKey}
+                    onChange={(e) => setAdminKey(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && authenticate()}
+                    placeholder="Enter your secret key"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1/2 right-2 -translate-y-1/2 h-7 w-7"
+                    onClick={() => setShowKey(!showKey)}
+                  >
+                    {showKey ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
+              <Button onClick={authenticate} className="w-full">
+                Authenticate
+              </Button>
             </div>
-            <Button onClick={authenticate} className="w-full">
-              Access Dashboard
-            </Button>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
-            <p className="text-slate-600">Manage applications and waitlist entries</p>
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center">
+          <Link href="/" className="mr-6 flex items-center space-x-2">
+            <Shield className="h-6 w-6" />
+            <span className="font-bold">PayperCrawl Admin</span>
+          </Link>
+          <div className="flex flex-1 items-center justify-end space-x-4">
+            <ModeToggle />
+            <Button
+              variant="outline"
+              onClick={() => {
+                localStorage.removeItem("adminKey");
+                setIsAuthenticated(false);
+                toast.info("Logged out");
+              }}
+            >
+              Logout
+            </Button>
           </div>
-          <Button onClick={loadData} disabled={loading}>
-            {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-            Refresh Data
-          </Button>
         </div>
+      </header>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{applications.length}</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Waitlist Entries</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{waitlistEntries.length}</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Beta Invites Sent</CardTitle>
-              <Mail className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {waitlistEntries.filter(entry => entry.status === 'invited').length}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Tabs defaultValue="applications" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="applications">Applications</TabsTrigger>
-            <TabsTrigger value="waitlist">Waitlist</TabsTrigger>
+      <main className="container mx-auto p-4 sm:p-6 lg:p-8">
+        <Tabs defaultValue="applications">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="applications">
+              <FileText className="mr-2 h-4 w-4" />
+              Applications ({applications.length})
+            </TabsTrigger>
+            <TabsTrigger value="waitlist">
+              <Users className="mr-2 h-4 w-4" />
+              Waitlist ({waitlistEntries.length})
+            </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="applications" className="space-y-6">
+          <TabsContent value="applications">
             <Card>
               <CardHeader>
-                <CardTitle>Job Applications</CardTitle>
-                <CardDescription>Manage job applications and update statuses</CardDescription>
+                <CardTitle>Beta Applications</CardTitle>
+                <CardDescription>
+                  Review and manage applications for the beta program.
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Position</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Applied</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {applications.map((app) => (
-                      <TableRow key={app.id}>
-                        <TableCell className="font-medium">{app.name}</TableCell>
-                        <TableCell>{app.email}</TableCell>
-                        <TableCell>{app.position}</TableCell>
-                        <TableCell>
-                          <Badge variant={app.status === 'pending' ? 'secondary' : 'default'}>
-                            {app.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{formatDate(new Date(app.createdAt))}</TableCell>
-                        <TableCell>
+                {loading ? (
+                  <div className="flex justify-center items-center h-40">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="md:col-span-1">
+                      <h3 className="font-bold mb-4">Applicants</h3>
+                      <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                        {applications.map((app) => (
                           <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedApplication(app)
-                              setApplicationStatus(app.status)
-                              setApplicationNotes(app.notes || '')
-                            }}
+                            key={app.id}
+                            variant={
+                              selectedApplication?.id === app.id
+                                ? "secondary"
+                                : "ghost"
+                            }
+                            className="w-full justify-start h-auto py-2"
+                            onClick={() => setSelectedApplication(app)}
                           >
-                            Manage
+                            <div className="text-left">
+                              <p className="font-semibold">{app.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {app.email}
+                              </p>
+                              <Badge variant="outline" className="mt-1">
+                                {app.status}
+                              </Badge>
+                            </div>
                           </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="md:col-span-2">
+                      {selectedApplication ? (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>{selectedApplication.name}</CardTitle>
+                            <CardDescription>
+                              Applied on{" "}
+                              {formatDate(
+                                new Date(selectedApplication.createdAt)
+                              )}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-4">
+                              <p>
+                                <strong>Email:</strong>{" "}
+                                {selectedApplication.email}
+                              </p>
+                              <p>
+                                <strong>Phone:</strong>{" "}
+                                {selectedApplication.phone || "N/A"}
+                              </p>
+                              <p>
+                                <strong>Website:</strong>{" "}
+                                <a
+                                  href={selectedApplication.website}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline"
+                                >
+                                  {selectedApplication.website}
+                                </a>
+                              </p>
+                              <p>
+                                <strong>Position:</strong>{" "}
+                                {selectedApplication.position}
+                              </p>
+                              <div>
+                                <p>
+                                  <strong>Cover Letter:</strong>
+                                </p>
+                                <p className="text-muted-foreground p-2 border rounded-md bg-muted/50">
+                                  {selectedApplication.coverLetter || "N/A"}
+                                </p>
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="status">Status</Label>
+                                <Select
+                                  value={applicationStatus}
+                                  onValueChange={setApplicationStatus}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Set status" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="pending">
+                                      Pending
+                                    </SelectItem>
+                                    <SelectItem value="reviewed">
+                                      Reviewed
+                                    </SelectItem>
+                                    <SelectItem value="approved">
+                                      Approved
+                                    </SelectItem>
+                                    <SelectItem value="rejected">
+                                      Rejected
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="notes">Notes</Label>
+                                <Textarea
+                                  id="notes"
+                                  value={applicationNotes}
+                                  onChange={(e) =>
+                                    setApplicationNotes(e.target.value)
+                                  }
+                                  placeholder="Add internal notes..."
+                                />
+                              </div>
+                              <Button onClick={updateApplicationStatus}>
+                                Update Application
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-muted-foreground">
+                          <p>Select an application to view details</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
-
-          <TabsContent value="waitlist" className="space-y-6">
+          <TabsContent value="waitlist">
             <Card>
               <CardHeader>
-                <CardTitle>Waitlist Management</CardTitle>
-                <CardDescription>Send beta invites to waitlist members</CardDescription>
+                <CardTitle>Waitlist Entries</CardTitle>
+                <CardDescription>
+                  Manage users who have joined the waitlist.
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Company Size</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Joined</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {waitlistEntries.map((entry) => (
-                      <TableRow key={entry.id}>
-                        <TableCell className="font-medium">{entry.name}</TableCell>
-                        <TableCell>{entry.email}</TableCell>
-                        <TableCell>{entry.companySize || 'Not specified'}</TableCell>
-                        <TableCell>
-                          <Badge variant={entry.status === 'pending' ? 'secondary' : 'default'}>
-                            {entry.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{formatDate(new Date(entry.createdAt))}</TableCell>
-                        <TableCell>
-                          {entry.status === 'pending' && (
-                            <Button
-                              size="sm"
-                              onClick={() => sendBetaInvite(entry.email)}
-                            >
-                              <Send className="h-3 w-3 mr-1" />
-                              Invite
-                            </Button>
-                          )}
-                        </TableCell>
+                {loading ? (
+                  <div className="flex justify-center items-center h-40">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Website</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Joined</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {waitlistEntries.map((entry) => (
+                        <TableRow key={entry.id}>
+                          <TableCell>{entry.name}</TableCell>
+                          <TableCell>{entry.email}</TableCell>
+                          <TableCell>
+                            <a
+                              href={entry.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline"
+                            >
+                              {entry.website}
+                            </a>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                entry.status === "invited"
+                                  ? "default"
+                                  : "secondary"
+                              }
+                            >
+                              {entry.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {formatDate(new Date(entry.createdAt))}
+                          </TableCell>
+                          <TableCell>
+                            {entry.status !== "invited" && (
+                              <Button
+                                size="sm"
+                                onClick={() => sendInvite(entry.email)}
+                              >
+                                <Send className="mr-2 h-4 w-4" />
+                                Send Invite
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-
-        {/* Application Management Modal */}
-        {selectedApplication && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <Card className="w-full max-w-2xl">
-              <CardHeader>
-                <CardTitle>Manage Application</CardTitle>
-                <CardDescription>{selectedApplication.name} - {selectedApplication.position}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Email</Label>
-                    <p className="text-sm text-slate-600">{selectedApplication.email}</p>
-                  </div>
-                  <div>
-                    <Label>Phone</Label>
-                    <p className="text-sm text-slate-600">{selectedApplication.phone || 'Not provided'}</p>
-                  </div>
-                </div>
-                
-                {selectedApplication.website && (
-                  <div>
-                    <Label>Website</Label>
-                    <p className="text-sm text-slate-600">{selectedApplication.website}</p>
-                  </div>
-                )}
-                
-                {selectedApplication.coverLetter && (
-                  <div>
-                    <Label>Cover Letter</Label>
-                    <p className="text-sm text-slate-600 bg-slate-50 p-3 rounded">
-                      {selectedApplication.coverLetter}
-                    </p>
-                  </div>
-                )}
-                
-                <div>
-                  <Label htmlFor="status">Status</Label>
-                  <Select value={applicationStatus} onValueChange={setApplicationStatus}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="reviewed">Reviewed</SelectItem>
-                      <SelectItem value="contacted">Contacted</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="notes">Notes</Label>
-                  <Textarea
-                    id="notes"
-                    value={applicationNotes}
-                    onChange={(e) => setApplicationNotes(e.target.value)}
-                    placeholder="Add notes about this application..."
-                    rows={3}
-                  />
-                </div>
-                
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => setSelectedApplication(null)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={updateApplicationStatus}>
-                    Update Application
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </div>
+      </main>
     </div>
-  )
+  );
 }
