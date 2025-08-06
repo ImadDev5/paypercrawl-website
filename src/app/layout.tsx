@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,12 +16,21 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "PayPerCrawl - AI Content Monetization Platform",
-  description: "Turn AI bot traffic into revenue. PayPerCrawl detects AI bots crawling your content and converts them into paying customers. Built for WordPress with enterprise-grade security.",
-  keywords: ["AI monetization", "WordPress", "content protection", "bot detection", "revenue generation", "AI training data"],
+  description:
+    "Turn AI bot traffic into revenue. PayPerCrawl detects AI bots crawling your content and converts them into paying customers. Built for WordPress with enterprise-grade security.",
+  keywords: [
+    "AI monetization",
+    "WordPress",
+    "content protection",
+    "bot detection",
+    "revenue generation",
+    "AI training data",
+  ],
   authors: [{ name: "PayPerCrawl Team" }],
   openGraph: {
     title: "PayPerCrawl - AI Content Monetization Platform",
-    description: "Turn AI bot traffic into revenue with advanced bot detection and monetization",
+    description:
+      "Turn AI bot traffic into revenue with advanced bot detection and monetization",
     url: "https://paypercrawl.tech",
     siteName: "PayPerCrawl",
     type: "website",
@@ -28,7 +38,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "PayPerCrawl - AI Content Monetization Platform",
-    description: "Turn AI bot traffic into revenue with advanced bot detection and monetization",
+    description:
+      "Turn AI bot traffic into revenue with advanced bot detection and monetization",
   },
 };
 
@@ -42,7 +53,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
         <Toaster />
       </body>
     </html>
