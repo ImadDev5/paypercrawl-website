@@ -1,21 +1,6 @@
-/**
- * PayPerCrawl Website Global Styles
- * 
- * This file contains the global CSS variables and styles for the PayPerCrawl website,
- * including comprehensive dark mode support using OKLCH color space for better
- * color consistency and accessibility.
- * 
- * Features:
- * - Light and dark theme support
- * - OKLCH color space for future-proof colors
- * - Comprehensive component theming (buttons, cards, sidebars, charts)
- * - Accessibility-compliant contrast ratios
- */
-
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Custom dark mode variant for improved theme switching */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
