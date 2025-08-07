@@ -102,7 +102,7 @@ echo "PayPerCrawl Plugin - Coming Soon!";
             <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
               <Link
                 href="/"
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className="text-foreground hover:text-primary transition-colors font-medium"
               >
                 Home
               </Link>
