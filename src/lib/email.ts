@@ -1,23 +1,28 @@
-import { Resend } from 'resend'
-import { db } from './db'
+import { Resend } from "resend";
+import { db } from "./db";
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface EmailOptions {
-  to: string
-  subject: string
-  html: string
-  from?: string
+  to: string;
+  subject: string;
+  html: string;
+  from?: string;
 }
 
-async function sendEmail({ to, subject, html, from = 'PayPerCrawl <noreply@paypercrawl.tech>' }: EmailOptions) {
+async function sendEmail({
+  to,
+  subject,
+  html,
+  from = "PayPerCrawl <noreply@paypercrawl.tech>",
+}: EmailOptions) {
   try {
     const { data, error } = await resend.emails.send({
       from,
       to,
       subject,
       html,
-    })
+    });
 
     // Log email
     await db.emailLog.create({
@@ -25,38 +30,40 @@ async function sendEmail({ to, subject, html, from = 'PayPerCrawl <noreply@paype
         to,
         subject,
         body: html,
-        status: error ? 'failed' : 'sent',
-        provider: 'resend'
-      }
-    })
+        status: error ? "failed" : "sent",
+        provider: "resend",
+      },
+    });
 
     if (error) {
-      console.error('Email send error:', error)
-      console.error('Error details:', JSON.stringify(error, null, 2))
-      throw new Error(`Failed to send email: ${error.message || JSON.stringify(error)}`)
+      console.error("Email send error:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
+      throw new Error(
+        `Failed to send email: ${error.message || JSON.stringify(error)}`
+      );
     }
 
-    return data
+    return data;
   } catch (error) {
-    console.error('Email service error:', error)
-    
+    console.error("Email service error:", error);
+
     // Log failed email
     await db.emailLog.create({
       data: {
         to,
         subject,
         body: html,
-        status: 'failed',
-        provider: 'resend'
-      }
-    })
-    
-    throw error
+        status: "failed",
+        provider: "resend",
+      },
+    });
+
+    throw error;
   }
 }
 
 export async function sendApplicationConfirmation(email: string, name: string) {
-  const subject = 'Application Received - PayPerCrawl Beta'
+  const subject = "Application Received - PayPerCrawl Beta";
   const html = `
     <!DOCTYPE html>
     <html>
@@ -93,13 +100,17 @@ export async function sendApplicationConfirmation(email: string, name: string) {
       </div>
     </body>
     </html>
-  `
-  
-  return sendEmail({ to: email, subject, html })
+  `;
+
+  return sendEmail({ to: email, subject, html });
 }
 
-export async function sendWaitlistConfirmation(email: string, name: string, position: number) {
-  const subject = 'Welcome to PayPerCrawl Waitlist!'
+export async function sendWaitlistConfirmation(
+  email: string,
+  name: string,
+  position: number
+) {
+  const subject = "Welcome to PayPerCrawl Waitlist!";
   const html = `
     <!DOCTYPE html>
     <html>
@@ -139,15 +150,19 @@ export async function sendWaitlistConfirmation(email: string, name: string, posi
       </div>
     </body>
     </html>
-  `
-  
-  return sendEmail({ to: email, subject, html })
+  `;
+
+  return sendEmail({ to: email, subject, html });
 }
 
-export async function sendBetaInvite(email: string, name: string, inviteToken: string) {
-  const subject = 'Your PayPerCrawl Beta Access is Ready! 🚀'
-  const betaUrl = `${process.env.NEXT_PUBLIC_APP_URL}/beta?token=${inviteToken}`
-  
+export async function sendBetaInvite(
+  email: string,
+  name: string,
+  inviteToken: string
+) {
+  const subject = "Your PayPerCrawl Beta Access is Ready! 🚀";
+  const betaUrl = `${process.env.NEXT_PUBLIC_APP_URL}/?invited=true&token=${inviteToken}`;
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -191,13 +206,18 @@ export async function sendBetaInvite(email: string, name: string, inviteToken: s
       </div>
     </body>
     </html>
-  `
-  
-  return sendEmail({ to: email, subject, html })
+  `;
+
+  return sendEmail({ to: email, subject, html });
 }
 
-export async function sendContactNotification(name: string, email: string, subject: string, message: string) {
-  const emailSubject = `New Contact Form Submission: ${subject}`
+export async function sendContactNotification(
+  name: string,
+  email: string,
+  subject: string,
+  message: string
+) {
+  const emailSubject = `New Contact Form Submission: ${subject}`;
   const html = `
     <!DOCTYPE html>
     <html>
@@ -215,7 +235,7 @@ export async function sendContactNotification(name: string, email: string, subje
           <p><strong>Subject:</strong> ${subject}</p>
           <p><strong>Message:</strong></p>
           <div style="background: white; padding: 15px; border-radius: 4px; margin-top: 10px;">
-            ${message.replace(/\n/g, '<br>')}
+            ${message.replace(/\n/g, "<br>")}
           </div>
         </div>
         
@@ -223,14 +243,14 @@ export async function sendContactNotification(name: string, email: string, subje
       </div>
     </body>
     </html>
-  `
-  
+  `;
+
   // Send to admin email from environment or fallback
-  const adminEmail = process.env.ADMIN_EMAIL || 'imaduddin.dev@gmail.com'
+  const adminEmail = process.env.ADMIN_EMAIL || "imaduddin.dev@gmail.com";
 
   return sendEmail({
     to: adminEmail,
     subject: emailSubject,
-    html
-  })
+    html,
+  });
 }
