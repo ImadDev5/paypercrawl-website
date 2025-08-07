@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Shield,
   Users,
@@ -19,11 +21,20 @@ import {
   ArrowRight,
   Star,
   CheckCircle,
+  Menu,
+  X,
+  Home as HomeIcon,
+  Info,
+  BookOpen,
+  Briefcase,
+  Mail,
 } from "lucide-react";
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
 
 export default function AboutPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const team = [
     {
       name: "Executive Leadership",
@@ -165,6 +176,8 @@ export default function AboutPage() {
               <Shield className="h-8 w-8 text-primary" />
               <span className="text-xl font-bold">PayPerCrawl</span>
             </Link>
+
+            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               <Link
                 href="/"
@@ -192,13 +205,125 @@ export default function AboutPage() {
               </Link>
               <ModeToggle />
             </div>
+
+            {/* Mobile Navigation */}
+            <div className="md:hidden flex items-center space-x-2">
+              <ModeToggle />
+              <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-6 w-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="right"
+                  className="w-[320px] sm:w-[380px] p-0 bg-background/95 backdrop-blur-2xl border-l border-border/50 shadow-2xl"
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between p-6 border-b border-border/30 bg-background/80 backdrop-blur-xl">
+                    <div className="flex items-center space-x-2">
+                      <Shield className="h-6 w-6 text-primary drop-shadow-sm" />
+                      <span className="text-lg font-bold text-foreground drop-shadow-sm">
+                        PayPerCrawl
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Navigation */}
+                  <div className="flex flex-col h-full bg-background/70 backdrop-blur-md">
+                    <nav className="flex-1 p-6 bg-background/50 backdrop-blur-sm">
+                      <div className="space-y-1">
+                        <Link
+                          href="/"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <HomeIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-medium drop-shadow-sm">
+                            Home
+                          </span>
+                        </Link>
+                        <Link
+                          href="/features"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Star className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-medium drop-shadow-sm">
+                            Features
+                          </span>
+                        </Link>
+                        <Link
+                          href="/about"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-primary bg-primary/10 border border-primary/20 transition-all duration-200 group backdrop-blur-sm shadow-lg"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Info className="h-5 w-5 text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-semibold drop-shadow-sm">
+                            About
+                          </span>
+                        </Link>
+                        <Link
+                          href="/blog"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <BookOpen className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-medium drop-shadow-sm">
+                            Blog
+                          </span>
+                        </Link>
+                        <Link
+                          href="/careers"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Briefcase className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-medium drop-shadow-sm">
+                            Careers
+                          </span>
+                        </Link>
+                        <Link
+                          href="/contact"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Mail className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-medium drop-shadow-sm">
+                            Contact
+                          </span>
+                        </Link>
+                      </div>
+                    </nav>
+
+                    {/* CTA Section */}
+                    <div className="p-6 border-t border-border/40 bg-accent/30 backdrop-blur-lg">
+                      <div className="space-y-3">
+                        <p className="text-sm font-medium text-foreground drop-shadow-sm">
+                          Ready to monetize your content?
+                        </p>
+                        <Link
+                          href="/waitlist"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Button className="w-full bg-primary/90 hover:bg-primary text-primary-foreground font-semibold shadow-xl hover:shadow-2xl transition-all duration-200 backdrop-blur-sm border border-primary/20">
+                            Join Beta Program
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-primary text-primary-foreground">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24 xl:py-32">
           <div className="text-center">
             <Badge
               variant="secondary"
@@ -208,7 +333,10 @@ export default function AboutPage() {
                 <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
                 BETA PROGRAM
               </span>
-              About PayPerCrawl • 100% Revenue Share
+              <span className="hidden sm:inline">
+                {" "}
+                About PayPerCrawl • 100% Revenue Share
+              </span>
             </Badge>
             <h1 className="text-4xl lg:text-5xl font-bold mb-6">
               Building the Future of
