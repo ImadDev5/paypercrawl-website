@@ -45,11 +45,27 @@ export default function DashboardPage() {
 
   const generateApiKey = async () => {
     setIsGenerating(true);
-    // Simulate API key generation
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const newApiKey = `ppk_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
-    setApiKey(newApiKey);
-    setIsGenerating(false);
+    try {
+      const response = await fetch('/api/apikeys/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setApiKey(data.apiKey);
+      } else {
+        console.error('Failed to generate API key:', data.error);
+        // You could add error handling UI here
+      }
+    } catch (error) {
+      console.error('Error generating API key:', error);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const copyApiKey = async () => {
@@ -61,25 +77,10 @@ export default function DashboardPage() {
   };
 
   const downloadPlugin = () => {
-    // Create a mock download
+    // Download the actual plugin from the API
     const element = document.createElement("a");
-    const file = new Blob(
-      [
-        `<?php
-/*
-Plugin Name: PayPerCrawl WordPress Plugin
-Description: Detect and monetize AI bot traffic on your WordPress site
-Version: 1.0.0
-*/
-
-// Plugin code would go here
-echo "PayPerCrawl Plugin - Coming Soon!";
-?>`,
-      ],
-      { type: "text/plain" }
-    );
-    element.href = URL.createObjectURL(file);
-    element.download = "paypercrawl-plugin.php";
+    element.href = "/api/plugin/download";
+    element.download = "crawlguard-wp-paypercrawl.zip";
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -436,7 +437,7 @@ echo "PayPerCrawl Plugin - Coming Soon!";
               <div className="grid grid-cols-2 gap-4 p-4 bg-accent/20 rounded-lg">
                 <div>
                   <p className="text-xs text-muted-foreground">Version</p>
-                  <p className="font-semibold">1.0.0</p>
+                  <p className="font-semibold">2.0.0</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Size</p>
