@@ -56,6 +56,12 @@ export default function Home() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
               <Link
+                href="/"
+                className="text-primary font-semibold hover:text-primary/80 transition-colors"
+              >
+                Home
+              </Link>
+              <Link
                 href="/features"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
