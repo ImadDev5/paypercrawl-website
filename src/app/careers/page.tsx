@@ -31,6 +31,7 @@ import {
   Info,
   BookOpen,
   Briefcase,
+  LayoutDashboard,
 } from "lucide-react";
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -165,6 +166,12 @@ export default function CareersPage() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
             <Link
+              href="/"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Home
+            </Link>
+            <Link
               href="/features"
               className="text-muted-foreground transition-colors hover:text-foreground"
             >
@@ -184,6 +191,12 @@ export default function CareersPage() {
             </Link>
             <Link href="/careers" className="text-foreground">
               Careers
+            </Link>
+            <Link
+              href="/dashboard"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Dashboard
             </Link>
           </nav>
 
@@ -280,6 +293,16 @@ export default function CareersPage() {
                           <Mail className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
                           <span className="font-medium drop-shadow-sm">
                             Contact
+                          </span>
+                        </Link>
+                        <Link
+                          href="/dashboard"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <LayoutDashboard className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-medium drop-shadow-sm">
+                            Dashboard
                           </span>
                         </Link>
                       </div>

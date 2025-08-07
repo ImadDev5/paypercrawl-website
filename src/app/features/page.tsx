@@ -36,6 +36,7 @@ import {
   BookOpen,
   Briefcase,
   Mail,
+  LayoutDashboard,
 } from "lucide-react";
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -79,6 +80,18 @@ export default function FeaturesPage() {
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 Blog
+              </Link>
+              <Link
+                href="/careers"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Careers
+              </Link>
+              <Link
+                href="/dashboard"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Dashboard
               </Link>
               <Link href="/waitlist">
                 <Button>Join Beta</Button>
@@ -171,6 +184,16 @@ export default function FeaturesPage() {
                           <Mail className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
                           <span className="font-medium drop-shadow-sm">
                             Contact
+                          </span>
+                        </Link>
+                        <Link
+                          href="/dashboard"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <LayoutDashboard className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-medium drop-shadow-sm">
+                            Dashboard
                           </span>
                         </Link>
                       </div>

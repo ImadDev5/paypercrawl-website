@@ -28,6 +28,7 @@ import {
   BookOpen,
   Briefcase,
   Mail as MailIcon,
+  LayoutDashboard,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -143,6 +144,18 @@ export default function WaitlistPage() {
                 >
                   Blog
                 </Link>
+                <Link
+                  href="/careers"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Careers
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Dashboard
+                </Link>
                 <Link href="/">
                   <Button variant="outline" size="sm">
                     Back to Home
@@ -237,6 +250,16 @@ export default function WaitlistPage() {
                             <MailIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
                             <span className="font-medium drop-shadow-sm">
                               Contact
+                            </span>
+                          </Link>
+                          <Link
+                            href="/dashboard"
+                            className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            <LayoutDashboard className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                            <span className="font-medium drop-shadow-sm">
+                              Dashboard
                             </span>
                           </Link>
                           <div className="flex items-center space-x-3 px-4 py-3 rounded-xl text-primary bg-primary/10 border border-primary/20 backdrop-blur-sm shadow-lg">
