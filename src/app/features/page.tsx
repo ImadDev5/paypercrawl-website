@@ -1,51 +1,101 @@
-'use client'
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, Shield, Zap, DollarSign, Globe, Users, TrendingUp, Database, Code, Lock, BarChart3, Cloud, CheckCircle } from "lucide-react"
-import Link from "next/link"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  ArrowRight,
+  Shield,
+  Zap,
+  DollarSign,
+  Globe,
+  Users,
+  TrendingUp,
+  Database,
+  Code,
+  Lock,
+  BarChart3,
+  Cloud,
+  CheckCircle,
+  Twitter,
+  Github,
+  BrainCircuit,
+} from "lucide-react";
+import Link from "next/link";
+import { ModeToggle } from "@/components/mode-toggle";
+import { Progress } from "@/components/ui/progress";
 
 export default function FeaturesPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-2">
-              <Shield className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-slate-900">PayPerCrawl</span>
+              <Shield className="h-8 w-8 text-primary" />
+              <span className="text-xl font-bold text-foreground">
+                PayPerCrawl
+              </span>
             </Link>
             <div className="hidden md:flex items-center space-x-8">
-              <Link href="/" className="text-slate-600 hover:text-slate-900 transition-colors">Home</Link>
-              <Link href="/features" className="text-blue-600 font-medium">Features</Link>
-              <Link href="/about" className="text-slate-600 hover:text-slate-900 transition-colors">About</Link>
-              <Link href="/blog" className="text-slate-600 hover:text-slate-900 transition-colors">Blog</Link>
-              <Link href="/waitlist"><Button className="bg-purple-600 hover:bg-purple-700">Join Beta</Button></Link>
+              <Link
+                href="/"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Home
+              </Link>
+              <Link href="/features" className="text-primary font-medium">
+                Features
+              </Link>
+              <Link
+                href="/about"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                About
+              </Link>
+              <Link
+                href="/blog"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Blog
+              </Link>
+              <Link href="/waitlist">
+                <Button>Join Beta</Button>
+              </Link>
+              <ModeToggle />
             </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      <section className="relative overflow-hidden bg-primary text-primary-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="text-center">
-            <Badge variant="secondary" className="mb-4 bg-white/20 text-white border-white/30">
+            <Badge variant="secondary" className="mb-4">
               <span className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
+                <span className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse"></span>
                 BETA PROGRAM
               </span>
               Technical Excellence • 100% Revenue Share
             </Badge>
             <h1 className="text-4xl lg:text-5xl font-bold mb-6">
-              Built for Performance, 
-              <span className="text-blue-200"> Designed for Publishers</span>
+              Built for Performance,
+              <span className="text-primary-foreground/80">
+                {" "}
+                Designed for Publishers
+              </span>
             </h1>
-            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Discover the powerful features that make PayPerCrawl the leading AI bot monetization 
-              platform for WordPress publishers
+            <p className="text-xl text-primary-foreground/90 mb-8 max-w-3xl mx-auto">
+              Discover the powerful features that make PayPerCrawl the leading
+              AI bot monetization platform for WordPress publishers
             </p>
           </div>
         </div>
@@ -55,76 +105,79 @@ export default function FeaturesPage() {
       <section className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
               Core Features
             </h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Everything you need to monetize AI bot traffic on your WordPress site
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Everything you need to monetize AI bot traffic on your WordPress
+              site
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="shadow-lg hover:shadow-xl transition-shadow dark:bg-card">
               <CardHeader>
-                <Zap className="h-12 w-12 text-blue-600 mb-4" />
+                <Zap className="h-12 w-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
                   Real-time Detection
                   <Badge variant="secondary">95% Accuracy</Badge>
                 </CardTitle>
                 <CardDescription>
-                  Advanced AI bot identification using machine learning algorithms running at the edge
+                  Advanced AI bot identification using machine learning
+                  algorithms running at the edge
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-sm text-slate-600">
+                <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Instant bot identification
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Machine learning powered
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Continuous model updates
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="shadow-lg hover:shadow-xl transition-shadow dark:bg-card">
               <CardHeader>
-                <DollarSign className="h-12 w-12 text-green-600 mb-4" />
+                <DollarSign className="h-12 w-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
                   Micro-monetization
                   <Badge variant="secondary">HTTP 402</Badge>
                 </CardTitle>
                 <CardDescription>
-                  Revolutionary revenue model using industry-standard payment protocols
+                  Revolutionary revenue model using industry-standard payment
+                  protocols
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-sm text-slate-600">
+                <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Per-request billing
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     100% revenue share
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Instant payouts
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="shadow-lg hover:shadow-xl transition-shadow dark:bg-card">
               <CardHeader>
-                <Globe className="h-12 w-12 text-purple-600 mb-4" />
+                <Globe className="h-12 w-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
                   WordPress Integration
                   <Badge variant="secondary">5-Min Setup</Badge>
@@ -134,55 +187,56 @@ export default function FeaturesPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-sm text-slate-600">
+                <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Elementor compatible
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     WooCommerce support
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Caching plugin friendly
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="shadow-lg hover:shadow-xl transition-shadow dark:bg-card">
               <CardHeader>
-                <Shield className="h-12 w-12 text-red-600 mb-4" />
+                <Shield className="h-12 w-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
                   Edge Computing
                   <Badge variant="secondary">Cloudflare</Badge>
                 </CardTitle>
                 <CardDescription>
-                  Global performance optimization using Cloudflare Workers infrastructure
+                  Global performance optimization using Cloudflare Workers
+                  infrastructure
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-sm text-slate-600">
+                <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     99% cost advantage
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Global CDN network
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Sub-100ms responses
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="shadow-lg hover:shadow-xl transition-shadow dark:bg-card">
               <CardHeader>
-                <TrendingUp className="h-12 w-12 text-orange-600 mb-4" />
+                <TrendingUp className="h-12 w-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
                   Scalable Architecture
                   <Badge variant="secondary">10M+ Requests</Badge>
@@ -192,26 +246,26 @@ export default function FeaturesPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-sm text-slate-600">
+                <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Auto-scaling workers
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     99.9% uptime SLA
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Real-time analytics
                   </li>
                 </ul>
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className="shadow-lg hover:shadow-xl transition-shadow dark:bg-card">
               <CardHeader>
-                <Users className="h-12 w-12 text-indigo-600 mb-4" />
+                <Users className="h-12 w-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
                   AI Marketplace
                   <Badge variant="secondary">Coming Soon</Badge>
@@ -221,17 +275,17 @@ export default function FeaturesPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-sm text-slate-600">
+                <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Premium AI partnerships
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Data licensing deals
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                     Revenue optimization
                   </li>
                 </ul>
@@ -242,177 +296,159 @@ export default function FeaturesPage() {
       </section>
 
       {/* Technical Specifications */}
-      <section className="bg-slate-50 py-24">
+      <section className="py-24 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
               Technical Specifications
             </h2>
-            <p className="text-xl text-slate-600">
-              Built with cutting-edge technology for maximum performance and reliability
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              PayPerCrawl is built on a modern, scalable, and secure technology
+              stack
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <Code className="h-12 w-12 text-blue-600 mb-4" />
-                <CardTitle>Architecture</CardTitle>
-                <CardDescription>
-                  Modern, serverless architecture designed for scale
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 text-sm">
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">Platform</span>
-                    <span className="font-medium">Cloudflare Workers</span>
+          <div className="bg-card rounded-lg shadow-lg p-8">
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="text-2xl font-bold text-foreground mb-4">
+                  Key Technologies
+                </h3>
+                <ul className="space-y-4">
+                  <li className="flex items-start">
+                    <div className="p-2 bg-primary/10 rounded-full mr-4">
+                      <Cloud className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-foreground">
+                        Cloudflare Workers
+                      </h4>
+                      <p className="text-muted-foreground">
+                        Serverless execution environment for high-performance,
+                        low-latency bot detection.
+                      </p>
+                    </div>
                   </li>
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">Storage</span>
-                    <span className="font-medium">Cloudflare KV + D1</span>
+                  <li className="flex items-start">
+                    <div className="p-2 bg-primary/10 rounded-full mr-4">
+                      <BrainCircuit className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-foreground">
+                        Machine Learning
+                      </h4>
+                      <p className="text-muted-foreground">
+                        Proprietary models for bot detection, continuously
+                        trained on new data.
+                      </p>
+                    </div>
                   </li>
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">CDN</span>
-                    <span className="font-medium">Global Cloudflare Network</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">Protocol</span>
-                    <span className="font-medium">HTTP 402 Payment Required</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <BarChart3 className="h-12 w-12 text-green-600 mb-4" />
-                <CardTitle>Performance</CardTitle>
-                <CardDescription>
-                  Optimized for speed and reliability
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 text-sm">
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">Response Time</span>
-                    <span className="font-medium">&lt;100ms</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">Uptime</span>
-                    <span className="font-medium">99.9%</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">Throughput</span>
-                    <span className="font-medium">10M+ requests/day</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">Detection Accuracy</span>
-                    <span className="font-medium">95%+</span>
+                  <li className="flex items-start">
+                    <div className="p-2 bg-primary/10 rounded-full mr-4">
+                      <Lock className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-foreground">
+                        HTTP 402 Protocol
+                      </h4>
+                      <p className="text-muted-foreground">
+                        Native browser payment requests for a seamless user
+                        experience.
+                      </p>
+                    </div>
                   </li>
                 </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <Lock className="h-12 w-12 text-red-600 mb-4" />
-                <CardTitle>Security</CardTitle>
-                <CardDescription>
-                  Enterprise-grade security for your peace of mind
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 text-sm">
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">Data Encryption</span>
-                    <span className="font-medium">TLS 1.3</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">Authentication</span>
-                    <span className="font-medium">OAuth 2.0 + JWT</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">Compliance</span>
-                    <span className="font-medium">GDPR, CCPA</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">Audit Logs</span>
-                    <span className="font-medium">Real-time monitoring</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <Database className="h-12 w-12 text-purple-600 mb-4" />
-                <CardTitle>Integration</CardTitle>
-                <CardDescription>
-                  Seamless integration with your existing stack
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 text-sm">
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">WordPress</span>
-                    <span className="font-medium">5.0+ compatible</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">Payment</span>
-                    <span className="font-medium">Stripe Connect</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">Analytics</span>
-                    <span className="font-medium">Real-time dashboard</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span className="text-slate-600">API</span>
-                    <span className="font-medium">RESTful + Webhooks</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-foreground mb-4">
+                  Performance Metrics
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Bot Detection Latency
+                      </span>
+                      <span className="text-sm font-medium text-foreground">
+                        &lt;100ms
+                      </span>
+                    </div>
+                    <Progress value={95} className="w-full" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Uptime SLA
+                      </span>
+                      <span className="text-sm font-medium text-foreground">
+                        99.9%
+                      </span>
+                    </div>
+                    <Progress value={99.9} className="w-full" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Accuracy
+                      </span>
+                      <span className="text-sm font-medium text-foreground">
+                        &gt;95%
+                      </span>
+                    </div>
+                    <Progress value={95} className="w-full" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
-            Ready to Get Started?
+          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
+            Ready to Stop Unpaid AI Traffic?
           </h2>
-          <p className="text-xl text-slate-600 mb-8">
-            Join thousands of WordPress publishers monetizing their content with PayPerCrawl
+          <p className="text-xl text-muted-foreground mb-8">
+            Join our waitlist to get early access to PayPerCrawl and start
+            monetizing your content.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="text-lg px-8 py-3">
-              Start Free Trial
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-3">
-              View Documentation
-            </Button>
-          </div>
+          <Button size="lg" className="text-lg">
+            Request Early Access
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <Shield className="h-8 w-8 text-blue-400" />
-              <span className="text-xl font-bold">PayPerCrawl</span>
-            </div>
-            <div className="text-slate-400 text-center md:text-right">
-              <p>&copy; 2025 PayPerCrawl. All rights reserved.</p>
-              <p className="text-sm mt-1">The Cloudflare for WordPress</p>
+      <footer className="bg-background border-t">
+        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center">
+            <p className="text-muted-foreground">
+              &copy; 2024 PayPerCrawl. All rights reserved.
+            </p>
+            <div className="flex items-center space-x-4">
+              <Link
+                href="/admin"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Admin
+              </Link>
+              <Link
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Twitter className="h-5 w-5" />
+              </Link>
+              <Link
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Github className="h-5 w-5" />
+              </Link>
             </div>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }

@@ -1,18 +1,36 @@
-'use client'
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Shield, Calendar, User, ArrowLeft, Clock, Share2, BookOpen, ChevronRight } from "lucide-react"
-import Link from "next/link"
-import { notFound } from "next/navigation"
+import { use } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Shield,
+  Calendar,
+  User,
+  ArrowLeft,
+  Clock,
+  Share2,
+  BookOpen,
+  ChevronRight,
+} from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ModeToggle } from "@/components/mode-toggle";
 
 // Blog post data with full content
 const blogPosts = {
   "ai-revolutionizing-content-revenue": {
     id: "ai-revolutionizing-content-revenue",
     title: "How AI is Revolutionizing Content Revenue Models",
-    excerpt: "The shift from ad-based revenue to AI licensing: How ChatGPT and Perplexity are changing the way publishers monetize content.",
+    excerpt:
+      "The shift from ad-based revenue to AI licensing: How ChatGPT and Perplexity are changing the way publishers monetize content.",
     author: "Md Imad",
     date: "July 31, 2025",
     readTime: "8 min read",
@@ -48,12 +66,13 @@ const blogPosts = {
       <p>The transition to AI content licensing doesn't happen overnight, but early adopters will have significant advantages. Publishers who start monetizing AI traffic now will be better positioned as this market matures.</p>
       
       <p>PayPerCrawl's beta program offers 100% revenue share, making it risk-free to start experimenting with AI monetization alongside your existing revenue streams.</p>
-    `
+    `,
   },
   "blog-readers-to-ai-models": {
     id: "blog-readers-to-ai-models",
     title: "From Blog Readers to AI Models: The New Attention Economy",
-    excerpt: "Understanding how AI assistants are becoming the primary consumers of content and what it means for publisher revenue streams.",
+    excerpt:
+      "Understanding how AI assistants are becoming the primary consumers of content and what it means for publisher revenue streams.",
     author: "Md Imad",
     date: "July 31, 2025",
     readTime: "6 min read",
@@ -82,12 +101,13 @@ const blogPosts = {
       </ul>
       
       <p>The future belongs to publishers who can successfully serve both audiences.</p>
-    `
+    `,
   },
   "cloudflare-http-402-payment-layer": {
     id: "cloudflare-http-402-payment-layer",
     title: "Cloudflare's HTTP 402: Building the Payment Layer for AI Content",
-    excerpt: "How Cloudflare's Pay-Per-Crawl initiative is creating the infrastructure for the future of content monetization.",
+    excerpt:
+      "How Cloudflare's Pay-Per-Crawl initiative is creating the infrastructure for the future of content monetization.",
     author: "Md Imad",
     date: "July 31, 2025",
     readTime: "7 min read",
@@ -113,12 +133,13 @@ const blogPosts = {
       <p>When an AI bot is detected, PayPerCrawl returns an HTTP 402 status with payment instructions. The bot can then choose to pay for access or move on to other sources. This creates a fair marketplace for content.</p>
 
       <p>The beauty of this system is that it's completely transparent to human users—they continue to access content normally while AI bots contribute to your revenue stream.</p>
-    `
+    `,
   },
   "decline-ad-revenue-ai-licensing": {
     id: "decline-ad-revenue-ai-licensing",
     title: "The Decline of Ad Revenue: Why AI Licensing is the Future",
-    excerpt: "As users shift from traditional browsing to AI queries, publishers need new monetization strategies beyond display advertising.",
+    excerpt:
+      "As users shift from traditional browsing to AI queries, publishers need new monetization strategies beyond display advertising.",
     author: "Md Imad",
     date: "July 31, 2025",
     readTime: "9 min read",
@@ -138,39 +159,62 @@ const blogPosts = {
       <p>Publishers don't need to abandon advertising entirely. The smart strategy is to diversify revenue streams by adding AI licensing alongside existing monetization methods.</p>
 
       <p>PayPerCrawl makes this transition seamless by automatically detecting and monetizing AI traffic while preserving your existing ad setup for human visitors.</p>
-    `
-  }
-}
+    `,
+  },
+};
 
 interface BlogPostPageProps {
-  params: {
-    slug: string
-  }
+  params: Promise<{
+    slug: string;
+  }>;
 }
 
 export default function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = blogPosts[params.slug as keyof typeof blogPosts]
-  
+  const { slug } = use(params);
+  const post = blogPosts[slug as keyof typeof blogPosts];
+
   if (!post) {
-    notFound()
+    notFound();
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-2">
-              <Shield className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-slate-900">PayPerCrawl</span>
+              <Shield className="h-8 w-8 text-primary" />
+              <span className="text-xl font-bold text-foreground">
+                PayPerCrawl
+              </span>
             </Link>
             <div className="hidden md:flex items-center space-x-8">
-              <Link href="/" className="text-slate-600 hover:text-slate-900 transition-colors">Home</Link>
-              <Link href="/features" className="text-slate-600 hover:text-slate-900 transition-colors">Features</Link>
-              <Link href="/about" className="text-slate-600 hover:text-slate-900 transition-colors">About</Link>
-              <Link href="/blog" className="text-blue-600 font-medium">Blog</Link>
-              <Link href="/waitlist"><Button className="bg-purple-600 hover:bg-purple-700">Join Beta</Button></Link>
+              <Link
+                href="/"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Home
+              </Link>
+              <Link
+                href="/features"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Features
+              </Link>
+              <Link
+                href="/about"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                About
+              </Link>
+              <Link href="/blog" className="text-primary font-medium">
+                Blog
+              </Link>
+              <Link href="/waitlist">
+                <Button>Join Beta</Button>
+              </Link>
+              <ModeToggle />
             </div>
           </div>
         </div>
@@ -178,12 +222,16 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
       {/* Breadcrumb */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center gap-2 text-sm text-slate-600 mb-8">
-          <Link href="/" className="hover:text-slate-900">Home</Link>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
+          <Link href="/" className="hover:text-foreground">
+            Home
+          </Link>
           <ChevronRight className="h-4 w-4" />
-          <Link href="/blog" className="hover:text-slate-900">Blog</Link>
+          <Link href="/blog" className="hover:text-foreground">
+            Blog
+          </Link>
           <ChevronRight className="h-4 w-4" />
-          <span className="text-slate-900">{post.title}</span>
+          <span className="text-foreground">{post.title}</span>
         </div>
       </div>
 
@@ -197,17 +245,17 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               </Badge>
             ))}
           </div>
-          
-          <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
+
+          <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
             {post.title}
           </h1>
-          
-          <p className="text-xl text-slate-600 mb-8 leading-relaxed">
+
+          <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
             {post.excerpt}
           </p>
-          
-          <div className="flex items-center justify-between border-t border-b border-slate-200 py-6">
-            <div className="flex items-center gap-6 text-sm text-slate-600">
+
+          <div className="flex items-center justify-between border-t border-b border-border py-6">
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 <span>{post.author}</span>
@@ -221,7 +269,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 <span>{post.readTime}</span>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm">
                 <Share2 className="h-4 w-4 mr-2" />
@@ -232,17 +280,20 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         </header>
 
         {/* Article Content */}
-        <div className="prose prose-lg prose-slate max-w-none mb-16
-                       prose-headings:text-slate-900 prose-headings:font-bold
+        <div
+          className="prose prose-lg max-w-none mb-16
+                       prose-headings:text-foreground prose-headings:font-bold
                        prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-6
-                       prose-p:text-slate-700 prose-p:leading-relaxed prose-p:mb-6
-                       prose-ul:my-6 prose-li:text-slate-700 prose-li:mb-2
-                       prose-strong:text-slate-900 prose-strong:font-semibold">
+                       prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-6
+                       prose-ul:my-6 prose-li:text-muted-foreground prose-li:mb-2
+                       prose-strong:text-foreground prose-strong:font-semibold
+                       dark:prose-invert"
+        >
           <div dangerouslySetInnerHTML={{ __html: post.content }} />
         </div>
 
         {/* Article Footer */}
-        <footer className="border-t border-slate-200 pt-12 mb-16">
+        <footer className="border-t border-border pt-12 mb-16">
           <div className="flex items-center justify-between">
             <Link href="/blog">
               <Button variant="outline">
@@ -250,9 +301,11 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 Back to Blog
               </Button>
             </Link>
-            
+
             <div className="flex items-center gap-4">
-              <span className="text-sm text-slate-600">Share this article:</span>
+              <span className="text-sm text-muted-foreground">
+                Share this article:
+              </span>
               <Button variant="outline" size="sm">
                 <Share2 className="h-4 w-4" />
               </Button>
@@ -262,44 +315,54 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       </article>
 
       {/* Related Articles */}
-      <section className="bg-slate-50 py-16">
+      <section className="bg-muted/30 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-8">Related Articles</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-8">
+            Related Articles
+          </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Object.values(blogPosts).filter(p => p.id !== post.id).slice(0, 3).map((relatedPost) => (
-              <Card key={relatedPost.id} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-2 mb-3">
-                    {relatedPost.tags.slice(0, 2).map((tag, tagIndex) => (
-                      <Badge key={tagIndex} variant="secondary" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  <Link href={`/blog/${relatedPost.id}`}>
-                    <CardTitle className="text-lg hover:text-blue-600 transition-colors cursor-pointer">
-                      {relatedPost.title}
-                    </CardTitle>
-                  </Link>
-                  <CardDescription>
-                    {relatedPost.excerpt}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Clock className="h-4 w-4" />
-                      <span>{relatedPost.readTime}</span>
+            {Object.values(blogPosts)
+              .filter((p) => p.id !== post.id)
+              .slice(0, 3)
+              .map((relatedPost) => (
+                <Card
+                  key={relatedPost.id}
+                  className="border-0 shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  <CardHeader>
+                    <div className="flex items-center gap-2 mb-3">
+                      {relatedPost.tags.slice(0, 2).map((tag, tagIndex) => (
+                        <Badge
+                          key={tagIndex}
+                          variant="secondary"
+                          className="text-xs"
+                        >
+                          {tag}
+                        </Badge>
+                      ))}
                     </div>
                     <Link href={`/blog/${relatedPost.id}`}>
-                      <Button variant="ghost" size="sm">
-                        Read More
-                      </Button>
+                      <CardTitle className="text-lg hover:text-primary transition-colors cursor-pointer">
+                        {relatedPost.title}
+                      </CardTitle>
                     </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <CardDescription>{relatedPost.excerpt}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Clock className="h-4 w-4" />
+                        <span>{relatedPost.readTime}</span>
+                      </div>
+                      <Link href={`/blog/${relatedPost.id}`}>
+                        <Button variant="ghost" size="sm">
+                          Read More
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
           </div>
         </div>
       </section>
@@ -307,16 +370,16 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       {/* CTA Section */}
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-12 text-white">
-            <BookOpen className="h-12 w-12 mx-auto mb-6 text-blue-200" />
+          <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-12 text-primary-foreground">
+            <BookOpen className="h-12 w-12 mx-auto mb-6 text-primary-foreground/80" />
             <h2 className="text-3xl font-bold mb-4">
               Ready to Monetize Your Content?
             </h2>
-            <p className="text-xl text-blue-100 mb-8">
+            <p className="text-xl text-primary-foreground/80 mb-8">
               Join our beta program and start earning from AI bot traffic today
             </p>
             <Link href="/waitlist">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
+              <Button size="lg" variant="secondary">
                 Join Beta Program
               </Button>
             </Link>
@@ -325,14 +388,16 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-12">
+      <footer className="bg-background border-t border-border py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <Shield className="h-8 w-8 text-blue-400" />
-              <span className="text-xl font-bold">PayPerCrawl</span>
+              <Shield className="h-8 w-8 text-primary" />
+              <span className="text-xl font-bold text-foreground">
+                PayPerCrawl
+              </span>
             </div>
-            <div className="text-slate-400 text-center md:text-right">
+            <div className="text-muted-foreground text-center md:text-right">
               <p>&copy; 2025 PayPerCrawl. All rights reserved.</p>
               <p className="text-sm mt-1">The Cloudflare for WordPress</p>
             </div>
@@ -340,5 +405,5 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         </div>
       </footer>
     </div>
-  )
+  );
 }
