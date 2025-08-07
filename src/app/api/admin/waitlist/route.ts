@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
         })
       } else if (emails && Array.isArray(emails)) {
         // Bulk invite
-        const results = []
+        const results: any[] = []
         
         for (const emailAddr of emails) {
           try {
