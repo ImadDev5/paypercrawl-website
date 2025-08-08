@@ -419,13 +419,19 @@ class CrawlGuard_Admin {
     }
     
     private function validate_api_key($api_key) {
-        // In production, this would make a real API call to PayPerCrawl
-        // For now, we'll do a simple format check
-        if (strpos($api_key, 'ppk_') === 0 && strlen($api_key) > 10) {
-            // Simulate API validation (in production, call the actual API)
+        // Use the API client to validate with Cloudflare Workers endpoint
+        require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-api-client.php';
+        
+        $api_client = new CrawlGuard_API_Client();
+        $is_valid = $api_client->validate_api_key($api_key);
+        
+        // If Cloudflare validation fails or is unavailable, check format as fallback
+        if (!$is_valid && strpos($api_key, 'ppk_') === 0 && strlen($api_key) > 10) {
+            // Allow format-valid keys as a fallback when API is unavailable
             return true;
         }
-        return false;
+        
+        return $is_valid;
     }
     
     public function enqueue_admin_scripts($hook) {
