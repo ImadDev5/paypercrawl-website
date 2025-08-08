@@ -41,11 +41,15 @@ export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background selection:bg-primary/20 selection:text-primary-foreground relative">
+      {/* Global decorative gradients */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute inset-x-0 top-0 h-[750px] bg-[radial-gradient(ellipse_at_top,theme(colors.primary)/18%,transparent_70%)] opacity-80 dark:opacity-60" />
+      </div>
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
+      <nav className="sticky top-0 z-50 bg-background/80 supports-[backdrop-filter]:backdrop-blur-xl border-b border-border/60 backdrop-saturate-150">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-16 gap-4">
             <div className="flex items-center space-x-2">
               <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
               <span className="text-lg sm:text-xl font-bold text-foreground">
@@ -54,7 +58,7 @@ export default function Home() {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
+            <div className="hidden md:flex items-center space-x-5 lg:space-x-7 xl:space-x-9">
               <Link
                 href="/"
                 className="text-primary font-semibold hover:text-primary/80 transition-colors"
@@ -92,7 +96,13 @@ export default function Home() {
                 Dashboard
               </Link>
               <Link href="/waitlist">
-                <Button size="sm">Join Beta</Button>
+                <Button
+                  size="sm"
+                  elevation="md"
+                  className="shadow-sm hover:shadow-md"
+                >
+                  Join Beta
+                </Button>
               </Link>
               <ModeToggle />
             </div>
@@ -102,7 +112,12 @@ export default function Home() {
               <ModeToggle />
               <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="sm" className="p-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="p-2 h-9 w-9"
+                    elevation="none"
+                  >
                     <Menu className="h-5 w-5" />
                     <span className="sr-only">Toggle menu</span>
                   </Button>
@@ -208,7 +223,10 @@ export default function Home() {
                           href="/waitlist"
                           onClick={() => setIsMenuOpen(false)}
                         >
-                          <Button className="w-full bg-primary/90 hover:bg-primary text-primary-foreground font-semibold shadow-xl hover:shadow-2xl transition-all duration-200 backdrop-blur-sm border border-primary/20">
+                          <Button
+                            elevation="md"
+                            className="w-full bg-primary/90 hover:bg-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all duration-200 backdrop-blur-sm border border-primary/25"
+                          >
                             Join Beta Program
                             <ArrowRight className="ml-2 h-4 w-4" />
                           </Button>
@@ -225,7 +243,12 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-32">
+        {/* Decorative radial gradient background (adapts to theme) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(circle_at_center,white,transparent_70%)] bg-[radial-gradient(circle_at_center,theme(colors.primary)/12%,transparent_70%)]"
+        ></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
           <div className="text-center">
             <Badge variant="secondary" className="mb-4 text-xs sm:text-sm">
               <span className="flex items-center gap-2">
@@ -237,11 +260,11 @@ export default function Home() {
                 Limited Access • 100% Revenue Share
               </span>
             </Badge>
-            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-foreground mb-4 sm:mb-6 leading-tight">
+            <h1 className="text-balance text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground mb-4 sm:mb-6 leading-tight">
               <span className="block sm:inline">Monetize Your Content</span>
               <span className="text-primary block sm:inline"> Risk-Free</span>
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto px-4 sm:px-0">
+            <p className="text-pretty text-base sm:text-xl lg:text-[1.35rem] text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto px-2 sm:px-0">
               Join our exclusive beta program and keep 100% of all revenue
               generated. PayPerCrawl turns AI bot traffic into income with our
               simple WordPress plugin.
@@ -250,7 +273,8 @@ export default function Home() {
               <Link href="/waitlist">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3"
+                  elevation="md"
+                  className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3 shadow-md hover:shadow-lg"
                 >
                   Apply for Beta Access
                   <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
@@ -258,8 +282,9 @@ export default function Home() {
               </Link>
               <Link href="/about">
                 <Button
-                  variant="outline"
+                  variant="subtle"
                   size="lg"
+                  elevation="sm"
                   className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3"
                 >
                   Learn More
@@ -271,9 +296,9 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="bg-secondary text-secondary-foreground py-12 sm:py-16">
+      <section className="bg-secondary/60 text-secondary-foreground py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
             <div className="text-center">
               <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">
                 75M+
@@ -322,8 +347,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            <Card className="shadow-lg dark:bg-card">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8">
+            <Card className="shadow-lg dark:bg-card transition hover:shadow-xl hover:-translate-y-0.5 focus-within:shadow-xl focus-within:-translate-y-0.5 motion-safe:duration-300">
               <CardHeader className="text-center p-4 sm:p-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -338,7 +363,7 @@ export default function Home() {
               </CardHeader>
             </Card>
 
-            <Card className="shadow-lg dark:bg-card">
+            <Card className="shadow-lg dark:bg-card transition hover:shadow-xl hover:-translate-y-0.5 focus-within:shadow-xl focus-within:-translate-y-0.5 motion-safe:duration-300">
               <CardHeader className="text-center p-4 sm:p-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -352,7 +377,7 @@ export default function Home() {
               </CardHeader>
             </Card>
 
-            <Card className="shadow-lg dark:bg-card">
+            <Card className="shadow-lg dark:bg-card transition hover:shadow-xl hover:-translate-y-0.5 focus-within:shadow-xl focus-within:-translate-y-0.5 motion-safe:duration-300">
               <CardHeader className="text-center p-4 sm:p-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Zap className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -367,7 +392,7 @@ export default function Home() {
               </CardHeader>
             </Card>
 
-            <Card className="shadow-lg dark:bg-card">
+            <Card className="shadow-lg dark:bg-card transition hover:shadow-xl hover:-translate-y-0.5 focus-within:shadow-xl focus-within:-translate-y-0.5 motion-safe:duration-300">
               <CardHeader className="text-center p-4 sm:p-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -397,8 +422,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            <Card className="shadow-lg dark:bg-card">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
+            <Card className="shadow-lg dark:bg-card transition hover:border-primary/30 hover:shadow-xl focus-within:shadow-xl motion-safe:duration-300">
               <CardHeader className="p-4 sm:p-6">
                 <Zap className="h-10 w-10 sm:h-12 sm:w-12 text-primary mb-4" />
                 <CardTitle className="text-lg sm:text-xl">
@@ -411,7 +436,7 @@ export default function Home() {
               </CardHeader>
             </Card>
 
-            <Card className="shadow-lg dark:bg-card">
+            <Card className="shadow-lg dark:bg-card transition hover:border-primary/30 hover:shadow-xl focus-within:shadow-xl motion-safe:duration-300">
               <CardHeader className="p-4 sm:p-6">
                 <DollarSign className="h-10 w-10 sm:h-12 sm:w-12 text-primary mb-4" />
                 <CardTitle className="text-lg sm:text-xl">
@@ -424,7 +449,7 @@ export default function Home() {
               </CardHeader>
             </Card>
 
-            <Card className="shadow-lg dark:bg-card">
+            <Card className="shadow-lg dark:bg-card transition hover:border-primary/30 hover:shadow-xl focus-within:shadow-xl motion-safe:duration-300">
               <CardHeader className="p-4 sm:p-6">
                 <Globe className="h-10 w-10 sm:h-12 sm:w-12 text-primary mb-4" />
                 <CardTitle className="text-lg sm:text-xl">
@@ -437,7 +462,7 @@ export default function Home() {
               </CardHeader>
             </Card>
 
-            <Card className="shadow-lg dark:bg-card">
+            <Card className="shadow-lg dark:bg-card transition hover:border-primary/30 hover:shadow-xl focus-within:shadow-xl motion-safe:duration-300">
               <CardHeader className="p-4 sm:p-6">
                 <Shield className="h-10 w-10 sm:h-12 sm:w-12 text-primary mb-4" />
                 <CardTitle className="text-lg sm:text-xl">
@@ -450,7 +475,7 @@ export default function Home() {
               </CardHeader>
             </Card>
 
-            <Card className="shadow-lg dark:bg-card">
+            <Card className="shadow-lg dark:bg-card transition hover:border-primary/30 hover:shadow-xl focus-within:shadow-xl motion-safe:duration-300">
               <CardHeader className="p-4 sm:p-6">
                 <TrendingUp className="h-10 w-10 sm:h-12 sm:w-12 text-primary mb-4" />
                 <CardTitle className="text-lg sm:text-xl">
@@ -463,7 +488,7 @@ export default function Home() {
               </CardHeader>
             </Card>
 
-            <Card className="shadow-lg dark:bg-card">
+            <Card className="shadow-lg dark:bg-card transition hover:border-primary/30 hover:shadow-xl focus-within:shadow-xl motion-safe:duration-300">
               <CardHeader className="p-4 sm:p-6">
                 <Users className="h-10 w-10 sm:h-12 sm:w-12 text-primary mb-4" />
                 <CardTitle className="text-lg sm:text-xl">
@@ -491,7 +516,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
             <div className="order-2 lg:order-1">
               <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">
                 Infrastructure Arbitrage
@@ -537,7 +562,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <Card className="shadow-lg dark:bg-card order-1 lg:order-2">
+            <Card className="shadow-lg dark:bg-card order-1 lg:order-2 transition hover:shadow-xl motion-safe:duration-300">
               <CardHeader className="p-4 sm:p-6">
                 <CardTitle className="text-lg sm:text-xl">
                   Market Validation
@@ -597,7 +622,7 @@ export default function Home() {
               content.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8 text-center">
             <div className="flex flex-col items-center">
               <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 sm:mb-6">
                 <DownloadCloud className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
@@ -639,7 +664,11 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-primary/5 border-t border-border">
+      <section className="bg-primary/5 border-t border-border relative overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_20%,theme(colors.primary)/20%,transparent_65%)] opacity-70"
+        />
         <div className="max-w-4xl mx-auto text-center py-16 sm:py-20 px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground mb-4 sm:mb-6">
             Ready to reclaim your content's value?
@@ -650,7 +679,11 @@ export default function Home() {
             monetization.
           </p>
           <Link href="/waitlist">
-            <Button size="lg" className="text-base sm:text-lg w-full sm:w-auto">
+            <Button
+              size="lg"
+              elevation="md"
+              className="text-base sm:text-lg w-full sm:w-auto px-8 shadow-md hover:shadow-lg"
+            >
               Join the Waitlist
               <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
@@ -659,9 +692,9 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-background border-t border-border">
+      <footer className="bg-background/95 backdrop-blur supports-[backdrop-filter]:backdrop-blur-md border-t border-border/60">
         <div className="max-w-7xl mx-auto py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 sm:gap-8">
             <div className="space-y-3 sm:space-y-4">
               <h3 className="text-xs sm:text-sm font-semibold text-muted-foreground tracking-wider uppercase">
                 Solutions
