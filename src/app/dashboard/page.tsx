@@ -46,23 +46,23 @@ export default function DashboardPage() {
   const generateApiKey = async () => {
     setIsGenerating(true);
     try {
-      const response = await fetch('/api/apikeys/generate', {
-        method: 'POST',
+      const response = await fetch("/api/apikeys/generate", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setApiKey(data.apiKey);
       } else {
-        console.error('Failed to generate API key:', data.error);
+        console.error("Failed to generate API key:", data.error);
         // You could add error handling UI here
       }
     } catch (error) {
-      console.error('Error generating API key:', error);
+      console.error("Error generating API key:", error);
     } finally {
       setIsGenerating(false);
     }
@@ -89,11 +89,11 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
+      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b nav-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+              <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary pulse-glow" />
               <span className="text-lg sm:text-xl font-bold text-foreground">
                 PayPerCrawl
               </span>
@@ -288,10 +288,10 @@ export default function DashboardPage() {
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* API Key Generator */}
-          <Card className="bg-background/50 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-xl transition-all duration-300">
+          <Card className="bg-background/50 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 glass-card hover-glow">
             <CardHeader className="pb-4">
               <div className="flex items-center space-x-2">
-                <Key className="h-6 w-6 text-primary" />
+                <Key className="h-6 w-6 text-primary pulse-glow" />
                 <CardTitle className="text-xl">API Key Generator</CardTitle>
               </div>
               <CardDescription>
@@ -351,7 +351,7 @@ export default function DashboardPage() {
               <Button
                 onClick={generateApiKey}
                 disabled={isGenerating}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 dim:shadow-2xl dim:hover:shadow-primary/20"
               >
                 {isGenerating ? (
                   <>
@@ -367,18 +367,18 @@ export default function DashboardPage() {
               </Button>
 
               {isCopied && (
-                <Alert className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800">
-                  <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  <AlertDescription className="text-green-800 dark:text-green-200">
+                <Alert className="bg-green-50/80 dark:bg-green-950/30 dim:bg-green-900/20 border-green-200 dark:border-green-800 dim:border-green-700/50 backdrop-blur-sm">
+                  <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400 dim:text-green-300" />
+                  <AlertDescription className="text-green-800 dark:text-green-200 dim:text-green-100">
                     API key copied to clipboard!
                   </AlertDescription>
                 </Alert>
               )}
 
               {apiKey && (
-                <Alert className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800">
-                  <Shield className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                  <AlertDescription className="text-yellow-800 dark:text-yellow-200">
+                <Alert className="bg-yellow-50/80 dark:bg-yellow-950/30 dim:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 dim:border-yellow-700/50 backdrop-blur-sm">
+                  <Shield className="h-4 w-4 text-yellow-600 dark:text-yellow-400 dim:text-yellow-300" />
+                  <AlertDescription className="text-yellow-800 dark:text-yellow-200 dim:text-yellow-100">
                     Keep your API key secure and never share it publicly. This
                     key provides access to your PayPerCrawl account.
                   </AlertDescription>
@@ -388,10 +388,10 @@ export default function DashboardPage() {
           </Card>
 
           {/* Plugin Download */}
-          <Card className="bg-background/50 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-xl transition-all duration-300">
+          <Card className="bg-background/50 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 glass-card hover-glow">
             <CardHeader className="pb-4">
               <div className="flex items-center space-x-2">
-                <Download className="h-6 w-6 text-primary" />
+                <Download className="h-6 w-6 text-primary pulse-glow" />
                 <CardTitle className="text-xl">WordPress Plugin</CardTitle>
               </div>
               <CardDescription>
@@ -434,7 +434,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Plugin Info */}
-              <div className="grid grid-cols-2 gap-4 p-4 bg-accent/20 rounded-lg">
+              <div className="grid grid-cols-2 gap-4 p-4 bg-accent/20 rounded-lg glass-card">
                 <div>
                   <p className="text-xs text-muted-foreground">Version</p>
                   <p className="font-semibold">2.0.0</p>
@@ -456,15 +456,15 @@ export default function DashboardPage() {
               {/* Download Button */}
               <Button
                 onClick={downloadPlugin}
-                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 dim:shadow-2xl dim:hover:shadow-primary/20"
               >
                 <Download className="mr-2 h-4 w-4" />
                 Download Plugin
               </Button>
 
-              <Alert className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
-                <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                <AlertDescription className="text-blue-800 dark:text-blue-200">
+              <Alert className="bg-blue-50/80 dark:bg-blue-950/30 dim:bg-blue-900/20 border-blue-200 dark:border-blue-800 dim:border-blue-700/50 backdrop-blur-sm">
+                <Info className="h-4 w-4 text-slate-900 dark:text-blue-400 dim:text-blue-300" />
+                <AlertDescription className="!text-slate-900 dark:!text-blue-200 dim:!text-blue-100">
                   You'll need an API key to configure the plugin. Generate one
                   using the API Key Generator above.
                 </AlertDescription>
@@ -475,13 +475,13 @@ export default function DashboardPage() {
 
         {/* Additional Info Section */}
         <div className="mt-12">
-          <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20 shadow-lg">
+          <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20 shadow-lg glass-card hover-glow">
             <CardContent className="p-8">
               <div className="text-center space-y-4">
                 <div className="flex justify-center">
                   <Badge
                     variant="outline"
-                    className="text-primary border-primary/30"
+                    className="text-primary border-primary/30 badge-enhanced"
                   >
                     Getting Started
                   </Badge>
@@ -499,7 +499,7 @@ export default function DashboardPage() {
                   <Link href="/features">
                     <Button
                       variant="outline"
-                      className="border-primary/30 hover:bg-primary/10"
+                      className="border-primary/30 hover:bg-primary/10 hover-glow transition-all duration-300"
                     >
                       <Star className="mr-2 h-4 w-4" />
                       View Features
@@ -508,7 +508,7 @@ export default function DashboardPage() {
                   <Link href="/contact">
                     <Button
                       variant="outline"
-                      className="border-primary/30 hover:bg-primary/10"
+                      className="border-primary/30 hover:bg-primary/10 hover-glow transition-all duration-300"
                     >
                       <Mail className="mr-2 h-4 w-4" />
                       Get Support

@@ -55,45 +55,66 @@
   --chart-5: 340 75% 55%;
 }
 
-/* GitHub Dark Dimmed theme: matches VS Code's GitHub Dark Dimmed color scheme */
+/* GitHub Dark Dimmed theme: Enhanced with better visual appeal */
 .dim {
-  /* Base surfaces using GitHub Dark Dimmed specifications */
-  --background: 220 13% 9%; /* #16181d - main background */
-  --foreground: 220 14% 71%; /* #adbac7 - primary text */
-  --card: 217 19% 12%; /* #1c2128 - elevated surfaces */
-  --card-foreground: 220 14% 71%; /* #adbac7 - text on cards */
-  --popover: 217 19% 12%; /* #1c2128 - popover background */
-  --popover-foreground: 220 14% 71%; /* #adbac7 - popover text */
+  /* Base surfaces using GitHub Dark Dimmed specifications with enhanced contrast */
+  --background: 220 13% 8%; /* #141618 - darker main background for better contrast */
+  --foreground: 220 14% 73%; /* #b1bac4 - lighter primary text for better readability */
+  --card: 217 19% 11%; /* #1a1f24 - slightly darker elevated surfaces */
+  --card-foreground: 220 14% 73%; /* #b1bac4 - text on cards */
+  --popover: 217 19% 11%; /* #1a1f24 - popover background */
+  --popover-foreground: 220 14% 73%; /* #b1bac4 - popover text */
 
-  /* Primary colors with GitHub blue accent */
-  --primary: 217 91% 60%; /* #316dca - GitHub blue */
-  --primary-foreground: 220 13% 9%; /* #16181d - text on primary */
+  /* Primary colors with enhanced GitHub blue accent */
+  --primary: 217 91% 65%; /* #4184e4 - brighter GitHub blue for better visibility */
+  --primary-foreground: 220 13% 8%; /* #141618 - text on primary */
 
-  /* Secondary and muted colors */
-  --secondary: 213 13% 19%; /* #2d333b - secondary surfaces */
-  --secondary-foreground: 220 14% 71%; /* #adbac7 - secondary text */
-  --muted: 213 13% 19%; /* #2d333b - muted backgrounds */
-  --muted-foreground: 217 10% 52%; /* #768390 - muted text */
+  /* Secondary and muted colors with better contrast */
+  --secondary: 213 13% 17%; /* #272c32 - lighter secondary surfaces for better visibility */
+  --secondary-foreground: 220 14% 73%; /* #b1bac4 - secondary text */
+  --muted: 213 13% 15%; /* #24292e - enhanced muted backgrounds */
+  --muted-foreground: 217 10% 55%; /* #7d8590 - enhanced muted text readability */
 
-  /* Accent colors */
-  --accent: 213 13% 19%; /* #2d333b - accent background */
-  --accent-foreground: 220 14% 71%; /* #adbac7 - accent text */
+  /* Accent colors with improved contrast */
+  --accent: 213 13% 17%; /* #272c32 - accent background */
+  --accent-foreground: 220 14% 73%; /* #b1bac4 - accent text */
 
-  /* Semantic colors */
-  --destructive: 0 63% 31%; /* #99324b - GitHub red dimmed */
-  --destructive-foreground: 220 14% 71%; /* #adbac7 - text on destructive */
+  /* Semantic colors with GitHub palette enhancements */
+  --destructive: 0 68% 42%; /* #da3633 - brighter GitHub red for better visibility */
+  --destructive-foreground: 220 14% 95%; /* #f0f6fc - high contrast text */
 
-  /* UI element colors */
-  --border: 217 19% 17%; /* #2d333b - borders */
-  --input: 217 19% 17%; /* #2d333b - input backgrounds */
-  --ring: 217 91% 60%; /* #316dca - focus rings */
+  /* UI element colors with enhanced visibility */
+  --border: 217 19% 20%; /* #30363d - lighter borders for better definition */
+  --input: 217 19% 15%; /* #21262d - input backgrounds with better contrast */
+  --ring: 217 91% 65%; /* #4184e4 - enhanced focus rings */
 
-  /* Chart colors with GitHub palette */
-  --chart-1: 217 91% 60%; /* GitHub blue */
-  --chart-2: 142 70% 49%; /* GitHub green */
-  --chart-3: 45 92% 56%; /* GitHub yellow */
-  --chart-4: 262 83% 58%; /* GitHub purple */
-  --chart-5: 16 88% 58%; /* GitHub orange */
+  /* Chart colors with enhanced GitHub palette */
+  --chart-1: 217 91% 65%; /* Enhanced GitHub blue */
+  --chart-2: 142 70% 52%; /* Enhanced GitHub green */
+  --chart-3: 45 92% 58%; /* Enhanced GitHub yellow */
+  --chart-4: 262 83% 62%; /* Enhanced GitHub purple */
+  --chart-5: 16 88% 60%; /* Enhanced GitHub orange */
+
+  /* Enhanced gradients for dim theme */
+  --gradient-primary: linear-gradient(
+    135deg,
+    hsl(217 91% 65%) 0%,
+    hsl(217 91% 55%) 100%
+  );
+  --gradient-secondary: linear-gradient(
+    135deg,
+    hsl(213 13% 17%) 0%,
+    hsl(213 13% 12%) 100%
+  );
+
+  /* Enhanced shadows for dim theme */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
 }
 
 /* Base styles for proper layout and typography */
@@ -137,4 +158,294 @@ body {
     fill 0.2s ease-in-out,
     stroke 0.2s ease-in-out,
     box-shadow 0.2s ease-in-out;
+}
+
+/* Enhanced Alert component styles for better visibility across themes */
+[data-slot="alert"] {
+  backdrop-filter: blur(8px);
+  background-color: hsl(var(--card) / 0.8);
+  border: 1px solid hsl(var(--border) / 0.8);
+}
+
+/* Enhanced button styles for dim theme */
+.dim .bg-gradient-to-r {
+  background: var(
+    --gradient-primary,
+    linear-gradient(135deg, hsl(217 91% 65%) 0%, hsl(217 91% 55%) 100%)
+  );
+  box-shadow: var(--shadow-lg);
+}
+
+.dim .bg-gradient-to-r:hover {
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-1px);
+}
+
+/* Enhanced card styles for dim theme */
+.dim [data-slot="card"] {
+  background: var(
+    --gradient-secondary,
+    linear-gradient(135deg, hsl(213 13% 17%) 0%, hsl(213 13% 12%) 100%)
+  );
+  border: 1px solid hsl(var(--border));
+  box-shadow: var(--shadow-md);
+}
+
+/* Enhanced backdrop blur for navigation in dim theme */
+.dim .backdrop-blur-md {
+  backdrop-filter: blur(12px) saturate(1.2);
+  background-color: hsl(var(--background) / 0.85);
+}
+
+/* Enhanced focus styles for dim theme */
+.dim *:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px hsl(var(--ring) / 0.3);
+}
+
+/* Enhanced selection styles */
+::selection {
+  background-color: hsl(var(--primary) / 0.3);
+  color: hsl(var(--foreground));
+}
+
+.dim ::selection {
+  background-color: hsl(var(--primary) / 0.4);
+  color: hsl(var(--foreground));
+}
+
+/* Enhanced scrollbar styles for dim theme */
+.dim ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dim ::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+  border-radius: 4px;
+}
+
+.dim ::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+}
+
+.dim ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.6);
+}
+
+/* Advanced dim theme enhancements */
+.dim {
+  /* Enhanced glass morphism effects */
+  --glass-bg: hsl(var(--background) / 0.7);
+  --glass-border: hsl(var(--border) / 0.3);
+  --glass-shadow: 0 8px 32px 0 rgb(0 0 0 / 0.3);
+
+  /* Enhanced glow effects */
+  --glow-primary: 0 0 20px hsl(var(--primary) / 0.3);
+  --glow-secondary: 0 0 15px hsl(var(--secondary) / 0.2);
+}
+
+/* Glass morphism cards for dim theme */
+.dim .glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Enhanced hover effects for dim theme */
+.dim .hover-glow:hover {
+  box-shadow: var(--glow-primary), var(--shadow-xl);
+  transform: translateY(-2px) scale(1.02);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced text shadows for better readability in dim theme */
+.dim h1,
+.dim h2,
+.dim h3,
+.dim h4,
+.dim h5,
+.dim h6 {
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+}
+
+/* Enhanced badge styles for dim theme */
+.dim .badge-enhanced {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.8),
+    hsl(var(--primary) / 0.6)
+  );
+  border: 1px solid hsl(var(--primary) / 0.4);
+  box-shadow: 0 2px 8px hsl(var(--primary) / 0.3);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.8);
+}
+
+/* Enhanced input focus states for dim theme */
+.dim input:focus,
+.dim textarea:focus {
+  box-shadow:
+    0 0 0 2px hsl(var(--ring)),
+    0 0 20px hsl(var(--ring) / 0.3),
+    var(--shadow-lg);
+  border-color: hsl(var(--ring));
+}
+
+/* Enhanced loading animations for dim theme */
+.dim .loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted-foreground) / 0.3) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Enhanced pulse effect for dim theme */
+.dim .pulse-glow {
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.6);
+    transform: scale(1.05);
+  }
+}
+
+/* Enhanced navigation blur effect for dim theme */
+.dim .nav-blur {
+  backdrop-filter: blur(16px) saturate(180%) brightness(1.1);
+  background: linear-gradient(
+    180deg,
+    hsl(var(--background) / 0.9) 0%,
+    hsl(var(--background) / 0.7) 100%
+  );
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+}
+
+/* Enhanced tooltip styles for dim theme */
+.dim .tooltip {
+  background: hsl(var(--popover) / 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid hsl(var(--border) / 0.6);
+  box-shadow: var(--shadow-lg);
+  color: hsl(var(--popover-foreground));
+}
+
+/* Enhanced code block styles for dim theme */
+.dim pre,
+.dim code {
+  background: hsl(var(--muted) / 0.8);
+  border: 1px solid hsl(var(--border) / 0.6);
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / 0.3);
+}
+
+/* Enhanced table styles for dim theme */
+.dim table {
+  backdrop-filter: blur(8px);
+  border: 1px solid hsl(var(--border) / 0.6);
+}
+
+.dim th {
+  background: linear-gradient(
+    180deg,
+    hsl(var(--muted)),
+    hsl(var(--muted) / 0.8)
+  );
+  border-bottom: 2px solid hsl(var(--border));
+}
+
+.dim tr:hover {
+  background: hsl(var(--muted) / 0.3);
+  backdrop-filter: blur(4px);
+}
+
+/* Additional enhancements for dim theme */
+.dim {
+  /* Enhanced text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Enhanced button hover states for dim theme */
+.dim button:hover,
+.dim .btn:hover {
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 0 20px hsl(var(--primary) / 0.3),
+    var(--shadow-lg);
+}
+
+/* Enhanced form elements for dim theme */
+.dim input[type="text"]:focus,
+.dim input[type="email"]:focus,
+.dim input[type="password"]:focus,
+.dim textarea:focus {
+  background: hsl(var(--input) / 0.8);
+  backdrop-filter: blur(8px);
+}
+
+/* Enhanced link hover effects for dim theme */
+.dim a:hover {
+  text-shadow: 0 0 8px hsl(var(--primary) / 0.6);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Enhanced modal/dialog styles for dim theme */
+.dim [role="dialog"],
+.dim .modal {
+  backdrop-filter: blur(20px) saturate(180%);
+  background: hsl(var(--background) / 0.9);
+  border: 1px solid hsl(var(--border) / 0.6);
+  box-shadow:
+    0 25px 50px -12px rgb(0 0 0 / 0.6),
+    0 0 0 1px hsl(var(--border) / 0.3);
+}
+
+/* Enhanced toast/notification styles for dim theme */
+.dim .toast,
+.dim .notification {
+  backdrop-filter: blur(12px);
+  background: hsl(var(--card) / 0.95);
+  border: 1px solid hsl(var(--border) / 0.8);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Enhanced progress bars for dim theme */
+.dim .progress-bar {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--primary) / 0.8) 50%,
+    hsl(var(--primary)) 100%
+  );
+  box-shadow: 0 0 10px hsl(var(--primary) / 0.4);
+}
+
+/* Enhanced dividers for dim theme */
+.dim hr,
+.dim .divider {
+  border-color: hsl(var(--border) / 0.6);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
 }
