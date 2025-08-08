@@ -95,14 +95,6 @@ export default function Home() {
               >
                 Dashboard
               </Link>
-              {process.env.NODE_ENV === "development" && (
-                <Link
-                  href="/theme-test"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Theme Test
-                </Link>
-              )}
               <Link href="/waitlist">
                 <Button
                   size="sm"
