@@ -8,6 +8,10 @@ let cachedZip: Buffer | null = null;
 let cacheTime: number = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
 
+// Force clear cache on module load to ensure latest changes
+cachedZip = null;
+cacheTime = 0;
+
 async function createZipArchive(): Promise<Buffer> {
   const pluginDir = path.join(process.cwd(), 'crawlguard-wp-main');
   
