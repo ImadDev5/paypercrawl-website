@@ -11,13 +11,24 @@ if (!defined('ABSPATH')) {
 
 class CrawlGuard_API_Client {
     
-    private $api_base_url = 'https://api.creativeinteriorsstudio.com/v1'; // Cloudflare Workers endpoint
+    private $api_base_url;
     private $api_key;
-    private $timeout = 5; // 5 second timeout to avoid slowing down sites
+    private $timeout;
+    private $config;
     
     public function __construct() {
+        // Load configuration
+        require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-config.php';
+        $this->config = CrawlGuard_Config::get_cloudflare_config();
+        $this->api_base_url = $this->config['api_base_url'];
+        
+        // Get API key from options
         $options = get_option('crawlguard_options');
         $this->api_key = $options['api_key'] ?? '';
+        
+        // Set default timeout
+        $timeouts = CrawlGuard_Config::get_timeout_settings();
+        $this->timeout = $timeouts['default'];
     }
     
     /**
@@ -28,7 +39,8 @@ class CrawlGuard_API_Client {
             return false;
         }
         
-        $endpoint = $this->api_base_url . '/v1/monetize';
+        $endpoints = CrawlGuard_Config::get_api_endpoints();
+        $endpoint = $endpoints['monetize'];
         
         $payload = array(
             'api_key' => $this->api_key,
@@ -42,7 +54,8 @@ class CrawlGuard_API_Client {
      * Register site with backend
      */
     public function register_site($site_data) {
-        $endpoint = $this->api_base_url . '/v1/sites/register';
+        $endpoints = CrawlGuard_Config::get_api_endpoints();
+        $endpoint = $endpoints['register'];
         
         $payload = array(
             'site_url' => get_site_url(),
@@ -64,7 +77,8 @@ class CrawlGuard_API_Client {
             return false;
         }
         
-        $endpoint = $this->api_base_url . '/v1/analytics';
+        $endpoints = CrawlGuard_Config::get_api_endpoints();
+        $endpoint = $endpoints['analytics'];
         
         $params = array(
             'api_key' => $this->api_key,
@@ -83,7 +97,8 @@ class CrawlGuard_API_Client {
             return false;
         }
         
-        $endpoint = $this->api_base_url . '/v1/sites/settings';
+        $endpoints = CrawlGuard_Config::get_api_endpoints();
+        $endpoint = $endpoints['settings'];
         
         $payload = array(
             'api_key' => $this->api_key,
@@ -102,7 +117,8 @@ class CrawlGuard_API_Client {
             return false;
         }
         
-        $endpoint = $this->api_base_url . '/v1/payments/' . $payment_id;
+        $endpoints = CrawlGuard_Config::get_api_endpoints();
+        $endpoint = $endpoints['payments'] . '/' . $payment_id;
         
         $params = array(
             'api_key' => $this->api_key
@@ -121,14 +137,24 @@ class CrawlGuard_API_Client {
             return false;
         }
         
-        $endpoint = $this->api_base_url . '/v1/auth/validate';
+        // Use correct endpoint path without double /v1
+        $endpoints = CrawlGuard_Config::get_api_endpoints();
+        $endpoint = $endpoints['validate'];
         
         $payload = array(
             'api_key' => $key_to_validate,
             'site_url' => get_site_url()
         );
         
+        // Set validation timeout
+        $original_timeout = $this->timeout;
+        $timeouts = CrawlGuard_Config::get_timeout_settings();
+        $this->timeout = $timeouts['validation'];
+        
         $response = $this->make_request('POST', $endpoint, $payload);
+        
+        // Restore original timeout
+        $this->timeout = $original_timeout;
         
         return $response && isset($response['valid']) && $response['valid'] === true;
     }
@@ -138,7 +164,8 @@ class CrawlGuard_API_Client {
      */
     public function send_beacon($data) {
         // Use a very short timeout for beacons to avoid impacting site performance
-        $endpoint = $this->api_base_url . '/v1/beacon';
+        $endpoints = CrawlGuard_Config::get_api_endpoints();
+        $endpoint = $endpoints['beacon'];
         
         $payload = array(
             'api_key' => $this->api_key,
@@ -214,7 +241,8 @@ class CrawlGuard_API_Client {
      * Get API status
      */
     public function get_api_status() {
-        $endpoint = $this->api_base_url . '/v1/status';
+        $endpoints = CrawlGuard_Config::get_api_endpoints();
+        $endpoint = $endpoints['status'];
         
         $response = $this->make_request('GET', $endpoint);
         
@@ -235,7 +263,8 @@ class CrawlGuard_API_Client {
             return $cached_status === 'disabled';
         }
         
-        $endpoint = $this->api_base_url . '/v1/emergency-status';
+        $endpoints = CrawlGuard_Config::get_api_endpoints();
+        $endpoint = $endpoints['emergency'];
         
         $params = array(
             'api_key' => $this->api_key,
