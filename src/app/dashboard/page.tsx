@@ -93,7 +93,7 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary pulse-glow" />
+              <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
               <span className="text-lg sm:text-xl font-bold text-foreground">
                 PayPerCrawl
               </span>
