@@ -28,6 +28,16 @@ export const metadata: Metadata = {
     "AI training data",
   ],
   authors: [{ name: "PayPerCrawl Team" }],
+  icons: {
+    icon: [
+      {
+        url: "/shield-icon.svg",
+        type: "image/svg+xml",
+      },
+    ],
+    shortcut: "/shield-icon.svg",
+    apple: "/shield-icon.svg",
+  },
   openGraph: {
     title: "PayPerCrawl - AI Content Monetization Platform",
     description:
