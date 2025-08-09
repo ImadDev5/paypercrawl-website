@@ -159,7 +159,7 @@ export default function CareersPage() {
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <TrendingUp className="h-6 w-6" />
+            <Shield className="h-6 w-6" />
             <span className="font-bold">PayperCrawl</span>
           </Link>
 
