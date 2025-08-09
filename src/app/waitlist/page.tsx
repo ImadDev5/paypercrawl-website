@@ -118,7 +118,11 @@ export default function WaitlistPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center space-x-2">
-                <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                <img
+                  src="/logo.svg"
+                  alt="PayPerCrawl Logo"
+                  className="h-6 w-6 sm:h-8 sm:w-8"
+                />
                 <span className="text-lg sm:text-xl font-bold text-foreground">
                   PayPerCrawl
                 </span>
@@ -181,7 +185,11 @@ export default function WaitlistPage() {
                     {/* Header */}
                     <div className="flex items-center justify-between p-6 border-b border-border/30 bg-background/80 backdrop-blur-xl">
                       <div className="flex items-center space-x-2">
-                        <Shield className="h-6 w-6 text-primary drop-shadow-sm" />
+                        <img
+                          src="/logo.svg"
+                          alt="PayPerCrawl Logo"
+                          className="h-6 w-6"
+                        />
                         <span className="text-lg font-bold text-foreground drop-shadow-sm">
                           PayPerCrawl
                         </span>
