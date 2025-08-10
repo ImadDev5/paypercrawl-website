@@ -114,7 +114,8 @@ export default function AdminDashboard() {
   }, []);
 
   const authenticate = () => {
-    const expectedAdminKey = process.env.NEXT_PUBLIC_ADMIN_KEY || "***REDACTED_ADMIN_KEY***";
+    const expectedAdminKey =
+      process.env.NEXT_PUBLIC_ADMIN_KEY || "***REDACTED_ADMIN_KEY***";
     if (adminKey === expectedAdminKey) {
       localStorage.setItem("adminKey", adminKey);
       setIsAuthenticated(true);
