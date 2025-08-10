@@ -1,7 +1,22 @@
 import { Resend } from "resend";
 import { db } from "./db";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazily initialize the Resend client to avoid build-time failures
+// when RESEND_API_KEY isn't present during static bundling.
+let _resend: Resend | null = null;
+function getResend(): Resend {
+  if (_resend) return _resend;
+  const apiKey = process.env.RESEND_API_KEY;
+  // Do not construct at import time. Only construct on first use,
+  // and fail fast with a clear error message if the key is missing.
+  if (!apiKey) {
+    throw new Error(
+      "RESEND_API_KEY is not set. Set it in your .env before sending emails."
+    );
+  }
+  _resend = new Resend(apiKey);
+  return _resend;
+}
 
 interface EmailOptions {
   to: string;
@@ -17,7 +32,7 @@ async function sendEmail({
   from = "PayPerCrawl <noreply@paypercrawl.tech>",
 }: EmailOptions) {
   try {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResend().emails.send({
       from,
       to,
       subject,
