@@ -114,7 +114,8 @@ export default function AdminDashboard() {
   }, []);
 
   const authenticate = () => {
-    const expectedAdminKey = process.env.NEXT_PUBLIC_ADMIN_KEY || "paypercrawl_admin_2025_secure_key";
+    const expectedAdminKey =
+      process.env.NEXT_PUBLIC_ADMIN_KEY || "paypercrawl_admin_2025_secure_key";
     if (adminKey === expectedAdminKey) {
       localStorage.setItem("adminKey", adminKey);
       setIsAuthenticated(true);
