@@ -38,6 +38,8 @@ import {
   Loader2,
   Eye,
   EyeOff,
+  Copy,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
@@ -72,13 +74,33 @@ interface WaitlistEntry {
   updatedAt: string;
 }
 
+interface WaitlistPagination {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
 export default function AdminDashboard() {
   const [adminKey, setAdminKey] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showKey, setShowKey] = useState(false);
   const [applications, setApplications] = useState<Application[]>([]);
   const [waitlistEntries, setWaitlistEntries] = useState<WaitlistEntry[]>([]);
+  const [waitlistPagination, setWaitlistPagination] =
+    useState<WaitlistPagination>({
+      page: 1,
+      limit: 50,
+      total: 0,
+      pages: 0,
+    });
   const [loading, setLoading] = useState(false);
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<"pagination" | "loadmore">(
+    "pagination"
+  );
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
   const [applicationNotes, setApplicationNotes] = useState("");
@@ -92,7 +114,8 @@ export default function AdminDashboard() {
   }, []);
 
   const authenticate = () => {
-    if (adminKey === "paypercrawl_admin_2025_secure_key") {
+    const expectedAdminKey = process.env.NEXT_PUBLIC_ADMIN_KEY || "paypercrawl_admin_2025_secure_key";
+    if (adminKey === expectedAdminKey) {
       localStorage.setItem("adminKey", adminKey);
       setIsAuthenticated(true);
       toast.success("Authentication successful");
@@ -105,13 +128,8 @@ export default function AdminDashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [appsResponse, waitlistResponse] = await Promise.all([
+      const [appsResponse] = await Promise.all([
         fetch("/api/admin/applications", {
-          headers: {
-            Authorization: `Bearer ${adminKey}`,
-          },
-        }),
-        fetch("/api/admin/waitlist", {
           headers: {
             Authorization: `Bearer ${adminKey}`,
           },
@@ -123,15 +141,64 @@ export default function AdminDashboard() {
         setApplications(appsData.applications);
       }
 
-      if (waitlistResponse.ok) {
-        const waitlistData = await waitlistResponse.json();
-        setWaitlistEntries(waitlistData.waitlistEntries);
-      }
+      // Load waitlist separately with pagination
+      await loadWaitlist(1);
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load data");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadWaitlist = async (
+    page: number = waitlistPagination.page,
+    limit: number = waitlistPagination.limit,
+    search: string = searchTerm,
+    append: boolean = false,
+    status: string = statusFilter
+  ) => {
+    setWaitlistLoading(true);
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (search.trim()) {
+        params.append("search", search.trim());
+      }
+
+      if (status && status !== "all") {
+        params.append("status", status);
+      }
+
+      const waitlistResponse = await fetch(
+        `/api/admin/waitlist?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${adminKey}`,
+          },
+        }
+      );
+
+      if (waitlistResponse.ok) {
+        const waitlistData = await waitlistResponse.json();
+        if (append) {
+          setWaitlistEntries((prev) => [
+            ...prev,
+            ...waitlistData.waitlistEntries,
+          ]);
+        } else {
+          setWaitlistEntries(waitlistData.waitlistEntries);
+        }
+        setWaitlistPagination(waitlistData.pagination);
+      }
+    } catch (error) {
+      console.error("Error loading waitlist:", error);
+      toast.error("Failed to load waitlist");
+    } finally {
+      setWaitlistLoading(false);
     }
   };
 
@@ -180,7 +247,7 @@ export default function AdminDashboard() {
 
       if (response.ok) {
         toast.success("Invite sent successfully");
-        loadData();
+        loadWaitlist(); // Reload current page
       } else {
         const errorData = await response.json();
         toast.error(`Failed to send invite: ${errorData.error}`);
@@ -189,6 +256,45 @@ export default function AdminDashboard() {
       console.error("Error sending invite:", error);
       toast.error("An error occurred while sending the invite");
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    loadWaitlist(
+      newPage,
+      waitlistPagination.limit,
+      searchTerm,
+      false,
+      statusFilter
+    );
+  };
+
+  const handleLimitChange = (newLimit: string) => {
+    const limit = parseInt(newLimit);
+    setWaitlistPagination((prev) => ({ ...prev, limit, page: 1 }));
+    loadWaitlist(1, limit, searchTerm, false, statusFilter);
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setWaitlistPagination((prev) => ({ ...prev, page: 1 }));
+    loadWaitlist(1, waitlistPagination.limit, term, false, statusFilter);
+  };
+
+  const handleStatusFilter = (status: string) => {
+    setStatusFilter(status);
+    setWaitlistPagination((prev) => ({ ...prev, page: 1 }));
+    loadWaitlist(1, waitlistPagination.limit, searchTerm, false, status);
+  };
+
+  const handleLoadMore = () => {
+    const nextPage = waitlistPagination.page + 1;
+    loadWaitlist(
+      nextPage,
+      waitlistPagination.limit,
+      searchTerm,
+      true,
+      statusFilter
+    );
   };
 
   useEffect(() => {
@@ -280,7 +386,7 @@ export default function AdminDashboard() {
             </TabsTrigger>
             <TabsTrigger value="waitlist">
               <Users className="mr-2 h-4 w-4" />
-              Waitlist ({waitlistEntries.length})
+              Waitlist ({waitlistPagination.total})
             </TabsTrigger>
           </TabsList>
           <TabsContent value="applications">
@@ -379,7 +485,13 @@ export default function AdminDashboard() {
                                   <SelectTrigger>
                                     <SelectValue placeholder="Set status" />
                                   </SelectTrigger>
-                                  <SelectContent>
+                                  <SelectContent
+                                    className="!bg-background !bg-opacity-100 backdrop-blur-none border border-border shadow-lg z-50"
+                                    style={{
+                                      backgroundColor: "hsl(var(--background))",
+                                      opacity: 1,
+                                    }}
+                                  >
                                     <SelectItem value="pending">
                                       Pending
                                     </SelectItem>
@@ -426,72 +538,362 @@ export default function AdminDashboard() {
           <TabsContent value="waitlist">
             <Card>
               <CardHeader>
-                <CardTitle>Waitlist Entries</CardTitle>
-                <CardDescription>
-                  Manage users who have joined the waitlist.
-                </CardDescription>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Waitlist Entries</CardTitle>
+                    <CardDescription>
+                      Manage users who have joined the waitlist.
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Label
+                      htmlFor="entries-per-page"
+                      className="text-sm font-medium"
+                    >
+                      Per page:
+                    </Label>
+                    <Select
+                      value={waitlistPagination.limit.toString()}
+                      onValueChange={handleLimitChange}
+                    >
+                      <SelectTrigger className="w-20">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent
+                        className="!bg-background !bg-opacity-100 backdrop-blur-none border border-border shadow-lg z-50"
+                        style={{
+                          backgroundColor: "hsl(var(--background))",
+                          opacity: 1,
+                        }}
+                      >
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="mt-4 flex justify-between items-center">
+                  <div className="flex items-center space-x-4">
+                    <div className="relative max-w-sm">
+                      <Input
+                        placeholder="Search by name, email, or website..."
+                        value={searchTerm}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        className="pl-4"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Label className="text-sm font-medium">Status:</Label>
+                      <Select
+                        value={statusFilter}
+                        onValueChange={handleStatusFilter}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent
+                          className="!bg-background !bg-opacity-100 backdrop-blur-none border border-border shadow-lg z-50"
+                          style={{
+                            backgroundColor: "hsl(var(--background))",
+                            opacity: 1,
+                          }}
+                        >
+                          <SelectItem value="all">All</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="invited">Invited</SelectItem>
+                          <SelectItem value="accepted">Accepted</SelectItem>
+                          <SelectItem value="rejected">Rejected</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        loadWaitlist(
+                          1,
+                          waitlistPagination.limit,
+                          searchTerm,
+                          false,
+                          statusFilter
+                        )
+                      }
+                      disabled={waitlistLoading}
+                    >
+                      <RefreshCw
+                        className={`h-4 w-4 mr-2 ${waitlistLoading ? "animate-spin" : ""}`}
+                      />
+                      Refresh
+                    </Button>
+                    <Label className="text-sm font-medium">View:</Label>
+                    <Select
+                      value={viewMode}
+                      onValueChange={(value: "pagination" | "loadmore") =>
+                        setViewMode(value)
+                      }
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent
+                        className="!bg-background !bg-opacity-100 backdrop-blur-none border border-border shadow-lg z-50"
+                        style={{
+                          backgroundColor: "hsl(var(--background))",
+                          opacity: 1,
+                        }}
+                      >
+                        <SelectItem value="pagination">Pagination</SelectItem>
+                        <SelectItem value="loadmore">Load More</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                {loading ? (
+                {waitlistLoading ? (
                   <div className="flex justify-center items-center h-40">
                     <Loader2 className="h-8 w-8 animate-spin" />
                   </div>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Website</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Joined</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {waitlistEntries.map((entry) => (
-                        <TableRow key={entry.id}>
-                          <TableCell>{entry.name}</TableCell>
-                          <TableCell>{entry.email}</TableCell>
-                          <TableCell>
-                            <a
-                              href={entry.website}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-primary hover:underline"
-                            >
-                              {entry.website}
-                            </a>
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={
-                                entry.status === "invited"
-                                  ? "default"
-                                  : "secondary"
-                              }
-                            >
-                              {entry.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {formatDate(new Date(entry.createdAt))}
-                          </TableCell>
-                          <TableCell>
-                            {entry.status !== "invited" && (
-                              <Button
-                                size="sm"
-                                onClick={() => sendInvite(entry.email)}
-                              >
-                                <Send className="mr-2 h-4 w-4" />
-                                Send Invite
-                              </Button>
-                            )}
-                          </TableCell>
+                  <div className="space-y-4">
+                    {/* Summary Banner */}
+                    <div className="bg-muted/50 rounded-lg p-4">
+                      <div className="flex justify-between items-center text-sm">
+                        <div className="flex items-center space-x-4">
+                          <span className="font-medium">
+                            Total: {waitlistPagination.total} entries
+                          </span>
+                          {(searchTerm || statusFilter !== "all") && (
+                            <span className="text-muted-foreground">
+                              (Filtered results)
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-2 text-muted-foreground">
+                          <span>
+                            Showing{" "}
+                            {waitlistEntries.length > 0
+                              ? (waitlistPagination.page - 1) *
+                                  waitlistPagination.limit +
+                                1
+                              : 0}{" "}
+                            to{" "}
+                            {Math.min(
+                              waitlistPagination.page *
+                                waitlistPagination.limit,
+                              waitlistPagination.total
+                            )}{" "}
+                            of {waitlistPagination.total} entries
+                          </span>
+                          <span>•</span>
+                          <span>
+                            Page {waitlistPagination.page} of{" "}
+                            {waitlistPagination.pages}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Website</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Joined</TableHead>
+                          <TableHead>Actions</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {waitlistEntries.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center py-8">
+                              <div className="flex flex-col items-center space-y-2">
+                                <Users className="h-8 w-8 text-muted-foreground" />
+                                <p className="text-muted-foreground">
+                                  {searchTerm || statusFilter !== "all"
+                                    ? "No waitlist entries match your criteria"
+                                    : "No waitlist entries found"}
+                                </p>
+                                {(searchTerm || statusFilter !== "all") && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setSearchTerm("");
+                                      setStatusFilter("all");
+                                      loadWaitlist(
+                                        1,
+                                        waitlistPagination.limit,
+                                        "",
+                                        false,
+                                        "all"
+                                      );
+                                    }}
+                                  >
+                                    Clear Filters
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          waitlistEntries.map((entry) => (
+                            <TableRow key={entry.id}>
+                              <TableCell>{entry.name}</TableCell>
+                              <TableCell>{entry.email}</TableCell>
+                              <TableCell>
+                                <a
+                                  href={entry.website}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline"
+                                >
+                                  {entry.website}
+                                </a>
+                              </TableCell>
+                              <TableCell>
+                                <Badge
+                                  variant={
+                                    entry.status === "invited"
+                                      ? "default"
+                                      : "secondary"
+                                  }
+                                >
+                                  {entry.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                {formatDate(new Date(entry.createdAt))}
+                              </TableCell>
+                              <TableCell>
+                                {entry.status !== "invited" &&
+                                entry.status !== "accepted" ? (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => sendInvite(entry.email)}
+                                  >
+                                    <Send className="mr-2 h-4 w-4" />
+                                    Send Invite
+                                  </Button>
+                                ) : entry.inviteToken ? (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      const inviteUrl = `${window.location.origin}/dashboard?token=${entry.inviteToken}`;
+                                      navigator.clipboard.writeText(inviteUrl);
+                                      toast.success(
+                                        "Invite link copied to clipboard!"
+                                      );
+                                    }}
+                                  >
+                                    <Copy className="mr-2 h-4 w-4" />
+                                    Copy Link
+                                  </Button>
+                                ) : (
+                                  <span className="text-muted-foreground text-sm">
+                                    No action needed
+                                  </span>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+
+                    {/* Pagination or Load More Controls */}
+                    {viewMode === "pagination" &&
+                      waitlistPagination.pages > 1 && (
+                        <div className="flex justify-between items-center pt-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              handlePageChange(waitlistPagination.page - 1)
+                            }
+                            disabled={waitlistPagination.page === 1}
+                          >
+                            Previous
+                          </Button>
+
+                          <div className="flex items-center space-x-2">
+                            {/* Show page numbers */}
+                            {Array.from(
+                              { length: Math.min(5, waitlistPagination.pages) },
+                              (_, i) => {
+                                let pageNum;
+                                if (waitlistPagination.pages <= 5) {
+                                  pageNum = i + 1;
+                                } else if (waitlistPagination.page <= 3) {
+                                  pageNum = i + 1;
+                                } else if (
+                                  waitlistPagination.page >=
+                                  waitlistPagination.pages - 2
+                                ) {
+                                  pageNum = waitlistPagination.pages - 4 + i;
+                                } else {
+                                  pageNum = waitlistPagination.page - 2 + i;
+                                }
+
+                                return (
+                                  <Button
+                                    key={pageNum}
+                                    variant={
+                                      waitlistPagination.page === pageNum
+                                        ? "default"
+                                        : "outline"
+                                    }
+                                    size="sm"
+                                    onClick={() => handlePageChange(pageNum)}
+                                    className="w-8 h-8 p-0"
+                                  >
+                                    {pageNum}
+                                  </Button>
+                                );
+                              }
+                            )}
+                          </div>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              handlePageChange(waitlistPagination.page + 1)
+                            }
+                            disabled={
+                              waitlistPagination.page ===
+                              waitlistPagination.pages
+                            }
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      )}
+
+                    {viewMode === "loadmore" &&
+                      waitlistPagination.page < waitlistPagination.pages && (
+                        <div className="flex justify-center pt-4">
+                          <Button
+                            variant="outline"
+                            onClick={handleLoadMore}
+                            disabled={waitlistLoading}
+                          >
+                            {waitlistLoading ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : null}
+                            Load More (
+                            {waitlistPagination.total - waitlistEntries.length}{" "}
+                            remaining)
+                          </Button>
+                        </div>
+                      )}
+                  </div>
                 )}
               </CardContent>
             </Card>
