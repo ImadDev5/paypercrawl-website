@@ -47,12 +47,6 @@ export default function WaitlistPage() {
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
-  const [existingStatus, setExistingStatus] = useState<{
-    exists: boolean;
-    status: string | null;
-    name?: string;
-  } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -570,20 +564,6 @@ export default function WaitlistPage() {
             Get early access to the future of AI content monetization. Keep 100%
             of your revenue during the beta period.
           </p>
-
-          {/* Invite-Only Notice */}
-          <div className="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6 max-w-xl mx-auto">
-            <div className="flex items-center justify-center gap-2 text-amber-800 dark:text-amber-200 text-sm">
-              <Shield className="h-4 w-4" />
-              <span className="font-medium">
-                Dashboard Access is by Invitation Only
-              </span>
-            </div>
-            <p className="text-amber-700 dark:text-amber-300 text-xs mt-2 text-center">
-              After submitting your application, wait for our approval email
-              with your unique dashboard access link.
-            </p>
-          </div>
         </div>
       </section>
 

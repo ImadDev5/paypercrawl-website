@@ -4,7 +4,6 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeKeyboardShortcuts } from "@/components/theme-keyboard-shortcuts";
-import { AuthProvider } from "@/contexts/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -71,10 +70,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          <AuthProvider>
-            <ThemeKeyboardShortcuts />
-            {children}
-          </AuthProvider>
+          <ThemeKeyboardShortcuts />
+          {children}
         </ThemeProvider>
         <Toaster />
       </body>

@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   ArrowRight,
   Shield,
@@ -22,20 +23,223 @@ import {
   BarChart,
   Twitter,
   Github,
+  Menu,
+  X,
+  Home as HomeIcon,
+  Star,
+  Info,
+  BookOpen,
+  Briefcase,
+  Mail,
+  LayoutDashboard,
 } from "lucide-react";
 import Link from "next/link";
-import { Navigation } from "@/components/ui/navigation";
+import { ModeToggle } from "@/components/mode-toggle";
+import { useState } from "react";
 
 export default function Home() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background selection:bg-primary/20 selection:text-primary-foreground relative">
       {/* Global decorative gradients */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-x-0 top-0 h-[750px] bg-[radial-gradient(ellipse_at_top,theme(colors.primary)/18%,transparent_70%)] opacity-80 dark:opacity-60" />
       </div>
-
       {/* Navigation */}
-      <Navigation />
+      <nav className="sticky top-0 z-50 bg-background/80 supports-[backdrop-filter]:backdrop-blur-xl border-b border-border/60 backdrop-saturate-150">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16 gap-4">
+            <div className="flex items-center space-x-2">
+              <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+              <span className="text-lg sm:text-xl font-bold text-foreground">
+                PayPerCrawl
+              </span>
+            </div>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-5 lg:space-x-7 xl:space-x-9">
+              <Link
+                href="/"
+                className="text-primary font-semibold hover:text-primary/80 transition-colors"
+              >
+                Home
+              </Link>
+              <Link
+                href="/features"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Features
+              </Link>
+              <Link
+                href="/about"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                About
+              </Link>
+              <Link
+                href="/blog"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Blog
+              </Link>
+              <Link
+                href="/careers"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Careers
+              </Link>
+              <Link
+                href="/dashboard"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Dashboard
+              </Link>
+              <Link href="/waitlist">
+                <Button
+                  size="sm"
+                  elevation="md"
+                  className="shadow-sm hover:shadow-md"
+                >
+                  Join Beta
+                </Button>
+              </Link>
+              <ModeToggle />
+            </div>
+
+            {/* Mobile Navigation */}
+            <div className="flex md:hidden items-center space-x-2">
+              <ModeToggle />
+              <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="p-2 h-9 w-9"
+                    elevation="none"
+                  >
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="right"
+                  className="w-[320px] sm:w-[380px] p-0 bg-background/95 backdrop-blur-2xl border-l border-border/50 shadow-2xl"
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between p-6 border-b border-border/30 bg-background/80 backdrop-blur-xl">
+                    <div className="flex items-center space-x-2">
+                      <Shield className="h-6 w-6 text-primary drop-shadow-sm" />
+                      <span className="text-lg font-bold text-foreground drop-shadow-sm">
+                        PayPerCrawl
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Navigation */}
+                  <div className="flex flex-col h-full bg-background/70 backdrop-blur-md">
+                    <nav className="flex-1 p-6 bg-background/50 backdrop-blur-sm">
+                      <div className="space-y-1">
+                        <Link
+                          href="/"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground bg-primary/10 border border-primary/20 transition-all duration-200 group hover:bg-primary/15 hover:border-primary/30 backdrop-blur-sm shadow-lg"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <HomeIcon className="h-5 w-5 text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-semibold text-foreground drop-shadow-sm">
+                            Home
+                          </span>
+                        </Link>
+                        <Link
+                          href="/features"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Star className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-medium drop-shadow-sm">
+                            Features
+                          </span>
+                        </Link>
+                        <Link
+                          href="/about"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Info className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-medium drop-shadow-sm">
+                            About
+                          </span>
+                        </Link>
+                        <Link
+                          href="/blog"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <BookOpen className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-medium drop-shadow-sm">
+                            Blog
+                          </span>
+                        </Link>
+                        <Link
+                          href="/careers"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Briefcase className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-medium drop-shadow-sm">
+                            Careers
+                          </span>
+                        </Link>
+                        <Link
+                          href="/contact"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Mail className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-medium drop-shadow-sm">
+                            Contact
+                          </span>
+                        </Link>
+                        <Link
+                          href="/dashboard"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <LayoutDashboard className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
+                          <span className="font-medium drop-shadow-sm">
+                            Dashboard
+                          </span>
+                        </Link>
+                      </div>
+                    </nav>
+
+                    {/* CTA Section */}
+                    <div className="p-6 border-t border-border/40 bg-accent/30 backdrop-blur-lg">
+                      <div className="space-y-3">
+                        <p className="text-sm font-medium text-foreground drop-shadow-sm">
+                          Ready to monetize your content?
+                        </p>
+                        <Link
+                          href="/waitlist"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Button
+                            elevation="md"
+                            className="w-full bg-primary/90 hover:bg-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all duration-200 backdrop-blur-sm border border-primary/25"
+                          >
+                            Join Beta Program
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          </div>
+        </div>
+      </nav>
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">

@@ -161,7 +161,7 @@ export async function sendBetaInvite(
   inviteToken: string
 ) {
   const subject = "Your PayPerCrawl Beta Access is Ready! 🚀";
-  const betaUrl = `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?token=${inviteToken}`;
+  const betaUrl = `${process.env.NEXT_PUBLIC_APP_URL}/?invited=true&token=${inviteToken}`;
 
   const html = `
     <!DOCTYPE html>
@@ -184,22 +184,12 @@ export async function sendBetaInvite(
           </a>
         </div>
         
-        <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0;">
-          <h4 style="margin-top: 0; color: #475569;">Alternative Sign-In Method</h4>
-          <p style="margin: 10px 0; color: #64748b; font-size: 14px;">You can also copy this invite link and use it in our Sign In form:</p>
-          <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #d1d5db; font-family: monospace; font-size: 13px; color: #374151; word-break: break-all;">
-            ${betaUrl}
-          </div>
-          <p style="margin: 10px 0 0 0; color: #64748b; font-size: 12px;">💡 Tip: Copy this link and paste it into the Sign In form on our website if the button above doesn't work.</p>
-        </div>
-        
         <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #16a34a;">
           <h3 style="margin-top: 0; color: #16a34a;">Getting Started</h3>
           <ol>
-            <li>Click the button above to access your beta dashboard OR use the Sign In form with the invite link</li>
-            <li>Generate your unique API key</li>
-            <li>Download and install the PayPerCrawl WordPress plugin</li>
-            <li>Configure your plugin with your API key</li>
+            <li>Click the button above to access your beta dashboard</li>
+            <li>Install the PayPerCrawl WordPress plugin</li>
+            <li>Configure your monetization settings</li>
             <li>Start earning from AI bot traffic!</li>
           </ol>
         </div>
