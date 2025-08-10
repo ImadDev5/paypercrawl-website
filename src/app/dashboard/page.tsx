@@ -1,6 +1,11 @@
 "use client";
 
-import { useState } from "react";
+// Disable static generation for this page
+export const dynamic = 'force-dynamic'
+
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Card,
   CardContent,
@@ -32,16 +37,73 @@ import {
   CheckCircle,
   Eye,
   EyeOff,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
+import { useToast } from "@/hooks/use-toast";
 
-export default function DashboardPage() {
+interface User {
+  email: string;
+  name: string;
+  website?: string;
+}
+
+function DashboardContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [isApiKeyVisible, setIsApiKeyVisible] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+
+  // Handle authentication state
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push("/waitlist");
+      return;
+    }
+
+    // Show welcome message if coming from invite link and user is authenticated
+    if (isAuthenticated && user && searchParams.get("token")) {
+      toast({
+        title: "Welcome to PayPerCrawl!",
+        description: `Welcome ${user.name || user.email}, you now have access to the beta dashboard.`,
+      });
+    }
+  }, [isAuthenticated, isLoading, user, searchParams, router, toast]);
+
+  // Show loading screen while validating
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="w-[400px]">
+          <CardHeader className="text-center">
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <Shield className="h-8 w-8 text-primary" />
+              <span className="text-2xl font-bold">PayPerCrawl</span>
+            </div>
+            <CardTitle>Verifying Access</CardTitle>
+            <CardDescription>
+              Please wait while we verify your beta invitation...
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // If not authenticated, this shouldn't happen due to middleware redirect
+  if (!isAuthenticated || !user) {
+    return null;
+  }
 
   const generateApiKey = async () => {
     setIsGenerating(true);
@@ -103,7 +165,7 @@ export default function DashboardPage() {
             <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
               <Link
                 href="/"
-                className="text-foreground hover:text-primary transition-colors font-medium"
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 Home
               </Link>
@@ -137,9 +199,22 @@ export default function DashboardPage() {
               >
                 Dashboard
               </Link>
-              <Link href="/waitlist">
-                <Button size="sm">Join Beta</Button>
-              </Link>
+
+              {/* User Info */}
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <span>Welcome, {user?.name}</span>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  await logout();
+                  router.push("/");
+                }}
+              >
+                Logout
+              </Button>
               <ModeToggle />
             </div>
 
@@ -244,21 +319,27 @@ export default function DashboardPage() {
                       </div>
                     </nav>
 
-                    {/* CTA Section */}
+                    {/* User Info Section */}
                     <div className="p-6 border-t border-border/40 bg-accent/30 backdrop-blur-lg">
                       <div className="space-y-3">
                         <p className="text-sm font-medium text-foreground drop-shadow-sm">
-                          Ready to monetize your content?
+                          Welcome back, {user?.name}
                         </p>
-                        <Link
-                          href="/waitlist"
-                          onClick={() => setIsMenuOpen(false)}
+                        <p className="text-xs text-muted-foreground">
+                          {user?.email}
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={async () => {
+                            await logout();
+                            router.push("/");
+                            setIsMenuOpen(false);
+                          }}
                         >
-                          <Button className="w-full bg-primary/90 hover:bg-primary text-primary-foreground font-semibold shadow-xl hover:shadow-2xl transition-all duration-200 backdrop-blur-sm border border-primary/20">
-                            Join Beta Program
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </Link>
+                          Logout
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -521,5 +602,33 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <Card className="w-[400px]">
+            <CardHeader className="text-center">
+              <div className="flex items-center justify-center space-x-2 mb-4">
+                <Shield className="h-8 w-8 text-primary" />
+                <span className="text-2xl font-bold">PayPerCrawl</span>
+              </div>
+              <CardTitle>Loading Dashboard</CardTitle>
+              <CardDescription>
+                Please wait while we load your dashboard...
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </CardContent>
+          </Card>
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   );
 }
