@@ -167,36 +167,6 @@ body {
   border: 1px solid hsl(var(--border) / 0.8);
 }
 
-/* Enhanced button styles for dim theme */
-.dim .bg-gradient-to-r {
-  background: var(
-    --gradient-primary,
-    linear-gradient(135deg, hsl(217 91% 65%) 0%, hsl(217 91% 55%) 100%)
-  );
-  box-shadow: var(--shadow-lg);
-}
-
-.dim .bg-gradient-to-r:hover {
-  box-shadow: var(--shadow-xl);
-  transform: translateY(-1px);
-}
-
-/* Enhanced card styles for dim theme */
-.dim [data-slot="card"] {
-  background: var(
-    --gradient-secondary,
-    linear-gradient(135deg, hsl(213 13% 17%) 0%, hsl(213 13% 12%) 100%)
-  );
-  border: 1px solid hsl(var(--border));
-  box-shadow: var(--shadow-md);
-}
-
-/* Enhanced backdrop blur for navigation in dim theme */
-.dim .backdrop-blur-md {
-  backdrop-filter: blur(12px) saturate(1.2);
-  background-color: hsl(var(--background) / 0.85);
-}
-
 /* Enhanced focus styles for dim theme */
 .dim *:focus-visible {
   outline: 2px solid hsl(var(--ring));
@@ -326,6 +296,14 @@ select:focus {
   box-shadow: 0 12px 48px rgb(0 0 0 / 0.6);
 }
 
+/* Dialog close button positioning fix */
+[data-slot="dialog-close"] {
+  position: absolute !important;
+  top: 1rem !important;
+  right: 1rem !important;
+  z-index: 10;
+}
+
 /* Navigation enhancements */
 nav {
   border-bottom: 1px solid hsl(var(--border) / 0.6);
@@ -368,139 +346,6 @@ nav {
   --glow-secondary: 0 0 15px hsl(var(--secondary) / 0.2);
 }
 
-/* Glass morphism cards for dim theme */
-.dim .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-}
-
-/* Enhanced hover effects for dim theme */
-.dim .hover-glow:hover {
-  box-shadow: var(--glow-primary), var(--shadow-xl);
-  transform: translateY(-2px) scale(1.02);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Enhanced text shadows for better readability in dim theme */
-.dim h1,
-.dim h2,
-.dim h3,
-.dim h4,
-.dim h5,
-.dim h6 {
-  text-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
-}
-
-/* Enhanced badge styles for dim theme */
-.dim .badge-enhanced {
-  background: linear-gradient(
-    135deg,
-    hsl(var(--primary) / 0.8),
-    hsl(var(--primary) / 0.6)
-  );
-  border: 1px solid hsl(var(--primary) / 0.4);
-  box-shadow: 0 2px 8px hsl(var(--primary) / 0.3);
-  text-shadow: 0 1px 2px rgb(0 0 0 / 0.8);
-}
-
-/* Enhanced input focus states for dim theme */
-.dim input:focus,
-.dim textarea:focus {
-  box-shadow:
-    0 0 0 2px hsl(var(--ring)),
-    0 0 20px hsl(var(--ring) / 0.3),
-    var(--shadow-lg);
-  border-color: hsl(var(--ring));
-}
-
-/* Enhanced loading animations for dim theme */
-.dim .loading-shimmer {
-  background: linear-gradient(
-    90deg,
-    hsl(var(--muted)) 0%,
-    hsl(var(--muted-foreground) / 0.3) 50%,
-    hsl(var(--muted)) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-/* Enhanced pulse effect for dim theme */
-.dim .pulse-glow {
-  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 30px hsl(var(--primary) / 0.6);
-    transform: scale(1.05);
-  }
-}
-
-/* Enhanced navigation blur effect for dim theme */
-.dim .nav-blur {
-  backdrop-filter: blur(16px) saturate(180%) brightness(1.1);
-  background: linear-gradient(
-    180deg,
-    hsl(var(--background) / 0.9) 0%,
-    hsl(var(--background) / 0.7) 100%
-  );
-  border-bottom: 1px solid hsl(var(--border) / 0.5);
-}
-
-/* Enhanced tooltip styles for dim theme */
-.dim .tooltip {
-  background: hsl(var(--popover) / 0.95);
-  backdrop-filter: blur(8px);
-  border: 1px solid hsl(var(--border) / 0.6);
-  box-shadow: var(--shadow-lg);
-  color: hsl(var(--popover-foreground));
-}
-
-/* Enhanced code block styles for dim theme */
-.dim pre,
-.dim code {
-  background: hsl(var(--muted) / 0.8);
-  border: 1px solid hsl(var(--border) / 0.6);
-  box-shadow: inset 0 2px 4px rgb(0 0 0 / 0.3);
-}
-
-/* Enhanced table styles for dim theme */
-.dim table {
-  backdrop-filter: blur(8px);
-  border: 1px solid hsl(var(--border) / 0.6);
-}
-
-.dim th {
-  background: linear-gradient(
-    180deg,
-    hsl(var(--muted)),
-    hsl(var(--muted) / 0.8)
-  );
-  border-bottom: 2px solid hsl(var(--border));
-}
-
-.dim tr:hover {
-  background: hsl(var(--muted) / 0.3);
-  backdrop-filter: blur(4px);
-}
-
 /* Additional enhancements for dim theme */
 .dim {
   /* Enhanced text rendering */
@@ -509,64 +354,352 @@ nav {
   text-rendering: optimizeLegibility;
 }
 
-/* Enhanced button hover states for dim theme */
-.dim button:hover,
-.dim .btn:hover {
-  backdrop-filter: blur(8px);
+/* ===== RING LOADER ANIMATION SYSTEM ===== */
+
+/* Ring Loader Animation */
+@keyframes ring-rotate {
+  from {
+    stroke-dashoffset: var(--perimeter);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.ring-loader-svg {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.ring-loader-path {
+  animation: ring-rotate var(--animation-duration, 3s) linear infinite;
+  will-change: stroke-dashoffset;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  stroke: hsl(var(--primary));
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Enhanced effects for dark theme */
+.dark .ring-loader-path {
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ===== ENHANCED STATS SECTION STYLING ===== */
+
+/* Stats Section Enhancements */
+.stats-card {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid hsl(var(--border) / 0.4);
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--card) / 0.95) 0%,
+    hsl(var(--card) / 0.85) 100%
+  );
   box-shadow:
-    0 0 20px hsl(var(--primary) / 0.3),
-    var(--shadow-lg);
+    0 4px 6px -1px hsl(var(--foreground) / 0.1),
+    0 2px 4px -1px hsl(var(--foreground) / 0.06),
+    inset 0 1px 0 hsl(var(--foreground) / 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Enhanced form elements for dim theme */
-.dim input[type="text"]:focus,
-.dim input[type="email"]:focus,
-.dim input[type="password"]:focus,
-.dim textarea:focus {
-  background: hsl(var(--input) / 0.8);
-  backdrop-filter: blur(8px);
-}
-
-/* Enhanced link hover effects for dim theme */
-.dim a:hover {
-  text-shadow: 0 0 8px hsl(var(--primary) / 0.6);
-  transition: all 0.2s ease-in-out;
-}
-
-/* Enhanced modal/dialog styles for dim theme */
-.dim [role="dialog"],
-.dim .modal {
-  backdrop-filter: blur(20px) saturate(180%);
-  background: hsl(var(--background) / 0.9);
-  border: 1px solid hsl(var(--border) / 0.6);
+.stats-card:hover {
+  border: 2px solid hsl(var(--primary) / 0.6);
   box-shadow:
-    0 25px 50px -12px rgb(0 0 0 / 0.6),
-    0 0 0 1px hsl(var(--border) / 0.3);
+    0 8px 25px -5px hsl(var(--primary) / 0.15),
+    0 4px 6px -2px hsl(var(--primary) / 0.1),
+    inset 0 1px 0 hsl(var(--foreground) / 0.1),
+    0 0 0 1px hsl(var(--primary) / 0.3);
 }
 
-/* Enhanced toast/notification styles for dim theme */
-.dim .toast,
-.dim .notification {
-  backdrop-filter: blur(12px);
-  background: hsl(var(--card) / 0.95);
-  border: 1px solid hsl(var(--border) / 0.8);
-  box-shadow: var(--shadow-xl);
+/* Dark theme stats card enhancements */
+.dark .stats-card {
+  border: 2px solid hsl(var(--border) / 0.6);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--card)) 0%,
+    hsl(var(--card) / 0.9) 100%
+  );
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.3),
+    0 2px 4px -1px rgb(0 0 0 / 0.2),
+    inset 0 1px 0 hsl(var(--foreground) / 0.1);
 }
 
-/* Enhanced progress bars for dim theme */
-.dim .progress-bar {
+.dark .stats-card:hover {
+  border: 2px solid hsl(var(--primary) / 0.8);
+  box-shadow:
+    0 12px 35px -8px hsl(var(--primary) / 0.3),
+    0 6px 12px -4px hsl(var(--primary) / 0.2),
+    inset 0 1px 0 hsl(var(--foreground) / 0.1),
+    0 0 0 1px hsl(var(--primary) / 0.4);
+}
+
+.stats-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(
     90deg,
-    hsl(var(--primary)) 0%,
-    hsl(var(--primary) / 0.8) 50%,
-    hsl(var(--primary)) 100%
+    transparent,
+    hsl(var(--primary) / 0.1),
+    transparent
   );
-  box-shadow: 0 0 10px hsl(var(--primary) / 0.4);
+  transition: left 0.6s ease;
 }
 
-/* Enhanced dividers for dim theme */
-.dim hr,
-.dim .divider {
-  border-color: hsl(var(--border) / 0.6);
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+.stats-card:hover::before {
+  left: 100%;
+}
+
+/* Enhanced stats number styling */
+.stats-number {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--primary) / 0.8) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px hsl(var(--primary) / 0.2);
+  position: relative;
+}
+
+.stats-number::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  background-clip: text;
+  -webkit-background-clip: text;
+  filter: blur(8px);
+  opacity: 0.3;
+  z-index: -1;
+}
+
+/* Pulse effect for stats numbers */
+@keyframes stats-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.stats-number:hover {
+  animation: stats-pulse 0.6s ease-in-out;
+}
+
+/* ===== ENHANCED UI COMPONENTS WITH BORDERS ===== */
+
+/* Enhanced Badge and Banner Components */
+.beta-badge,
+.banner-badge {
+  border: 2px solid hsl(var(--primary) / 0.4);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.1) 0%,
+    hsl(var(--primary) / 0.05) 100%
+  );
+  box-shadow:
+    0 4px 6px -1px hsl(var(--primary) / 0.15),
+    0 2px 4px -1px hsl(var(--primary) / 0.1),
+    inset 0 1px 0 hsl(var(--primary) / 0.2);
+  backdrop-filter: blur(8px);
+  position: relative;
+}
+
+.beta-badge::after,
+.banner-badge::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.6) 0%,
+    hsl(var(--primary) / 0.3) 50%,
+    hsl(var(--primary) / 0.6) 100%
+  );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  z-index: -1;
+}
+
+/* Dark theme enhancements for badges */
+.dark .beta-badge,
+.dark .banner-badge {
+  border: 2px solid hsl(var(--primary) / 0.6);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.15) 0%,
+    hsl(var(--primary) / 0.08) 100%
+  );
+  box-shadow:
+    0 8px 25px -5px hsl(var(--primary) / 0.3),
+    0 4px 6px -2px hsl(var(--primary) / 0.2),
+    inset 0 1px 0 hsl(var(--primary) / 0.3);
+}
+
+/* Enhanced Component Borders */
+button,
+[role="button"] {
+  border: 2px solid hsl(var(--border) / 0.5);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--background)) 0%,
+    hsl(var(--background) / 0.95) 100%
+  );
+  box-shadow:
+    0 2px 4px -1px hsl(var(--foreground) / 0.1),
+    0 1px 2px -1px hsl(var(--foreground) / 0.06);
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+button::before,
+[role="button"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.1) 0%,
+    transparent 50%,
+    hsl(var(--primary) / 0.1) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+button:hover,
+[role="button"]:hover {
+  border-color: hsl(var(--primary) / 0.6);
+  box-shadow:
+    0 8px 25px -5px hsl(var(--primary) / 0.15),
+    0 4px 6px -2px hsl(var(--primary) / 0.1),
+    0 0 0 1px hsl(var(--primary) / 0.3);
+  transform: translateY(-1px);
+}
+
+button:hover::before,
+[role="button"]:hover::before {
+  opacity: 1;
+}
+
+/* Dark theme button enhancements */
+.dark button,
+.dark [role="button"] {
+  border: 2px solid hsl(var(--border));
+  background: linear-gradient(
+    135deg,
+    hsl(var(--background)) 0%,
+    hsl(var(--background) / 0.9) 100%
+  );
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.3),
+    0 2px 4px -1px rgb(0 0 0 / 0.2);
+}
+
+.dark button:hover,
+.dark [role="button"]:hover {
+  border-color: hsl(var(--primary) / 0.8);
+  box-shadow:
+    0 12px 35px -8px hsl(var(--primary) / 0.3),
+    0 6px 12px -4px hsl(var(--primary) / 0.2),
+    0 0 0 1px hsl(var(--primary) / 0.4);
+  transform: translateY(-2px);
+}
+
+/* Card enhancements for all themes */
+[data-slot="card"],
+.card {
+  border: 2px solid hsl(var(--border) / 0.6);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--card)) 0%,
+    hsl(var(--card) / 0.95) 100%
+  );
+  box-shadow:
+    0 4px 6px -1px hsl(var(--foreground) / 0.1),
+    0 2px 4px -1px hsl(var(--foreground) / 0.06),
+    inset 0 1px 0 hsl(var(--foreground) / 0.05);
+  position: relative;
+}
+
+[data-slot="card"]::before,
+.card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--border) / 0.6) 0%,
+    hsl(var(--border) / 0.3) 50%,
+    hsl(var(--border) / 0.6) 100%
+  );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+[data-slot="card"]:hover::before,
+.card:hover::before {
+  opacity: 1;
+}
+
+/* Dark theme card enhancements */
+.dark [data-slot="card"],
+.dark .card {
+  border: 2px solid hsl(var(--border));
+  background: linear-gradient(
+    135deg,
+    hsl(var(--card)) 0%,
+    hsl(var(--card) / 0.9) 100%
+  );
+  box-shadow:
+    0 8px 25px -5px rgb(0 0 0 / 0.4),
+    0 4px 6px -2px rgb(0 0 0 / 0.3),
+    inset 0 1px 0 hsl(var(--foreground) / 0.1);
+}
+
+.dark [data-slot="card"]:hover,
+.dark .card:hover {
+  border-color: hsl(var(--primary) / 0.6);
+  box-shadow:
+    0 12px 35px -8px hsl(var(--primary) / 0.3),
+    0 6px 12px -4px hsl(var(--primary) / 0.2),
+    inset 0 1px 0 hsl(var(--foreground) / 0.1),
+    0 0 0 1px hsl(var(--primary) / 0.4);
 }
