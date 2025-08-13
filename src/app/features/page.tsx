@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { RingLoader } from "@/components/RingLoader";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -228,16 +229,27 @@ export default function FeaturesPage() {
       <section className="relative overflow-hidden bg-primary text-primary-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24 xl:py-32">
           <div className="text-center">
-            <Badge variant="secondary" className="mb-4">
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse"></span>
-                BETA PROGRAM
-              </span>
-              <span className="hidden sm:inline">
-                {" "}
-                Technical Excellence • 100% Revenue Share
-              </span>
-            </Badge>
+            <div className="relative inline-block mb-4">
+              <Badge variant="secondary" className="relative z-10">
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse"></span>
+                  BETA PROGRAM
+                </span>
+                <span className="hidden sm:inline">
+                  {" "}
+                  Technical Excellence • 100% Revenue Share
+                </span>
+              </Badge>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <RingLoader
+                  width={380}
+                  height={44}
+                  strokeWidth={2}
+                  animationSpeed={5}
+                  borderRadius={22}
+                />
+              </div>
+            </div>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 sm:mb-6">
               Built for Performance,
               <span className="text-primary-foreground/80">

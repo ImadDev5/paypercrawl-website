@@ -32,7 +32,7 @@ export function SignInModal({ children }: SignInModalProps) {
 
   const extractTokenFromLink = (link: string): string | null => {
     try {
-      // Handle full URLs like https://paypercrawl.tech/dashboard?token=invite_xxx
+      // Handle full URLs like http://localhost:3001/dashboard?token=invite_xxx
       const url = new URL(link);
       const token = url.searchParams.get("token");
       if (token) return token;
@@ -116,7 +116,7 @@ export function SignInModal({ children }: SignInModalProps) {
                 <p className="text-xs text-muted-foreground">
                   You can paste the full link (e.g.,{" "}
                   <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                    https://paypercrawl.tech/dashboard?token=invite_xxx
+                    http://localhost:3001/dashboard?token=invite_xxx
                   </code>
                   ) or just the token (
                   <code className="text-xs bg-muted px-1 py-0.5 rounded">
