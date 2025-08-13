@@ -4,7 +4,6 @@
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)]()
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4-38B2AC?style=flat-square&logo=tailwind-css)]()
 [![WordPress Plugin](https://img.shields.io/badge/WordPress-Plugin-21759B?style=flat-square&logo=wordpress)]()
-[![License: MIT](https://img.shields.io/badge/license-MIT-yellow?style=flat-square)]()
 
 > **Turn AI bot traffic into revenue.**  
 > PayPerCrawl empowers website owners and developers to monetize AI-driven crawler traffic through a powerful SaaS platform and WordPress integration.
