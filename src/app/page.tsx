@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { RingLoader } from "@/components/RingLoader";
 import {
   ArrowRight,
   Shield,
@@ -46,16 +47,31 @@ export default function Home() {
         ></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
           <div className="text-center">
-            <Badge variant="secondary" className="mb-4 text-xs sm:text-sm">
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-                BETA PROGRAM
-              </span>
-              <span className="hidden sm:inline"> • </span>
-              <span className="block sm:inline">
-                Limited Access • 100% Revenue Share
-              </span>
-            </Badge>
+            <div className="relative inline-block mb-4">
+              <Badge
+                variant="secondary"
+                className="text-xs sm:text-sm relative z-10"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                  BETA PROGRAM
+                </span>
+                <span className="hidden sm:inline"> • </span>
+                <span className="block sm:inline">
+                  Limited Access • 100% Revenue Share
+                </span>
+              </Badge>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <RingLoader
+                  width={440}
+                  height={44}
+                  strokeWidth={2}
+                  animationSpeed={5}
+                  borderRadius={22}
+                  style={{ marginTop: "2px" }}
+                />
+              </div>
+            </div>
             <h1 className="text-balance text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground mb-4 sm:mb-6 leading-tight">
               <span className="block sm:inline">Monetize Your Content</span>
               <span className="text-primary block sm:inline"> Risk-Free</span>
@@ -92,39 +108,54 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="bg-secondary/60 text-secondary-foreground py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">
-                75M+
-              </div>
-              <div className="text-sm sm:text-base text-muted-foreground">
-                WordPress Sites
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">
-                99%
-              </div>
-              <div className="text-sm sm:text-base text-muted-foreground">
-                Cost Advantage
+      <section className="bg-secondary/60 text-secondary-foreground py-12 sm:py-16 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+            <div className="group relative">
+              <div className="stats-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-4 sm:p-6 text-center transition-all duration-300 hover:bg-card/90 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1">
+                <div className="stats-number text-2xl sm:text-3xl font-bold text-primary mb-2 transition-transform duration-300 group-hover:scale-110">
+                  75M+
+                </div>
+                <div className="text-sm sm:text-base text-muted-foreground font-medium">
+                  WordPress Sites
+                </div>
+                {/* Subtle accent line */}
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">
-                &lt;100ms
-              </div>
-              <div className="text-sm sm:text-base text-muted-foreground">
-                Response Time
+            <div className="group relative">
+              <div className="stats-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-4 sm:p-6 text-center transition-all duration-300 hover:bg-card/90 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1">
+                <div className="stats-number text-2xl sm:text-3xl font-bold text-primary mb-2 transition-transform duration-300 group-hover:scale-110">
+                  99%
+                </div>
+                <div className="text-sm sm:text-base text-muted-foreground font-medium">
+                  Cost Advantage
+                </div>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">
-                100%
+            <div className="group relative">
+              <div className="stats-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-4 sm:p-6 text-center transition-all duration-300 hover:bg-card/90 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1">
+                <div className="stats-number text-2xl sm:text-3xl font-bold text-primary mb-2 transition-transform duration-300 group-hover:scale-110">
+                  &lt;100ms
+                </div>
+                <div className="text-sm sm:text-base text-muted-foreground font-medium">
+                  Response Time
+                </div>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
-              <div className="text-sm sm:text-base text-muted-foreground">
-                Revenue Share
+            </div>
+            <div className="group relative">
+              <div className="stats-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-4 sm:p-6 text-center transition-all duration-300 hover:bg-card/90 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1">
+                <div className="stats-number text-2xl sm:text-3xl font-bold text-primary mb-2 transition-transform duration-300 group-hover:scale-110">
+                  100%
+                </div>
+                <div className="text-sm sm:text-base text-muted-foreground font-medium">
+                  Revenue Share
+                </div>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             </div>
           </div>
