@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { RingLoader } from "@/components/RingLoader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -554,14 +555,28 @@ export default function WaitlistPage() {
       {/* Hero Section */}
       <section className="py-12 sm:py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Badge variant="secondary" className="mb-4 text-xs sm:text-sm">
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-              BETA APPLICATION
-            </span>
-            <span className="hidden sm:inline"> • </span>
-            <span className="block sm:inline">Limited Spots Available</span>
-          </Badge>
+          <div className="relative inline-block mb-4">
+            <Badge
+              variant="secondary"
+              className="text-xs sm:text-sm relative z-10"
+            >
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                BETA APPLICATION
+              </span>
+              <span className="hidden sm:inline"> • </span>
+              <span className="block sm:inline">Limited Spots Available</span>
+            </Badge>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <RingLoader
+                width={380}
+                height={44}
+                strokeWidth={2}
+                animationSpeed={5}
+                borderRadius={22}
+              />
+            </div>
+          </div>
           <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground mb-4 sm:mb-6">
             <span className="block sm:inline">Join the PayPerCrawl</span>
             <span className="text-primary block sm:inline"> Beta Program</span>

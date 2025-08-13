@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { RingLoader } from "@/components/RingLoader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -333,13 +334,24 @@ export default function BlogPage() {
       <section className="relative overflow-hidden bg-primary text-primary-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="text-center">
-            <Badge variant="secondary" className="mb-4">
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse"></span>
-                BETA PROGRAM
-              </span>
-              Resources & Blog • 100% Revenue Share
-            </Badge>
+            <div className="relative inline-block mb-4">
+              <Badge variant="secondary" className="relative z-10">
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse"></span>
+                  BETA PROGRAM
+                </span>
+                Resources & Blog • 100% Revenue Share
+              </Badge>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <RingLoader
+                  width={380}
+                  height={44}
+                  strokeWidth={2}
+                  animationSpeed={5}
+                  borderRadius={22}
+                />
+              </div>
+            </div>
             <h1 className="text-4xl lg:text-5xl font-bold mb-6">
               Insights for WordPress
               <span className="text-primary-foreground/80">
