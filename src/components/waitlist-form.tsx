@@ -138,10 +138,15 @@ export function WaitlistForm({ onSuccess }: WaitlistFormProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name *</Label>
-              <Input id="name" {...register("name")} placeholder="John Doe" />
+              <Input
+                id="name"
+                {...register("name")}
+                placeholder="John Doe"
+                className="text-base mobile-input"
+              />
               {errors.name && (
                 <p className="text-sm text-red-600 flex items-center gap-1">
                   <AlertCircle className="h-3 w-3" />
@@ -157,6 +162,7 @@ export function WaitlistForm({ onSuccess }: WaitlistFormProps) {
                 type="email"
                 {...register("email")}
                 placeholder="john@example.com"
+                className="text-base mobile-input"
               />
               {errors.email && (
                 <p className="text-sm text-red-600 flex items-center gap-1">
@@ -167,13 +173,14 @@ export function WaitlistForm({ onSuccess }: WaitlistFormProps) {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="website">Website URL</Label>
               <Input
                 id="website"
                 {...register("website")}
                 placeholder="https://yourwebsite.com"
+                className="text-base mobile-input"
               />
               {errors.website && (
                 <p className="text-sm text-red-600 flex items-center gap-1">
@@ -191,7 +198,7 @@ export function WaitlistForm({ onSuccess }: WaitlistFormProps) {
                   setValue("companySize", value as "small" | "medium" | "large")
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="text-base mobile-input">
                   <SelectValue placeholder="Select company size" />
                 </SelectTrigger>
                 <SelectContent>
@@ -212,10 +219,15 @@ export function WaitlistForm({ onSuccess }: WaitlistFormProps) {
               {...register("useCase")}
               placeholder="Tell us about your website, content type, and how you'd like to monetize AI bot traffic..."
               rows={4}
+              className="text-base resize-none mobile-input"
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            className="w-full mobile-button"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

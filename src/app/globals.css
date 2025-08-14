@@ -389,6 +389,76 @@ body.cloudflare {
     0 1px 3px hsl(24 100% 50% / 0.05);
 }
 
+/* Enhanced Badge styling for Cloudflare theme - Fix RingLoader overlay issue */
+.cloudflare [data-slot="badge"] {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.cloudflare [data-slot="badge"]:hover {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Enhanced RingLoader styling for Cloudflare theme - Fix square overlay issue */
+.cloudflare div:has(svg.ring-loader-svg),
+.cloudflare div:has([class*="ring-loader"]),
+.cloudflare [class*="relative"]:has(svg.ring-loader-svg),
+.cloudflare [class*="absolute"]:has(svg.ring-loader-svg),
+.cloudflare [class*="flex"]:has(svg.ring-loader-svg) {
+  border: none !important;
+  background: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  outline: none !important;
+}
+
+.cloudflare div:has(svg.ring-loader-svg)::before,
+.cloudflare div:has(svg.ring-loader-svg)::after,
+.cloudflare div:has([class*="ring-loader"])::before,
+.cloudflare div:has([class*="ring-loader"])::after {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+}
+
+.cloudflare .ring-loader-svg,
+.cloudflare .ring-loader-svg *,
+.cloudflare [class*="ring-loader"] {
+  border: none !important;
+  background: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  outline: none !important;
+}
+
+.cloudflare .ring-loader-svg::before,
+.cloudflare .ring-loader-svg::after,
+.cloudflare [class*="ring-loader"]::before,
+.cloudflare [class*="ring-loader"]::after {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+}
+
+/* Let RingLoader use its original animation naturally in Cloudflare theme */
+.cloudflare .ring-loader-path {
+  transition: none !important;
+  /* Let the ring-rotate animation work naturally */
+}
+
+.cloudflare .ring-loader-svg,
+.cloudflare .ring-loader-svg * {
+  transition: none !important;
+}
+
 /* Enhanced Cloudflare navigation styling */
 .cloudflare nav {
   background: linear-gradient(
