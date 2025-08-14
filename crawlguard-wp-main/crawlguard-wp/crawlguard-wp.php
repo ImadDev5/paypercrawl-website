@@ -86,7 +86,10 @@ if (!class_exists('CrawlGuardWP')) {
             'includes/class-bot-detector.php',
             'includes/class-api-client.php',
             'includes/class-admin.php',
-            'includes/class-frontend.php'
+            'includes/class-frontend.php',
+            'includes/class-rate-limiter.php',
+            'includes/class-http-signatures.php',
+            'includes/class-ip-intel.php'
         );
 
         foreach ($required_files as $file) {
@@ -106,6 +109,9 @@ if (!class_exists('CrawlGuardWP')) {
     private function init_hooks() {
         // Initialize bot detection on every request
         add_action('wp', array($this, 'detect_and_handle_bots'));
+
+        // Optional early rate limiting (soft header only)
+        add_action('parse_request', function(){ $opts=get_option('crawlguard_options'); if(!empty($opts['feature_flags']['enable_rate_limiting'])) { if(class_exists('CrawlGuard_RateLimiter')) { CrawlGuard_RateLimiter::maybe_limit_current_request(); } } }, 1);
         
         // Admin interface
         if (is_admin()) {
@@ -156,10 +162,56 @@ if (!class_exists('CrawlGuardWP')) {
             bot_type varchar(50),
             action_taken varchar(20) DEFAULT 'allowed' NOT NULL,
             revenue_generated decimal(10,4) DEFAULT 0.00,
+            http_headers text,
+            fingerprint_hash varchar(128),
+            rate_limited tinyint(1) DEFAULT 0 NOT NULL,
+            ip_reputation text NULL,
             PRIMARY KEY (id),
             KEY ip_address (ip_address),
             KEY timestamp (timestamp)
         ) $charset_collate;";
+
+        // Rate limits table
+        $rl_table = $wpdb->prefix . 'crawlguard_rate_limits';
+        $sql_rl = "CREATE TABLE $rl_table (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            bucket varchar(190) NOT NULL,
+            period varchar(20) NOT NULL,
+            window_start datetime NOT NULL,
+            count int unsigned NOT NULL DEFAULT 0,
+            last_ip varchar(45),
+            last_ua text,
+            PRIMARY KEY (id),
+            UNIQUE KEY bucket_period (bucket, period)
+        ) $charset_collate;";
+        dbDelta($sql_rl);
+
+        // Signing keys table
+        $keys_table = $wpdb->prefix . 'crawlguard_signing_keys';
+        $sql_keys = "CREATE TABLE $keys_table (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            client_id varchar(190) NOT NULL,
+            public_key text NOT NULL,
+            algo varchar(50) DEFAULT 'rsa-v1_5-sha256',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY client_id (client_id)
+        ) $charset_collate;";
+        dbDelta($sql_keys);
+
+        // Fingerprints table
+        $fp_table = $wpdb->prefix . 'crawlguard_fingerprints';
+        $sql_fp = "CREATE TABLE $fp_table (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            timestamp datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            ip varchar(45) NOT NULL,
+            ua_hash varchar(64) NOT NULL,
+            fp_hash varchar(128) NOT NULL,
+            headers text,
+            PRIMARY KEY (id),
+            KEY ip (ip)
+        ) $charset_collate;";
+        dbDelta($sql_fp);
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
@@ -172,7 +224,25 @@ if (!class_exists('CrawlGuardWP')) {
             'monetization_enabled' => false,
             'detection_sensitivity' => 'medium',
             'allowed_bots' => array('googlebot', 'bingbot'),
-            'pricing_per_request' => 0.001
+            'pricing_per_request' => 0.001,
+            'feature_flags' => array(
+                'enable_rate_limiting' => false,
+                'enable_ip_intel' => false,
+                'enable_fingerprinting_log' => false,
+                'enable_pow' => false,
+                'enable_http_signatures' => false,
+                'enable_privacy_pass' => false,
+            ),
+            'rate_limits' => array(
+                'per_ip_per_min' => 120,
+                'per_ip_per_hour' => 2000,
+                'per_ua_per_min' => 240,
+            ),
+            'ip_intel' => array(
+                'provider' => 'none',
+                'ipinfo_token' => '',
+                'maxmind_account' => ''
+            )
         );
 
         add_option('crawlguard_options', $default_options);

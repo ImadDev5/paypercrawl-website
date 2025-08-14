@@ -14,6 +14,9 @@ class CrawlGuard_Admin {
         add_action('admin_init', array($this, 'init_settings'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_action('wp_ajax_crawlguard_get_analytics', array($this, 'ajax_get_analytics'));
+        // New: AJAX endpoints used by admin.js
+        add_action('wp_ajax_crawlguard_get_chart_data', array($this, 'ajax_get_chart_data'));
+        add_action('wp_ajax_crawlguard_get_realtime_stats', array($this, 'ajax_get_realtime_stats'));
     }
     
     public function add_admin_menu() {
@@ -332,6 +335,33 @@ class CrawlGuard_Admin {
             'crawlguard_settings',
             'crawlguard_main_section'
         );
+
+        // New: Feature flags
+        add_settings_field(
+            'feature_flags',
+            'Feature Flags',
+            array($this, 'feature_flags_callback'),
+            'crawlguard_settings',
+            'crawlguard_main_section'
+        );
+
+        // New: Rate limits
+        add_settings_field(
+            'rate_limits',
+            'Rate Limits',
+            array($this, 'rate_limits_callback'),
+            'crawlguard_settings',
+            'crawlguard_main_section'
+        );
+
+        // New: IP Intelligence
+        add_settings_field(
+            'ip_intel',
+            'IP Intelligence',
+            array($this, 'ip_intel_callback'),
+            'crawlguard_settings',
+            'crawlguard_main_section'
+        );
     }
     
     public function main_section_callback() {
@@ -378,6 +408,50 @@ class CrawlGuard_Admin {
             echo '<p class="description">Enable to start monetizing AI bot traffic on your website.</p>';
         }
     }
+
+    // New: Feature flags UI
+    public function feature_flags_callback() {
+        $opts = get_option('crawlguard_options');
+        $ff = $opts['feature_flags'] ?? array();
+        $fields = array(
+            'enable_rate_limiting' => 'Enable Rate Limiting (soft header only)',
+            'enable_fingerprinting_log' => 'Enable Header Fingerprinting (log-only)',
+            'enable_ip_intel' => 'Enable IP Intelligence (log-only)',
+            'enable_http_signatures' => 'Enable HTTP Message Signatures (verify-only)',
+            'enable_pow' => 'Enable Proof-of-Work (placeholder)',
+            'enable_privacy_pass' => 'Enable Privacy Pass (placeholder)'
+        );
+        echo '<div class="crawlguard-flags">';
+        foreach ($fields as $key => $label) {
+            $checked = !empty($ff[$key]) ? 'checked' : '';
+            echo '<label style="display:block;margin:4px 0;"><input type="checkbox" name="crawlguard_options[feature_flags]['.$key.']" value="1" '.$checked.' /> '.$label.'</label>';
+        }
+        echo '<p class="description">All new features are off by default. Enabling them remains non-blocking unless documented.</p>';
+        echo '</div>';
+    }
+
+    // New: Rate limits UI
+    public function rate_limits_callback() {
+        $opts = get_option('crawlguard_options');
+        $rl = $opts['rate_limits'] ?? array('per_ip_per_min'=>120,'per_ip_per_hour'=>2000,'per_ua_per_min'=>240);
+        echo '<div class="crawlguard-rate-limits">';
+        echo 'Per-IP per minute: <input type="number" min="1" name="crawlguard_options[rate_limits][per_ip_per_min]" value="'.esc_attr($rl['per_ip_per_min']).'" style="width:100px;" /> ';
+        echo 'Per-IP per hour: <input type="number" min="1" name="crawlguard_options[rate_limits][per_ip_per_hour]" value="'.esc_attr($rl['per_ip_per_hour']).'" style="width:100px;margin-left:12px;" /> ';
+        echo 'Per-UA per minute: <input type="number" min="1" name="crawlguard_options[rate_limits][per_ua_per_min]" value="'.esc_attr($rl['per_ua_per_min']).'" style="width:100px;margin-left:12px;" />';
+        echo '<p class="description">Effective only if Rate Limiting is enabled. Currently adds a soft response header, does not block.</p>';
+        echo '</div>';
+    }
+
+    // New: IP intelligence UI
+    public function ip_intel_callback() {
+        $opts = get_option('crawlguard_options');
+        $cfg = $opts['ip_intel'] ?? array('provider'=>'none','ipinfo_token'=>'');
+        echo '<div class="crawlguard-ipintel">';
+        echo 'Provider: <select name="crawlguard_options[ip_intel][provider]"><option value="none"'.selected($cfg['provider'],'none',false).'>None</option><option value="ipinfo"'.selected($cfg['provider'],'ipinfo',false).'>IPinfo</option></select> ';
+        echo 'IPinfo Token: <input type="text" name="crawlguard_options[ip_intel][ipinfo_token]" value="'.esc_attr($cfg['ipinfo_token']).'" style="width:280px;margin-left:12px;" placeholder="token" />';
+        echo '<p class="description">Configure token then enable IP Intelligence in Feature Flags to log reputation.</p>';
+        echo '</div>';
+    }
     
     public function validate_options($input) {
         $output = array();
@@ -405,8 +479,39 @@ class CrawlGuard_Admin {
         }
         
         // Handle monetization setting
-        if (isset($input['monetization_enabled']) && $output['api_key_valid']) {
+        if (isset($input['monetization_enabled']) && ($output['api_key_valid'] ?? ($current_options['api_key_valid'] ?? false))) {
             $output['monetization_enabled'] = (bool) $input['monetization_enabled'];
+        } else {
+            // If no api_key change in this request, preserve prior state
+            if (!isset($output['monetization_enabled']) && isset($current_options['monetization_enabled'])) {
+                $output['monetization_enabled'] = $current_options['monetization_enabled'];
+            }
+        }
+
+        // New: feature flags
+        if (isset($input['feature_flags']) && is_array($input['feature_flags'])) {
+            $ff = array();
+            foreach (array('enable_rate_limiting','enable_ip_intel','enable_fingerprinting_log','enable_pow','enable_http_signatures','enable_privacy_pass') as $k) {
+                $ff[$k] = !empty($input['feature_flags'][$k]) ? true : false;
+            }
+            $output['feature_flags'] = $ff;
+        }
+
+        // New: rate limits
+        if (isset($input['rate_limits']) && is_array($input['rate_limits'])) {
+            $rl = $input['rate_limits'];
+            $output['rate_limits'] = array(
+                'per_ip_per_min' => max(1, (int)($rl['per_ip_per_min'] ?? 120)),
+                'per_ip_per_hour' => max(1, (int)($rl['per_ip_per_hour'] ?? 2000)),
+                'per_ua_per_min' => max(1, (int)($rl['per_ua_per_min'] ?? 240)),
+            );
+        }
+
+        // New: IP intelligence config
+        if (isset($input['ip_intel']) && is_array($input['ip_intel'])) {
+            $prov = in_array(($input['ip_intel']['provider'] ?? 'none'), array('none','ipinfo'), true) ? $input['ip_intel']['provider'] : 'none';
+            $token = sanitize_text_field($input['ip_intel']['ipinfo_token'] ?? '');
+            $output['ip_intel'] = array('provider' => $prov, 'ipinfo_token' => $token, 'maxmind_account' => '');
         }
         
         // Preserve other settings
@@ -469,5 +574,29 @@ class CrawlGuard_Admin {
         $analytics = $api_client->get_analytics();
         
         wp_send_json_success($analytics);
+    }
+
+    // New: return time-series data for charts from crawlguard_logs (safe defaults)
+    public function ajax_get_chart_data() {
+        check_ajax_referer('crawlguard_nonce', 'nonce');
+        global $wpdb;
+        $period = sanitize_text_field($_POST['period'] ?? '30d');
+        $days = $period === '7d' ? 7 : ($period === '90d' ? 90 : 30);
+        $table = $wpdb->prefix . 'crawlguard_logs';
+        $rows = $wpdb->get_results($wpdb->prepare("SELECT DATE(timestamp) d, SUM(revenue_generated) r FROM $table WHERE timestamp >= DATE_SUB(NOW(), INTERVAL %d DAY) GROUP BY d ORDER BY d ASC", $days));
+        $data = array();
+        foreach ($rows as $row) { $data[] = array('date' => $row->d, 'revenue' => (float)$row->r); }
+        wp_send_json_success($data);
+    }
+
+    // New: return lightweight realtime stats (counts from last hour/day)
+    public function ajax_get_realtime_stats() {
+        check_ajax_referer('crawlguard_nonce', 'nonce');
+        global $wpdb;
+        $table = $wpdb->prefix . 'crawlguard_logs';
+        $hour = (int) $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE timestamp >= DATE_SUB(NOW(), INTERVAL 1 HOUR)");
+        $day  = (int) $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE timestamp >= DATE_SUB(NOW(), INTERVAL 1 DAY)");
+        $rev  = (float) $wpdb->get_var("SELECT SUM(revenue_generated) FROM $table WHERE timestamp >= DATE_SUB(NOW(), INTERVAL 1 DAY)");
+        wp_send_json_success(array('stats' => array($hour, $day, '$'.number_format($rev,2))));
     }
 }

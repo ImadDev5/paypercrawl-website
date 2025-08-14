@@ -73,6 +73,9 @@ class CrawlGuard_Bot_Detector {
         
         $user_agent = $this->get_user_agent();
         $ip_address = $this->get_client_ip();
+
+        // Verify HTTP Message Signature if enabled (log-only)
+        if (class_exists('CrawlGuard_HTTP_Signatures')) { CrawlGuard_HTTP_Signatures::verify_current_request(); }
         
         // Detect if this is a bot
         $bot_info = $this->detect_bot($user_agent, $ip_address);
@@ -267,21 +270,24 @@ class CrawlGuard_Bot_Detector {
     }
     
     private function log_request($user_agent, $ip_address, $bot_info) {
-        global $wpdb;
-        
-        $table_name = $wpdb->prefix . 'crawlguard_logs';
-        
-        $wpdb->insert(
-            $table_name,
-            array(
-                'ip_address' => $ip_address,
-                'user_agent' => $user_agent,
-                'bot_detected' => $bot_info['is_bot'] ? 1 : 0,
-                'bot_type' => $bot_info['bot_type'],
-                'action_taken' => 'logged'
-            ),
-            array('%s', '%s', '%d', '%s', '%s')
-        );
+        global $wpdb; $table_name = $wpdb->prefix . 'crawlguard_logs';
+        $opts=get_option('crawlguard_options'); $headers=''; $fp_hash='';
+        if (!empty($opts['feature_flags']['enable_fingerprinting_log'])) {
+            $interesting=['HTTP_ACCEPT','HTTP_ACCEPT_LANGUAGE','HTTP_ACCEPT_ENCODING','HTTP_DNT','HTTP_SEC_CH_UA','HTTP_SEC_CH_UA_PLATFORM']; $data=[]; foreach($interesting as $h){ if(!empty($_SERVER[$h])){$data[$h]=$_SERVER[$h];}}
+            $headers=!empty($data)? wp_json_encode($data):''; $fp_hash=$headers? hash('sha256', strtolower($headers)) : '';
+        }
+        $ip_rep=null; if (class_exists('CrawlGuard_IP_Intel')) { $ip_rep = CrawlGuard_IP_Intel::lookup($ip_address); }
+        $wpdb->insert($table_name, [
+            'ip_address'=>$ip_address,
+            'user_agent'=>$user_agent,
+            'bot_detected'=> $bot_info['is_bot']?1:0,
+            'bot_type'=>$bot_info['bot_type'],
+            'action_taken'=>'logged',
+            'http_headers'=>$headers,
+            'fingerprint_hash'=>$fp_hash,
+            'rate_limited'=> !empty($_SERVER['X_CRAWLGUARD_RATE_LIMITED'])?1:0,
+            'ip_reputation'=> $ip_rep,
+        ], ['%s','%s','%d','%s','%s','%s','%d','%s']);
     }
     
     private function log_revenue($amount) {

@@ -37,7 +37,8 @@ import {
 } from "lucide-react";
 
 export function ThemeCustomizer() {
-  const { theme, setTheme, isDim, isDark, isLight } = useThemeUtils();
+  const { theme, setTheme, isDim, isDark, isLight, isCloudflare } =
+    useThemeUtils();
   const [selectedPreset, setSelectedPreset] = useState("github");
   const [previewMode, setPreviewMode] = useState(false);
   const [autoApply, setAutoApply] = useState(false);
@@ -136,7 +137,15 @@ export function ThemeCustomizer() {
           <div className="flex items-center gap-2">
             <Badge variant="outline">{theme}</Badge>
             <Badge variant={isLight ? "default" : "secondary"}>
-              {isLight ? "Light" : isDark ? "Dark" : isDim ? "Dim" : "Unknown"}
+              {isLight
+                ? "Light"
+                : isDark
+                  ? "Dark"
+                  : isDim
+                    ? "Dim"
+                    : isCloudflare
+                      ? "Cloudflare"
+                      : "Unknown"}
             </Badge>
           </div>
         </div>
@@ -260,6 +269,13 @@ export function ThemeCustomizer() {
         <div className="space-y-3">
           <Label className="text-sm font-medium">Test Theme Switching</Label>
           <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant={isCloudflare ? "default" : "outline"}
+              onClick={() => setTheme("cloudflare")}
+            >
+              Cloudflare
+            </Button>
             <Button
               size="sm"
               variant={isLight ? "default" : "outline"}
