@@ -29,10 +29,28 @@ export const RingLoader: React.FC<RingLoaderProps> = ({
   const x = strokeWidth / 2;
   const y = strokeWidth / 2;
   const rx = Math.min(borderRadius, effectiveHeight / 2);
+  const ry = rx; // Keep it symmetrical
 
   // Calculate perimeter of rounded rectangle
   const perimeter =
     2 * (effectiveWidth + effectiveHeight - 4 * rx) + 2 * Math.PI * rx;
+
+  // Create proper rounded rectangle path for better rendering
+  const createRoundedRectPath = () => {
+    const path = `
+      M ${x + rx} ${y}
+      L ${x + effectiveWidth - rx} ${y}
+      Q ${x + effectiveWidth} ${y} ${x + effectiveWidth} ${y + ry}
+      L ${x + effectiveWidth} ${y + effectiveHeight - ry}
+      Q ${x + effectiveWidth} ${y + effectiveHeight} ${x + effectiveWidth - rx} ${y + effectiveHeight}
+      L ${x + rx} ${y + effectiveHeight}
+      Q ${x} ${y + effectiveHeight} ${x} ${y + effectiveHeight - ry}
+      L ${x} ${y + ry}
+      Q ${x} ${y} ${x + rx} ${y}
+      Z
+    `;
+    return path.replace(/\s+/g, " ").trim();
+  };
 
   // Create unique IDs for gradients to avoid conflicts
   const gradientId = `ring-gradient-${Math.random().toString(36).substr(2, 9)}`;
@@ -48,11 +66,9 @@ export const RingLoader: React.FC<RingLoaderProps> = ({
 
   return (
     <div
-      className={`inline-flex items-center justify-center ${className}`}
+      className={`inline-flex items-center justify-center w-full max-w-full ${className}`}
       style={
         {
-          width,
-          height,
           "--animation-duration": `${animationSpeed}s`,
           "--perimeter": perimeter,
           ...style,
@@ -63,9 +79,10 @@ export const RingLoader: React.FC<RingLoaderProps> = ({
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="ring-loader-svg"
+        className="ring-loader-svg w-full h-auto"
         style={{
           transform: "rotate(0deg)", // Start from left side
+          maxWidth: `${width}px`,
         }}
       >
         {/* Define gradient */}
@@ -83,13 +100,8 @@ export const RingLoader: React.FC<RingLoaderProps> = ({
         </defs>
 
         {/* Background rounded rectangle (subtle) */}
-        <rect
-          x={x}
-          y={y}
-          width={effectiveWidth}
-          height={effectiveHeight}
-          rx={rx}
-          ry={rx}
+        <path
+          d={createRoundedRectPath()}
           fill="none"
           stroke="hsl(var(--border))"
           strokeWidth={strokeWidth}
@@ -97,17 +109,13 @@ export const RingLoader: React.FC<RingLoaderProps> = ({
         />
 
         {/* Animated highlight arc */}
-        <rect
-          x={x}
-          y={y}
-          width={effectiveWidth}
-          height={effectiveHeight}
-          rx={rx}
-          ry={rx}
+        <path
+          d={createRoundedRectPath()}
           fill="none"
           stroke={`url(#${gradientId})`}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
+          strokeLinejoin="round"
           strokeDasharray={`${perimeter * 0.25} ${perimeter * 0.75}`}
           className="ring-loader-path"
           style={{

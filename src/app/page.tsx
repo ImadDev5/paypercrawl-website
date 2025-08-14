@@ -50,7 +50,7 @@ export default function Home() {
             <div className="relative inline-block mb-4">
               <Badge
                 variant="secondary"
-                className="text-xs sm:text-sm relative z-10"
+                className="text-xs sm:text-sm relative z-10 px-4 py-2"
               >
                 <span className="flex items-center gap-2">
                   <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
@@ -63,11 +63,11 @@ export default function Home() {
               </Badge>
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <RingLoader
-                  width={440}
-                  height={44}
+                  width={460}
+                  height={50}
                   strokeWidth={2}
                   animationSpeed={5}
-                  borderRadius={22}
+                  borderRadius={25}
                   style={{ marginTop: "2px" }}
                 />
               </div>
@@ -86,7 +86,7 @@ export default function Home() {
                 <Button
                   size="lg"
                   elevation="md"
-                  className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3 shadow-md hover:shadow-lg"
+                  className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3 shadow-md hover:shadow-lg mobile-button mobile-transition"
                 >
                   Apply for Beta Access
                   <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
@@ -97,7 +97,7 @@ export default function Home() {
                   variant="subtle"
                   size="lg"
                   elevation="sm"
-                  className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3"
+                  className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3 mobile-button mobile-transition"
                 >
                   Learn More
                 </Button>
@@ -111,14 +111,14 @@ export default function Home() {
       <section className="bg-secondary/60 text-secondary-foreground py-12 sm:py-16 relative overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+        <div className="max-w-7xl mx-auto mobile-container relative">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             <div className="group relative">
-              <div className="stats-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-4 sm:p-6 text-center transition-all duration-300 hover:bg-card/90 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1">
-                <div className="stats-number text-2xl sm:text-3xl font-bold text-primary mb-2 transition-transform duration-300 group-hover:scale-110">
+              <div className="stats-card mobile-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-3 sm:p-4 md:p-6 text-center transition-all duration-300 hover:bg-card/90 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 mobile-transition">
+                <div className="stats-number text-xl sm:text-2xl md:text-3xl font-bold text-primary mb-1 sm:mb-2 transition-transform duration-300 group-hover:scale-110">
                   75M+
                 </div>
-                <div className="text-sm sm:text-base text-muted-foreground font-medium">
+                <div className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium">
                   WordPress Sites
                 </div>
                 {/* Subtle accent line */}
@@ -126,33 +126,33 @@ export default function Home() {
               </div>
             </div>
             <div className="group relative">
-              <div className="stats-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-4 sm:p-6 text-center transition-all duration-300 hover:bg-card/90 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1">
-                <div className="stats-number text-2xl sm:text-3xl font-bold text-primary mb-2 transition-transform duration-300 group-hover:scale-110">
+              <div className="stats-card mobile-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-3 sm:p-4 md:p-6 text-center transition-all duration-300 hover:bg-card/90 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 mobile-transition">
+                <div className="stats-number text-xl sm:text-2xl md:text-3xl font-bold text-primary mb-1 sm:mb-2 transition-transform duration-300 group-hover:scale-110">
                   99%
                 </div>
-                <div className="text-sm sm:text-base text-muted-foreground font-medium">
+                <div className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium">
                   Cost Advantage
                 </div>
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             </div>
             <div className="group relative">
-              <div className="stats-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-4 sm:p-6 text-center transition-all duration-300 hover:bg-card/90 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1">
-                <div className="stats-number text-2xl sm:text-3xl font-bold text-primary mb-2 transition-transform duration-300 group-hover:scale-110">
+              <div className="stats-card mobile-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-3 sm:p-4 md:p-6 text-center transition-all duration-300 hover:bg-card/90 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 mobile-transition">
+                <div className="stats-number text-xl sm:text-2xl md:text-3xl font-bold text-primary mb-1 sm:mb-2 transition-transform duration-300 group-hover:scale-110">
                   &lt;100ms
                 </div>
-                <div className="text-sm sm:text-base text-muted-foreground font-medium">
+                <div className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium">
                   Response Time
                 </div>
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             </div>
             <div className="group relative">
-              <div className="stats-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-4 sm:p-6 text-center transition-all duration-300 hover:bg-card/90 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1">
-                <div className="stats-number text-2xl sm:text-3xl font-bold text-primary mb-2 transition-transform duration-300 group-hover:scale-110">
+              <div className="stats-card mobile-card bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-3 sm:p-4 md:p-6 text-center transition-all duration-300 hover:bg-card/90 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 mobile-transition">
+                <div className="stats-number text-xl sm:text-2xl md:text-3xl font-bold text-primary mb-1 sm:mb-2 transition-transform duration-300 group-hover:scale-110">
                   100%
                 </div>
-                <div className="text-sm sm:text-base text-muted-foreground font-medium">
+                <div className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium">
                   Revenue Share
                 </div>
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
