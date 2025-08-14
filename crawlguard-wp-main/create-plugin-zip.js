@@ -6,7 +6,7 @@ async function createPluginZip() {
   console.log('🔧 Creating PayPerCrawl WordPress Plugin ZIP...\n');
 
   const pluginDir = './crawlguard-wp';
-  const outputPath = './paypercrawl-wordpress-plugin-v2.0.0.zip';
+  const outputPath = './paypercrawl-wp-v2.0.0.zip';
 
   // Check if plugin directory exists
   if (!fs.existsSync(pluginDir)) {
@@ -34,11 +34,7 @@ async function createPluginZip() {
     console.log('   ✅ Payment Processing Ready');
     console.log('   ✅ Admin Dashboard');
     console.log('   ✅ Configuration Management');
-    console.log('\n🔑 DATABASE CREDENTIALS INCLUDED:');
-    console.log('   Host: ep-steep-resonance-adkp2zt6-pooler.c-2.us-east-1.aws.neon.tech');
-    console.log('   Database: neondb');
-    console.log('   User: neondb_owner');
-    console.log('   Ready for production deployment!');
+    // Redacted any sensitive credentials from output to avoid leaks
   });
 
   // Good practice to catch warnings (ie stat failures and other non-blocking errors)
@@ -64,6 +60,9 @@ async function createPluginZip() {
   
   // Add main plugin file
   archive.file(path.join(pluginDir, 'crawlguard-wp.php'), { name: 'paypercrawl-wp/paypercrawl-wp.php' });
+  // Add beacon endpoint
+  const beaconPath = path.join(pluginDir, 'beacon.php');
+  if (fs.existsSync(beaconPath)) { archive.file(beaconPath, { name: 'paypercrawl-wp/beacon.php' }); }
   console.log('   ✅ Main plugin file');
 
   // Add includes directory

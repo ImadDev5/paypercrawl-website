@@ -15,7 +15,7 @@ import { Sun, Moon, SunDim, Check, Star, Code, Palette } from "lucide-react";
 
 /**
  * Example component demonstrating theme system best practices
- * This showcases all three themes with proper semantic tokens
+ * This showcases all four themes with proper semantic tokens
  */
 export function ThemeShowcaseCard() {
   const { theme, toggleTheme } = useThemeUtils();
@@ -27,14 +27,16 @@ export function ThemeShowcaseCard() {
     light: "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200",
     dark: "bg-gradient-to-br from-blue-950/50 to-indigo-950/50 border-blue-800",
     dim: "bg-gradient-to-br from-accent/30 to-primary/10 border-accent",
+    cloudflare: "bg-gradient-to-br from-orange-50 to-blue-50 border-orange-200",
     default: "bg-gradient-to-br from-accent to-primary/20",
   });
 
   const statusBadgeStyle = getVariant({
     light: "bg-green-100 text-green-800 border-green-200",
     dark: "bg-green-900/30 text-green-400 border-green-800",
-    dim: "bg-green-500/20 text-green-400 border-green-500/30",
-    default: "bg-accent text-accent-foreground",
+    dim: "bg-green-950/50 text-green-300 border-green-700",
+    cloudflare: "bg-green-50 text-green-700 border-green-200",
+    default: "bg-green-100 text-green-800",
   });
 
   return (
