@@ -36,9 +36,9 @@ export function Navigation({ currentPage }: NavigationProps) {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b nav-blur">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b nav-blur mobile-nav">
+      <div className="max-w-7xl mx-auto mobile-container">
+        <div className="flex justify-between items-center h-16 sm:h-18">
           <div className="flex items-center space-x-2">
             <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
             <span className="text-lg sm:text-xl font-bold text-foreground">
@@ -137,8 +137,12 @@ export function Navigation({ currentPage }: NavigationProps) {
             <ModeToggle />
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="p-2">
-                  <Menu className="h-5 w-5" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-2 mobile-button min-h-[44px] min-w-[44px]"
+                >
+                  <Menu className="h-6 w-6" />
                   <span className="sr-only">Toggle menu</span>
                 </Button>
               </SheetTrigger>
@@ -162,10 +166,10 @@ export function Navigation({ currentPage }: NavigationProps) {
                     <div className="space-y-1">
                       <Link
                         href="/"
-                        className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md ${
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md mobile-nav-item mobile-transition ${
                           currentPage === "home"
                             ? "bg-primary/10 border border-primary/20 text-primary"
-                            : "text-foreground hover:bg-accent/80 hover:text-accent-foreground"
+                            : "text-foreground hover:bg-accent/80 hover:text-accent-foreground mobile-hover"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
                       >
@@ -174,10 +178,10 @@ export function Navigation({ currentPage }: NavigationProps) {
                       </Link>
                       <Link
                         href="/features"
-                        className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md ${
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md mobile-nav-item mobile-transition ${
                           currentPage === "features"
                             ? "bg-primary/10 border border-primary/20 text-primary"
-                            : "text-foreground hover:bg-accent/80 hover:text-accent-foreground"
+                            : "text-foreground hover:bg-accent/80 hover:text-accent-foreground mobile-hover"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
                       >
@@ -188,10 +192,10 @@ export function Navigation({ currentPage }: NavigationProps) {
                       </Link>
                       <Link
                         href="/about"
-                        className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md ${
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md mobile-nav-item mobile-transition ${
                           currentPage === "about"
                             ? "bg-primary/10 border border-primary/20 text-primary"
-                            : "text-foreground hover:bg-accent/80 hover:text-accent-foreground"
+                            : "text-foreground hover:bg-accent/80 hover:text-accent-foreground mobile-hover"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
                       >
@@ -202,10 +206,10 @@ export function Navigation({ currentPage }: NavigationProps) {
                       </Link>
                       <Link
                         href="/blog"
-                        className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md ${
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md mobile-nav-item mobile-transition ${
                           currentPage === "blog"
                             ? "bg-primary/10 border border-primary/20 text-primary"
-                            : "text-foreground hover:bg-accent/80 hover:text-accent-foreground"
+                            : "text-foreground hover:bg-accent/80 hover:text-accent-foreground mobile-hover"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
                       >
@@ -214,10 +218,10 @@ export function Navigation({ currentPage }: NavigationProps) {
                       </Link>
                       <Link
                         href="/careers"
-                        className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md ${
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md mobile-nav-item mobile-transition ${
                           currentPage === "careers"
                             ? "bg-primary/10 border border-primary/20 text-primary"
-                            : "text-foreground hover:bg-accent/80 hover:text-accent-foreground"
+                            : "text-foreground hover:bg-accent/80 hover:text-accent-foreground mobile-hover"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
                       >
@@ -228,10 +232,10 @@ export function Navigation({ currentPage }: NavigationProps) {
                       </Link>
                       <Link
                         href="/contact"
-                        className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md ${
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md mobile-nav-item mobile-transition ${
                           currentPage === "contact"
                             ? "bg-primary/10 border border-primary/20 text-primary"
-                            : "text-foreground hover:bg-accent/80 hover:text-accent-foreground"
+                            : "text-foreground hover:bg-accent/80 hover:text-accent-foreground mobile-hover"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
                       >
@@ -245,10 +249,10 @@ export function Navigation({ currentPage }: NavigationProps) {
                       {isAuthenticated && (
                         <Link
                           href="/dashboard"
-                          className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md ${
+                          className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group backdrop-blur-sm hover:shadow-md mobile-nav-item mobile-transition ${
                             currentPage === "dashboard"
                               ? "bg-primary/10 border border-primary/20 text-primary"
-                              : "text-foreground hover:bg-accent/80 hover:text-accent-foreground"
+                              : "text-foreground hover:bg-accent/80 hover:text-accent-foreground mobile-hover"
                           }`}
                           onClick={() => setIsMenuOpen(false)}
                         >
@@ -277,7 +281,7 @@ export function Navigation({ currentPage }: NavigationProps) {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="w-full"
+                          className="w-full mobile-button"
                           onClick={handleLogout}
                         >
                           Logout
@@ -292,7 +296,9 @@ export function Navigation({ currentPage }: NavigationProps) {
                           href="/waitlist"
                           onClick={() => setIsMenuOpen(false)}
                         >
-                          <Button className="w-full">Join Beta</Button>
+                          <Button className="w-full mobile-button">
+                            Join Beta
+                          </Button>
                         </Link>
                       </div>
                     )}

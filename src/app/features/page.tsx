@@ -230,7 +230,7 @@ export default function FeaturesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24 xl:py-32">
           <div className="text-center">
             <div className="relative inline-block mb-4">
-              <Badge variant="secondary" className="relative z-10">
+              <Badge variant="secondary" className="relative z-10 px-4 py-2">
                 <span className="flex items-center gap-2">
                   <span className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse"></span>
                   BETA PROGRAM
@@ -242,11 +242,12 @@ export default function FeaturesPage() {
               </Badge>
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <RingLoader
-                  width={380}
-                  height={44}
+                  width={460}
+                  height={50}
                   strokeWidth={2}
                   animationSpeed={5}
-                  borderRadius={22}
+                  borderRadius={25}
+                  className="max-w-full"
                 />
               </div>
             </div>

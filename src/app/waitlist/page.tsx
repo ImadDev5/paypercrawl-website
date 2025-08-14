@@ -558,7 +558,7 @@ export default function WaitlistPage() {
           <div className="relative inline-block mb-4">
             <Badge
               variant="secondary"
-              className="text-xs sm:text-sm relative z-10"
+              className="text-xs sm:text-sm relative z-10 px-4 py-2"
             >
               <span className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
@@ -569,11 +569,11 @@ export default function WaitlistPage() {
             </Badge>
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <RingLoader
-                width={380}
-                height={44}
+                width={400}
+                height={50}
                 strokeWidth={2}
                 animationSpeed={5}
-                borderRadius={22}
+                borderRadius={25}
               />
             </div>
           </div>

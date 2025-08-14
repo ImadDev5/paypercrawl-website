@@ -352,7 +352,7 @@ export default function AboutPage() {
             <div className="relative inline-block mb-4">
               <Badge
                 variant="secondary"
-                className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30 relative z-10"
+                className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30 relative z-10 px-4 py-2"
               >
                 <span className="flex items-center gap-2">
                   <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
@@ -365,11 +365,11 @@ export default function AboutPage() {
               </Badge>
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <RingLoader
-                  width={380}
-                  height={44}
+                  width={400}
+                  height={50}
                   strokeWidth={2}
                   animationSpeed={5}
-                  borderRadius={22}
+                  borderRadius={25}
                 />
               </div>
             </div>
