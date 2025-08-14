@@ -94,27 +94,87 @@
   --chart-3: 45 92% 58%; /* Enhanced GitHub yellow */
   --chart-4: 262 83% 62%; /* Enhanced GitHub purple */
   --chart-5: 16 88% 60%; /* Enhanced GitHub orange */
+}
 
-  /* Enhanced gradients for dim theme */
+/* Cloudflare theme: Vibrant orange aesthetic inspired by official design */
+.cloudflare {
+  /* Orange gradient background for immersive Cloudflare experience */
+  --background: 24 100% 65%; /* Vibrant orange background #FF9933 */
+  --foreground: 0 0% 13%; /* Deep charcoal for primary text - #333333 */
+  --card: 0 0% 100%; /* Pure white for elevated card surfaces */
+  --card-foreground: 0 0% 13%; /* Deep charcoal text on white cards */
+  --popover: 0 0% 100%; /* Pure white popover background */
+  --popover-foreground: 0 0% 13%; /* Deep charcoal popover text */
+
+  /* Primary colors using enhanced Cloudflare orange */
+  --primary: 24 100% 50%; /* Cloudflare signature orange #FF7900 */
+  --primary-foreground: 0 0% 100%; /* White text on orange */
+
+  /* Secondary colors optimized for orange background */
+  --secondary: 24 100% 55%; /* Slightly lighter orange #FF8A00 */
+  --secondary-foreground: 0 0% 13%; /* Deep charcoal text */
+  --muted: 24 95% 75%; /* Light orange for muted backgrounds #FFB366 */
+  --muted-foreground: 0 0% 25%; /* Darker text for better contrast */
+
+  /* Accent colors using Cloudflare's marine blue for contrast */
+  --accent: 207 56% 47%; /* Cloudflare marine blue #2F7BBF */
+  --accent-foreground: 0 0% 100%; /* White text on blue accent */
+
+  /* Semantic colors aligned with Cloudflare palette */
+  --destructive: 1 83% 46%; /* Cloudflare red variant #BD2527 */
+  --destructive-foreground: 0 0% 100%; /* White text on red */
+
+  /* UI element colors optimized for orange theme */
+  --border: 24 90% 45%; /* Darker orange borders #E06500 */
+  --input: 0 0% 100%; /* Pure white input backgrounds for contrast */
+  --ring: 212.7 26.8% 83.9%; /* Keep standard ring color consistent with other themes */
+
+  /* Chart colors using vibrant Cloudflare orange palette */
+  --chart-1: 24 100% 50%; /* Primary Cloudflare orange #FF7900 */
+  --chart-2: 24 100% 60%; /* Lighter orange variant #FF9900 */
+  --chart-3: 207 56% 47%; /* Cloudflare marine blue #2F7BBF */
+  --chart-4: 24 100% 45%; /* Darker orange variant #E06500 */
+  --chart-5: 24 100% 70%; /* Very light orange #FFB366 */
+
+  /* Enhanced orange gradients for immersive Cloudflare experience */
   --gradient-primary: linear-gradient(
     135deg,
-    hsl(217 91% 65%) 0%,
-    hsl(217 91% 55%) 100%
+    hsl(24 100% 50%) 0%,
+    hsl(24 100% 60%) 50%,
+    hsl(24 100% 45%) 100%
   );
   --gradient-secondary: linear-gradient(
     135deg,
-    hsl(213 13% 17%) 0%,
-    hsl(213 13% 12%) 100%
+    hsl(24 100% 65%) 0%,
+    hsl(24 100% 55%) 100%
+  );
+  --gradient-accent: linear-gradient(
+    135deg,
+    hsl(24 100% 50%) 0%,
+    hsl(207 56% 47%) 100%
+  );
+  --gradient-background: linear-gradient(
+    135deg,
+    hsl(24 100% 65%) 0%,
+    hsl(24 100% 60%) 50%,
+    hsl(24 100% 70%) 100%
   );
 
-  /* Enhanced shadows for dim theme */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  /* Enhanced shadows with orange tinting */
+  --shadow-sm: 0 1px 2px 0 rgb(255 121 0 / 0.1);
+  --shadow:
+    0 1px 3px 0 rgb(255 121 0 / 0.15), 0 1px 2px -1px rgb(255 121 0 / 0.1);
+  --shadow-md:
+    0 4px 6px -1px rgb(255 121 0 / 0.15), 0 2px 4px -2px rgb(255 121 0 / 0.1);
   --shadow-lg:
-    0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+    0 10px 15px -3px rgb(255 121 0 / 0.15), 0 4px 6px -4px rgb(255 121 0 / 0.1);
   --shadow-xl:
-    0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+    0 20px 25px -5px rgb(255 121 0 / 0.15), 0 8px 10px -6px rgb(255 121 0 / 0.1);
+
+  /* Cloudflare orange-themed interactive states */
+  --hover-overlay: hsl(24 100% 50% / 0.15);
+  --active-overlay: hsl(24 100% 45% / 0.2);
+  --selection-bg: hsl(24 100% 75% / 0.3);
 }
 
 /* Base styles for proper layout and typography */
@@ -141,6 +201,20 @@ body {
     Arial,
     "Noto Sans",
     sans-serif;
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* Enhanced Cloudflare theme body styling */
+.cloudflare body,
+body.cloudflare {
+  background: linear-gradient(
+    135deg,
+    hsl(24 100% 65%) 0%,
+    hsl(24 100% 60%) 25%,
+    hsl(24 100% 70%) 75%,
+    hsl(24 100% 65%) 100%
+  );
+  min-height: 100vh;
   line-height: 1.5;
   -webkit-text-size-adjust: 100%;
   -moz-tab-size: 4;
@@ -184,6 +258,256 @@ body {
   background-color: hsl(var(--primary) / 0.4);
   color: hsl(var(--foreground));
 }
+
+/* ===== ENHANCED CLOUDFLARE ORANGE THEME STYLING ===== */
+
+/* Cloudflare theme button enhancements with vibrant orange styling */
+.cloudflare button,
+.cloudflare [role="button"] {
+  border: 1px solid hsl(24 100% 45% / 0.6); /* Orange border */
+  background: linear-gradient(
+    135deg,
+    hsl(0 0% 100%) 0%,
+    hsl(24 100% 95%) 100%
+  ); /* Light orange to white gradient */
+  box-shadow:
+    0 2px 4px hsl(24 100% 50% / 0.15),
+    0 1px 2px hsl(24 100% 50% / 0.1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: hsl(0 0% 13%);
+  font-weight: 500;
+}
+
+.cloudflare button:hover,
+.cloudflare [role="button"]:hover {
+  border-color: hsl(24 100% 40%);
+  background: linear-gradient(
+    135deg,
+    hsl(24 100% 50%) 0%,
+    hsl(24 100% 45%) 100%
+  );
+  color: hsl(0 0% 100%);
+  box-shadow:
+    0 6px 16px hsl(24 100% 50% / 0.25),
+    0 3px 8px hsl(24 100% 50% / 0.15),
+    0 0 0 1px hsl(24 100% 50% / 0.3);
+  transform: translateY(-2px);
+}
+
+.cloudflare [data-variant="default"]:hover {
+  background: linear-gradient(
+    135deg,
+    hsl(24 100% 50%) 0%,
+    hsl(24 100% 45%) 100%
+  );
+}
+
+/* Cloudflare primary button with enhanced orange styling */
+.cloudflare button[data-variant="default"],
+.cloudflare button[data-variant="primary"] {
+  background: linear-gradient(
+    135deg,
+    hsl(24 100% 50%) 0%,
+    hsl(24 100% 45%) 100%
+  );
+  color: hsl(0 0% 100%);
+  border: 1px solid hsl(24 100% 40%);
+  box-shadow:
+    0 4px 8px hsl(24 100% 50% / 0.2),
+    0 2px 4px hsl(24 100% 50% / 0.15);
+}
+
+.cloudflare button[data-variant="default"]:hover,
+.cloudflare button[data-variant="primary"]:hover {
+  background: linear-gradient(
+    135deg,
+    hsl(24 100% 45%) 0%,
+    hsl(24 100% 40%) 100%
+  );
+  border-color: hsl(24 100% 35%);
+  box-shadow:
+    0 8px 20px hsl(24 100% 50% / 0.3),
+    0 4px 12px hsl(24 100% 50% / 0.2),
+    0 0 0 1px hsl(24 100% 50% / 0.4);
+  transform: translateY(-2px);
+}
+
+/* Enhanced Cloudflare card styling with orange theme */
+.cloudflare [data-slot="card"],
+.cloudflare .card {
+  border: 1px solid hsl(24 100% 85% / 0.5);
+  background: hsl(0 0% 100%);
+  box-shadow:
+    0 4px 8px hsl(24 100% 50% / 0.1),
+    0 2px 4px hsl(24 100% 50% / 0.05);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  will-change: transform, box-shadow, border-color;
+}
+
+.cloudflare [data-slot="card"]:hover,
+.cloudflare .card:hover {
+  border-color: hsl(24 100% 50% / 0.4);
+  box-shadow:
+    0 8px 20px hsl(24 100% 50% / 0.15),
+    0 4px 12px hsl(24 100% 50% / 0.1),
+    0 0 0 1px hsl(24 100% 50% / 0.2);
+  transform: translateY(-3px);
+}
+
+/* Enhanced Cloudflare input field styling */
+.cloudflare input,
+.cloudflare textarea,
+.cloudflare select {
+  border: 1px solid hsl(24 100% 80% / 0.6);
+  background: hsl(0 0% 100%);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 6px;
+  box-shadow:
+    0 1px 3px hsl(24 100% 50% / 0.1),
+    inset 0 1px 2px hsl(24 100% 50% / 0.05);
+}
+
+.cloudflare input:focus,
+.cloudflare textarea:focus,
+.cloudflare select:focus {
+  border-color: hsl(var(--ring));
+  outline: none;
+  box-shadow:
+    0 0 0 3px hsl(var(--ring) / 0.2),
+    0 2px 8px hsl(var(--ring) / 0.15);
+  background: hsl(0 0% 100%);
+}
+
+/* Enhanced Cloudflare alert component styling */
+.cloudflare [data-slot="alert"] {
+  border: 1px solid hsl(24 100% 85% / 0.5);
+  background: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(24 100% 97%) 100%);
+  border-radius: 8px;
+  box-shadow:
+    0 2px 6px hsl(24 100% 50% / 0.1),
+    0 1px 3px hsl(24 100% 50% / 0.05);
+}
+
+/* Enhanced Cloudflare navigation styling */
+.cloudflare nav {
+  background: linear-gradient(
+    135deg,
+    hsl(24 100% 60%) 0%,
+    hsl(24 100% 55%) 100%
+  );
+  border-bottom: 1px solid hsl(24 100% 45%);
+  box-shadow:
+    0 4px 12px hsl(24 100% 50% / 0.2),
+    0 2px 6px hsl(24 100% 50% / 0.1);
+}
+
+/* Enhanced Cloudflare selection and focus styles */
+.cloudflare ::selection {
+  background-color: hsl(24 100% 50% / 0.25);
+  color: hsl(0 0% 13%);
+}
+
+/* Enhanced Cloudflare table styling */
+.cloudflare table {
+  background: hsl(0 0% 100%);
+  border: 1px solid hsl(24 100% 85% / 0.5);
+  border-radius: 8px;
+  box-shadow:
+    0 4px 8px hsl(24 100% 50% / 0.1),
+    0 2px 4px hsl(24 100% 50% / 0.05);
+  overflow: hidden;
+}
+
+.cloudflare th {
+  background: linear-gradient(
+    135deg,
+    hsl(24 100% 95%) 0%,
+    hsl(24 100% 90%) 100%
+  );
+  border-bottom: 1px solid hsl(24 100% 80%);
+  color: hsl(0 0% 13%);
+  font-weight: 600;
+}
+
+.cloudflare tr:hover {
+  background: hsl(24 100% 97%);
+  transition: background-color 0.2s ease;
+}
+
+.cloudflare td {
+  border-bottom: 1px solid hsl(24 100% 90% / 0.5);
+}
+
+/* Cloudflare badge styling - consistent with other themes */
+.cloudflare .badge,
+.cloudflare [data-slot="badge"] {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: 1px solid hsl(var(--primary));
+  box-shadow:
+    0 1px 2px hsl(var(--primary) / 0.15),
+    0 1px 1px hsl(var(--primary) / 0.1);
+}
+
+/* Enhanced Cloudflare progress bar styling */
+.cloudflare .progress-bar,
+.cloudflare [data-slot="progress"] {
+  background: hsl(24 100% 90%);
+  border-radius: 4px;
+}
+
+.cloudflare .progress-bar-fill {
+  background: linear-gradient(
+    90deg,
+    hsl(24 100% 50%) 0%,
+    hsl(24 100% 45%) 100%
+  );
+  box-shadow:
+    0 1px 3px hsl(24 100% 50% / 0.3),
+    inset 0 1px 1px hsl(0 0% 100% / 0.3);
+}
+
+/* Enhanced Cloudflare modal and dialog styling */
+.cloudflare .modal,
+.cloudflare [data-slot="modal"] {
+  background: hsl(0 0% 100%);
+  border: 1px solid hsl(24 100% 85% / 0.5);
+  border-radius: 12px;
+  box-shadow:
+    0 20px 40px hsl(24 100% 50% / 0.15),
+    0 10px 20px hsl(24 100% 50% / 0.1),
+    0 0 0 1px hsl(24 100% 50% / 0.1);
+}
+
+.cloudflare *:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px hsl(var(--ring) / 0.3);
+}
+
+/* Cloudflare scrollbar styles */
+.cloudflare ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.cloudflare ::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+  border-radius: 4px;
+}
+
+.cloudflare ::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+  border: 2px solid hsl(var(--background));
+}
+
+.cloudflare ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.7);
+}
+
+/* ===== END CLOUDFLARE THEME ENHANCEMENTS ===== */
 
 /* ===== ENHANCED UI COMPONENTS WITH CONSISTENT BORDERS ===== */
 

@@ -16,8 +16,16 @@ interface ThemeDebuggerProps {
 }
 
 export function ThemeDebugger({ show = false }: ThemeDebuggerProps) {
-  const { theme, resolvedTheme, isDark, isDim, isLight, mounted, cycleThemes } =
-    useThemeUtils();
+  const {
+    theme,
+    resolvedTheme,
+    isDark,
+    isDim,
+    isLight,
+    isCloudflare,
+    mounted,
+    cycleThemes,
+  } = useThemeUtils();
 
   if (!show || !mounted) return null;
 
@@ -40,7 +48,15 @@ export function ThemeDebugger({ show = false }: ThemeDebuggerProps) {
           <div className="flex items-center gap-2">
             <span>State:</span>
             <Badge variant={isLight ? "default" : "secondary"}>
-              {isLight ? "Light" : isDark ? "Dark" : isDim ? "Dim" : "Unknown"}
+              {isLight
+                ? "Light"
+                : isDark
+                  ? "Dark"
+                  : isDim
+                    ? "Dim"
+                    : isCloudflare
+                      ? "Cloudflare"
+                      : "Unknown"}
             </Badge>
           </div>
         </div>
