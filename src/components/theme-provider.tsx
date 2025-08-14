@@ -10,10 +10,10 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="system"
+      defaultTheme="cloudflare"
       enableSystem
       disableTransitionOnChange={false}
-      themes={["light", "dark", "dim"]}
+      themes={["cloudflare", "light", "dark", "dim"]}
       {...props}
     >
       {children}

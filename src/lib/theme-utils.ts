@@ -11,6 +11,7 @@ export interface ThemeVariants {
   light?: string;
   dark?: string;
   dim?: string;
+  cloudflare?: string;
   default?: string;
 }
 
@@ -18,13 +19,14 @@ export interface ThemeVariants {
  * Applies theme-specific classes based on current theme
  */
 export function useThemeVariants(variants: ThemeVariants) {
-  const { isLight, isDark, isDim } = useThemeUtils();
+  const { isLight, isDark, isDim, isCloudflare } = useThemeUtils();
 
   return cn(
     variants.default,
     isLight && variants.light,
     isDark && variants.dark,
-    isDim && variants.dim
+    isDim && variants.dim,
+    isCloudflare && variants.cloudflare
   );
 }
 
@@ -32,13 +34,14 @@ export function useThemeVariants(variants: ThemeVariants) {
  * Hook for theme-aware styling
  */
 export function useThemeClasses() {
-  const { isLight, isDark, isDim, theme } = useThemeUtils();
+  const { isLight, isDark, isDim, isCloudflare, theme } = useThemeUtils();
 
   // Pre-computed variants
   const surface = useThemeVariants({
     light: "bg-white border-gray-200",
     dark: "bg-gray-900 border-gray-800",
     dim: "bg-card border-border",
+    cloudflare: "bg-white border-orange-200",
     default: "bg-card border-border",
   });
 
@@ -46,6 +49,7 @@ export function useThemeClasses() {
     light: "text-gray-900",
     dark: "text-gray-100",
     dim: "text-foreground",
+    cloudflare: "text-gray-800",
     default: "text-foreground",
   });
 
@@ -53,6 +57,7 @@ export function useThemeClasses() {
     light: "text-gray-600",
     dark: "text-gray-400",
     dim: "text-muted-foreground",
+    cloudflare: "text-gray-600",
     default: "text-muted-foreground",
   });
 
@@ -60,6 +65,7 @@ export function useThemeClasses() {
     light: "bg-blue-50 text-blue-900 border-blue-200",
     dark: "bg-blue-950 text-blue-100 border-blue-800",
     dim: "bg-accent text-accent-foreground border-accent/40",
+    cloudflare: "bg-orange-50 text-orange-900 border-orange-200",
     default: "bg-accent text-accent-foreground",
   });
 
@@ -67,6 +73,7 @@ export function useThemeClasses() {
     light: "hover:bg-gray-50 active:bg-gray-100",
     dark: "hover:bg-gray-800 active:bg-gray-700",
     dim: "hover:bg-accent/50 active:bg-accent/70",
+    cloudflare: "hover:bg-orange-50 active:bg-orange-100",
     default: "hover:bg-accent/50",
   });
 
@@ -74,6 +81,7 @@ export function useThemeClasses() {
     light: "bg-white/80 backdrop-blur-lg border-white/20",
     dark: "bg-gray-900/80 backdrop-blur-lg border-white/10",
     dim: "bg-card/80 backdrop-blur-lg border-border/30",
+    cloudflare: "bg-white/80 backdrop-blur-lg border-orange/20",
     default: "bg-card/80 backdrop-blur-lg",
   });
 
@@ -83,6 +91,7 @@ export function useThemeClasses() {
     isLight,
     isDark,
     isDim,
+    isCloudflare,
 
     // Pre-built common variants
     surface,
@@ -98,7 +107,8 @@ export function useThemeClasses() {
         variants.default,
         isLight && variants.light,
         isDark && variants.dark,
-        isDim && variants.dim
+        isDim && variants.dim,
+        isCloudflare && variants.cloudflare
       );
     },
   };
@@ -111,6 +121,7 @@ interface ThemeConditionalProps {
   light?: React.ReactNode;
   dark?: React.ReactNode;
   dim?: React.ReactNode;
+  cloudflare?: React.ReactNode;
   fallback?: React.ReactNode;
 }
 
@@ -118,13 +129,15 @@ export function ThemeConditional({
   light,
   dark,
   dim,
+  cloudflare,
   fallback,
 }: ThemeConditionalProps) {
-  const { isLight, isDark, isDim } = useThemeUtils();
+  const { isLight, isDark, isDim, isCloudflare } = useThemeUtils();
 
   if (isLight && light) return light as React.ReactElement;
   if (isDark && dark) return dark as React.ReactElement;
   if (isDim && dim) return dim as React.ReactElement;
+  if (isCloudflare && cloudflare) return cloudflare as React.ReactElement;
   return fallback as React.ReactElement;
 }
 
@@ -178,7 +191,8 @@ export function useThemeOptimized() {
     mounted,
     isDarkMode: resolvedTheme === "dark" || resolvedTheme === "dim",
     isLightMode: resolvedTheme === "light",
-    prefersDark: resolvedTheme !== "light",
+    isCloudflareMode: resolvedTheme === "cloudflare",
+    prefersDark: resolvedTheme !== "light" && resolvedTheme !== "cloudflare",
   };
 
   return themeState;

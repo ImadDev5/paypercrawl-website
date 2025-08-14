@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Monitor, Moon, Sun, SunDim } from "lucide-react";
+import { Monitor, Moon, Sun, SunDim, Zap } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
@@ -23,13 +23,24 @@ export function ModeToggle() {
           size="icon"
           className="relative hover-glow transition-all duration-300"
         >
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0 dim:-rotate-90 dim:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100 dim:rotate-90 dim:scale-0" />
-          <SunDim className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all duration-300 dim:rotate-0 dim:scale-100 pulse-glow" />
+          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0 dim:-rotate-90 dim:scale-0 cloudflare:-rotate-90 cloudflare:scale-0" />
+          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100 dim:rotate-90 dim:scale-0 cloudflare:rotate-90 cloudflare:scale-0" />
+          <SunDim className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all duration-300 dim:rotate-0 dim:scale-100 pulse-glow dark:rotate-90 dark:scale-0 cloudflare:rotate-90 cloudflare:scale-0" />
+          <Zap className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all duration-300 cloudflare:rotate-0 cloudflare:scale-100 text-orange-500" />
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48 glass-card">
+        <DropdownMenuItem
+          onClick={() => setTheme("cloudflare")}
+          className="flex items-center gap-2 relative hover:bg-accent/50 transition-all duration-200"
+        >
+          <Zap className="h-4 w-4 text-orange-500" />
+          Cloudflare
+          {theme === "cloudflare" && (
+            <div className="absolute right-2 h-2 w-2 rounded-full bg-orange-500 pulse-glow" />
+          )}
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setTheme("light")}
           className="flex items-center gap-2 relative hover:bg-accent/50 transition-all duration-200"

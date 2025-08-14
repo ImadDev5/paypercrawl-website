@@ -48,11 +48,23 @@ class CrawlGuardWP {
         require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-api-client.php';
         require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-admin.php';
         require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-frontend.php';
+        // New: Optional modules (feature-flagged and safe by default)
+        require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-rate-limiter.php'; // Rate limiting (disabled by default)
+        require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-http-signatures.php'; // HTTP Message Signatures (verification-only)
+        require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-ip-intel.php'; // IP Intelligence (log-only)
     }
     
     private function init_hooks() {
         // Initialize bot detection on every request
         add_action('wp', array($this, 'detect_and_handle_bots'));
+        
+        // Optionally apply rate limiting early in the request lifecycle (feature-flagged)
+        add_action('parse_request', function() {
+            $opts = get_option('crawlguard_options');
+            if (!empty($opts['feature_flags']['enable_rate_limiting'])) {
+                CrawlGuard_RateLimiter::maybe_limit_current_request(); // Non-destructive: returns early on allow
+            }
+        }, 1);
         
         // Admin interface
         if (is_admin()) {
@@ -100,6 +112,10 @@ class CrawlGuardWP {
             bot_type varchar(50),
             action_taken varchar(20) DEFAULT 'allowed' NOT NULL,
             revenue_generated decimal(10,4) DEFAULT 0.00,
+            http_headers text,
+            fingerprint_hash varchar(128),
+            rate_limited tinyint(1) DEFAULT 0 NOT NULL,
+            ip_reputation text NULL,
             PRIMARY KEY (id),
             KEY ip_address (ip_address),
             KEY timestamp (timestamp)
@@ -107,16 +123,79 @@ class CrawlGuardWP {
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
+
+        // New additive table: per-IP/UA counters for rate limiting (non-destructive)
+        $rl_table = $wpdb->prefix . 'crawlguard_rate_limits';
+        $sql_rl = "CREATE TABLE $rl_table (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            bucket varchar(190) NOT NULL,
+            period varchar(20) NOT NULL,
+            window_start datetime NOT NULL,
+            count int unsigned NOT NULL DEFAULT 0,
+            last_ip varchar(45),
+            last_ua text,
+            PRIMARY KEY (id),
+            UNIQUE KEY bucket_period (bucket, period)
+        ) $charset_collate;";
+        dbDelta($sql_rl);
+
+        // New additive table: registered public keys for HTTP Message Signatures
+        $keys_table = $wpdb->prefix . 'crawlguard_signing_keys';
+        $sql_keys = "CREATE TABLE $keys_table (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            client_id varchar(190) NOT NULL,
+            public_key text NOT NULL,
+            algo varchar(50) DEFAULT 'rsa-v1_5-sha256',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY client_id (client_id)
+        ) $charset_collate;";
+        dbDelta($sql_keys);
+
+        // New additive table: optional fingerprint logs (JA3/headers hash)
+        $fp_table = $wpdb->prefix . 'crawlguard_fingerprints';
+        $sql_fp = "CREATE TABLE $fp_table (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            timestamp datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            ip varchar(45) NOT NULL,
+            ua_hash varchar(64) NOT NULL,
+            fp_hash varchar(128) NOT NULL,
+            headers text,
+            PRIMARY KEY (id),
+            KEY ip (ip)
+        ) $charset_collate;";
+        dbDelta($sql_fp);
     }
     
     private function set_default_options() {
+        // New: feature flags and safe defaults; all disabled by default to be non-intrusive
         $default_options = array(
             'api_key' => '',
             'api_key_valid' => false,
             'monetization_enabled' => false,
             'detection_sensitivity' => 'medium',
             'allowed_bots' => array('googlebot', 'bingbot'),
-            'pricing_per_request' => 0.001
+            'pricing_per_request' => 0.001,
+            'feature_flags' => array(
+                'enable_rate_limiting' => false,
+                'enable_ip_intel' => false,
+                'enable_fingerprinting_log' => false, // log-only, never blocks
+                'enable_pow' => false, // proof-of-work (placeholder hooks)
+                'enable_http_signatures' => false,
+                'enable_privacy_pass' => false // placeholder only
+            ),
+            // Editable caps (used only if rate limiting enabled)
+            'rate_limits' => array(
+                'per_ip_per_min' => 120,
+                'per_ip_per_hour' => 2000,
+                'per_ua_per_min' => 240
+            ),
+            // Optional IP intelligence providers (log-only)
+            'ip_intel' => array(
+                'provider' => 'none', // 'none' | 'ipinfo' | 'maxmind'
+                'ipinfo_token' => '',
+                'maxmind_account' => ''
+            )
         );
         
         // Force update the option to ensure clean slate on activation
