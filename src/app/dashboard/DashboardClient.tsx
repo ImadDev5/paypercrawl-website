@@ -39,6 +39,7 @@ import {
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useToast } from "@/hooks/use-toast";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 
 interface User {
   email: string;
@@ -202,16 +203,11 @@ export default function DashboardClient() {
                 <span>Welcome, {user?.name}</span>
               </div>
 
-              <Button
+              <GoogleAuthButton 
+                isSignOut={true}
                 variant="outline"
                 size="sm"
-                onClick={async () => {
-                  await logout();
-                  router.push("/");
-                }}
-              >
-                Logout
-              </Button>
+              />
               <ModeToggle />
             </div>
 
