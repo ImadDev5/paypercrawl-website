@@ -3,6 +3,20 @@ import { NextRequest, NextResponse } from "next/server";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Add CORS headers for API routes
+  const response = NextResponse.next();
+  
+  if (pathname.startsWith("/api/")) {
+    response.headers.set("Access-Control-Allow-Origin", "*");
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    
+    // Handle preflight requests
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 200, headers: response.headers });
+    }
+  }
+
   // Get the invite token from cookies
   const inviteToken = request.cookies.get("invite_token")?.value;
 
@@ -30,23 +44,27 @@ export function middleware(request: NextRequest) {
       return response;
     }
 
-    return NextResponse.next();
+    return response;
+  }
+
+  // For protected routes that require authentication
+  if (pathname.startsWith("/dashboard/") && !inviteToken) {
+    return NextResponse.redirect(new URL("/waitlist", request.url));
   }
 
   // For all other routes, just continue - the user stays "logged in"
   // The authentication state is preserved in the cookie
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };
