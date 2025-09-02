@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ModeToggle } from "@/components/mode-toggle";
 import { SignInModal } from "@/components/ui/sign-in-modal";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import {
   Shield,
   Menu,
@@ -88,10 +89,11 @@ export function Navigation() {
                   <User className="h-4 w-4" />
                   <span>Welcome, {user?.name || user?.email}</span>
                 </div>
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
-                </Button>
+                <GoogleAuthButton 
+                  isSignOut={true}
+                  variant="outline"
+                  size="sm"
+                />
               </>
             ) : (
               <>
@@ -101,14 +103,19 @@ export function Navigation() {
                 >
                   Dashboard
                 </Link>
+                <GoogleAuthButton 
+                  variant="outline"
+                  size="sm"
+                  className="shadow-sm hover:shadow-md google-auth-button"
+                />
                 <SignInModal>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    className="shadow-sm hover:shadow-md"
+                    className="shadow-sm hover:shadow-md text-xs"
                   >
                     <LogIn className="h-4 w-4 mr-2" />
-                    Sign In
+                    Token Sign In
                   </Button>
                 </SignInModal>
                 <Link href="/waitlist">
