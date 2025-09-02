@@ -19,9 +19,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         exists: false,
         status: null,
-      });
+        error: "not_on_waitlist"
+      }, { status: 404 });
     }
 
+    // Return different status codes based on waitlist status
+    if (waitlistEntry.status === "pending") {
+      return NextResponse.json({
+        exists: true,
+        status: waitlistEntry.status,
+        name: waitlistEntry.name,
+        createdAt: waitlistEntry.createdAt,
+        invitedAt: waitlistEntry.invitedAt,
+        error: "waitlist_pending"
+      }, { status: 403 });
+    }
+
+    // For invited, accepted, or rejected status, return normal response
     return NextResponse.json({
       exists: true,
       status: waitlistEntry.status,
