@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { LogIn, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface GoogleAuthButtonProps {
   onAuthSuccess?: (token: string, user: any) => void;
@@ -28,6 +29,7 @@ export function GoogleAuthButton({
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+  const { logout: contextLogout, login: contextLogin } = useAuth();
 
   const handleGoogleSignOut = async () => {
     try {
@@ -36,6 +38,8 @@ export function GoogleAuthButton({
       
       // Clear any stored tokens from cookies
       document.cookie = "invite_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+  // Update app auth state immediately
+  try { await contextLogout(); } catch {}
       
       toast({
         title: "Signed out successfully",
@@ -93,6 +97,11 @@ export function GoogleAuthButton({
           title: "Welcome back!",
           description: `Signed in successfully as ${data.user.name}`,
         });
+
+        // Update app auth state immediately
+        if (data.inviteToken) {
+          try { await contextLogin(data.inviteToken); } catch {}
+        }
 
         if (onAuthSuccess) {
           onAuthSuccess(data.inviteToken, data.user);
