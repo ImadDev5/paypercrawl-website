@@ -61,11 +61,29 @@ export async function POST(request: NextRequest) {
     }
 
     if (waitlistEntry.status === "invited" || waitlistEntry.status === "accepted") {
-      // Update to accepted if currently invited
+      // Ensure the user is marked as accepted and has an invite token
+      let inviteToken = waitlistEntry.inviteToken;
+
+      // If they were invited, promote to accepted
       if (waitlistEntry.status === "invited") {
+        // Generate a token if missing
+        if (!inviteToken) {
+          // Lazy import to avoid top-level crypto on edge if not needed
+          const { randomBytes } = await import("crypto");
+          inviteToken = randomBytes(32).toString("hex");
+        }
+
         await db.waitlistEntry.update({
           where: { id: waitlistEntry.id },
-          data: { status: "accepted" },
+          data: { status: "accepted", inviteToken },
+        });
+      } else if (!inviteToken) {
+        // Already accepted but missing token (legacy rows) -> generate and persist
+        const { randomBytes } = await import("crypto");
+        inviteToken = randomBytes(32).toString("hex");
+        await db.waitlistEntry.update({
+          where: { id: waitlistEntry.id },
+          data: { inviteToken },
         });
       }
 
@@ -77,7 +95,7 @@ export async function POST(request: NextRequest) {
           name: waitlistEntry.name,
           website: waitlistEntry.website,
         },
-        inviteToken: waitlistEntry.inviteToken,
+        inviteToken,
       });
     }
 
