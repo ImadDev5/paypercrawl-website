@@ -35,6 +35,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ModeToggle } from "@/components/mode-toggle";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 
 export default function WaitlistPage() {
   const { toast } = useToast();
@@ -54,6 +55,12 @@ export default function WaitlistPage() {
     status: string | null;
     name?: string;
   } | null>(null);
+  
+  // Check URL params for status
+  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const statusParam = urlParams?.get('status');
+  const showPendingBanner = statusParam === 'pending';
+  const showRejectedBanner = statusParam === 'rejected';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -555,6 +562,35 @@ export default function WaitlistPage() {
       {/* Hero Section */}
       <section className="py-12 sm:py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* Status Banners */}
+          {showPendingBanner && (
+            <div className="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6 max-w-2xl mx-auto">
+              <div className="flex items-center justify-center gap-2 text-amber-800 dark:text-amber-200 text-sm">
+                <Shield className="h-4 w-4" />
+                <span className="font-medium">
+                  Application Under Review
+                </span>
+              </div>
+              <p className="text-amber-700 dark:text-amber-300 text-xs mt-2 text-center">
+                Your application is being reviewed by our team. You'll receive an email notification once approved for dashboard access.
+              </p>
+            </div>
+          )}
+          
+          {showRejectedBanner && (
+            <div className="bg-red-50/50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6 max-w-2xl mx-auto">
+              <div className="flex items-center justify-center gap-2 text-red-800 dark:text-red-200 text-sm">
+                <Shield className="h-4 w-4" />
+                <span className="font-medium">
+                  Application Reviewed
+                </span>
+              </div>
+              <p className="text-red-700 dark:text-red-300 text-xs mt-2 text-center">
+                Your application has been reviewed. Please contact our support team for more information about next steps.
+              </p>
+            </div>
+          )}
+
           <div className="relative inline-block mb-4">
             <Badge
               variant="secondary"
@@ -585,6 +621,26 @@ export default function WaitlistPage() {
             Get early access to the future of AI content monetization. Keep 100%
             of your revenue during the beta period.
           </p>
+
+          {/* Google Sign-in Option */}
+          <div className="mb-6">
+            <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 max-w-xl mx-auto">
+              <div className="flex items-center justify-center gap-2 text-blue-800 dark:text-blue-200 text-sm mb-3">
+                <Shield className="h-4 w-4" />
+                <span className="font-medium">
+                  Already Applied? Sign In to Check Status
+                </span>
+              </div>
+              <GoogleAuthButton 
+                variant="outline" 
+                size="sm"
+                className="w-full"
+              />
+              <p className="text-blue-700 dark:text-blue-300 text-xs mt-2 text-center">
+                Use the same Google account you used for your waitlist application
+              </p>
+            </div>
+          </div>
 
           {/* Invite-Only Notice */}
           <div className="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6 max-w-xl mx-auto">
