@@ -564,7 +564,7 @@ export default function WaitlistPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Status Banners */}
           {showPendingBanner && (
-            <div className="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6 max-w-2xl mx-auto">
+            <div className="auth-status-banner pending p-4 mb-6 max-w-2xl mx-auto">
               <div className="flex items-center justify-center gap-2 text-amber-800 dark:text-amber-200 text-sm">
                 <Shield className="h-4 w-4" />
                 <span className="font-medium">
@@ -578,7 +578,7 @@ export default function WaitlistPage() {
           )}
           
           {showRejectedBanner && (
-            <div className="bg-red-50/50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6 max-w-2xl mx-auto">
+            <div className="auth-status-banner rejected p-4 mb-6 max-w-2xl mx-auto">
               <div className="flex items-center justify-center gap-2 text-red-800 dark:text-red-200 text-sm">
                 <Shield className="h-4 w-4" />
                 <span className="font-medium">
@@ -634,7 +634,7 @@ export default function WaitlistPage() {
               <GoogleAuthButton 
                 variant="outline" 
                 size="sm"
-                className="w-full"
+                className="w-full google-auth-button"
               />
               <p className="text-blue-700 dark:text-blue-300 text-xs mt-2 text-center">
                 Use the same Google account you used for your waitlist application
