@@ -16,6 +16,8 @@ interface GoogleAuthButtonProps {
   variant?: "default" | "outline" | "secondary" | "ghost";
   size?: "default" | "sm" | "lg";
   isSignOut?: boolean;
+  label?: string; // Optional custom label text
+  useGoogleLogo?: boolean; // When true, show Google logo instead of generic icon
 }
 
 export function GoogleAuthButton({ 
@@ -24,7 +26,9 @@ export function GoogleAuthButton({
   className = "",
   variant = "default",
   size = "default",
-  isSignOut = false
+  isSignOut = false,
+  label,
+  useGoogleLogo = false,
 }: GoogleAuthButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -154,7 +158,7 @@ export function GoogleAuthButton({
         console.error("Sign out error:", signOutError);
       }
 
-      const errorMessage = error instanceof Error ? error.message : "Failed to sign in with Google";
+      const errorMessage = error instanceof Error ? error.message : "Sign in failed due to the user closed the auth window";
       
       toast({
         title: "Sign-in failed",
@@ -193,8 +197,14 @@ export function GoogleAuthButton({
       size={size}
       className={className}
     >
-      <LogIn className="mr-2 h-4 w-4" />
-      {isLoading ? "Signing in..." : "Sign in with Google"}
+      {useGoogleLogo ? (
+        // Use SVG from public folder for the Google logo
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src="/google-logo.svg" alt="Google" className="mr-2 h-4 w-4" />
+      ) : (
+        <LogIn className="mr-2 h-4 w-4" />
+      )}
+      {isLoading ? "Signing in..." : (label || "Sign in with Google")}
     </Button>
   );
 }
