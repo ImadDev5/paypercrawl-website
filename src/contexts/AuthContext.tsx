@@ -7,6 +7,8 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
 
 interface User {
   email: string;
@@ -16,6 +18,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  firebaseUser: FirebaseUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (token: string) => Promise<boolean>;
@@ -27,6 +30,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -120,16 +124,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // Sign out from Firebase if user is signed in
+      if (firebaseUser) {
+        await signOut(auth);
+      }
+    } catch (error) {
+      console.error("Firebase sign out error:", error);
+    }
+
     setIsAuthenticated(false);
     setUser(null);
+    setFirebaseUser(null);
     // Clear the cookie
     document.cookie =
       "invite_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
   };
 
   useEffect(() => {
+    // Listen for Firebase auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user);
+    });
+
     checkAuthStatus();
+
+    return () => unsubscribe();
   }, []);
 
   // Re-check auth status when URL changes (to pick up new tokens)
@@ -155,6 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        firebaseUser,
         isAuthenticated,
         isLoading,
         login,
