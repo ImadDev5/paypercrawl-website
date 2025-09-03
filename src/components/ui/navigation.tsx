@@ -103,11 +103,6 @@ export function Navigation() {
                 >
                   Dashboard
                 </Link>
-                <GoogleAuthButton 
-                  variant="outline"
-                  size="sm"
-                  className="shadow-sm hover:shadow-md google-auth-button"
-                />
                 <SignInModal>
                   <Button
                     variant="ghost"
@@ -115,7 +110,7 @@ export function Navigation() {
                     className="shadow-sm hover:shadow-md text-xs"
                   >
                     <LogIn className="h-4 w-4 mr-2" />
-                    Token Sign In
+                    Sign in
                   </Button>
                 </SignInModal>
                 <Link href="/waitlist">
@@ -259,7 +254,7 @@ export function Navigation() {
                         <p className="text-sm font-medium text-foreground drop-shadow-sm">
                           Ready to monetize your content?
                         </p>
-                        <SignInModal>
+            <SignInModal>
                           <Button
                             variant="outline"
                             size="sm"
@@ -267,7 +262,7 @@ export function Navigation() {
                             onClick={() => setIsMenuOpen(false)}
                           >
                             <LogIn className="h-4 w-4 mr-2" />
-                            Sign In
+              Sign in
                           </Button>
                         </SignInModal>
                         <Link

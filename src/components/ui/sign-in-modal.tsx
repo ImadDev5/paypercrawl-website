@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, LogIn, Key, AlertCircle, Shield } from "lucide-react";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 
 interface SignInModalProps {
   children: React.ReactNode;
@@ -164,6 +165,20 @@ export function SignInModal({ children }: SignInModalProps) {
                 </Button>
               </div>
             </form>
+
+            {/* Inline Google sign-in option within the form area */}
+            <div className="pt-4 mt-6">
+              <div className="relative flex items-center justify-center text-xs text-muted-foreground my-2">
+                <span className="px-2 bg-background">or</span>
+              </div>
+              <GoogleAuthButton 
+                label="Sign in"
+                useGoogleLogo
+                variant="outline"
+                className="w-full justify-center google-auth-button"
+                onAuthSuccess={() => setIsOpen(false)}
+              />
+            </div>
 
             <div className="border-t pt-4 mt-6">
               <div className="text-center">
