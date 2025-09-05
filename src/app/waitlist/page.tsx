@@ -284,12 +284,7 @@ export default function WaitlistPage() {
                               Dashboard
                             </span>
                           </Link>
-                          <div className="flex items-center space-x-3 px-4 py-3 rounded-xl text-primary bg-primary/10 border border-primary/20 backdrop-blur-sm shadow-lg">
-                            <Users className="h-5 w-5 text-primary drop-shadow-sm" />
-                            <span className="font-semibold drop-shadow-sm">
-                              Waitlist
-                            </span>
-                          </div>
+                          {/* Removed redundant Waitlist item on Waitlist page */}
                         </div>
                       </nav>
 
@@ -528,12 +523,7 @@ export default function WaitlistPage() {
                             Contact
                           </span>
                         </Link>
-                        <div className="flex items-center space-x-3 px-4 py-3 rounded-xl text-primary bg-primary/10 border border-primary/20 backdrop-blur-sm shadow-lg">
-                          <Users className="h-5 w-5 text-primary drop-shadow-sm" />
-                          <span className="font-semibold drop-shadow-sm">
-                            Waitlist
-                          </span>
-                        </div>
+                        {/* Removed redundant Waitlist item on Waitlist page */}
                       </div>
                     </nav>
 

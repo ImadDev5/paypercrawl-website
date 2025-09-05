@@ -259,7 +259,6 @@ export function Navigation() {
                             variant="outline"
                             size="sm"
                             className="w-full mb-2"
-                            onClick={() => setIsMenuOpen(false)}
                           >
                             <LogIn className="h-4 w-4 mr-2" />
               Sign in
