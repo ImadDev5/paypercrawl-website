@@ -9,6 +9,7 @@
     "start:next": "next start -p 3000",
     "start:hostinger": "npm run build && npm run start:next",
     "lint": "next lint",
+  "typecheck": "tsc --noEmit",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
