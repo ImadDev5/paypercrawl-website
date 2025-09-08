@@ -36,7 +36,7 @@ if (version_compare($wp_version, '5.0', '<')) {
 }
 
 if (!defined('CRAWLGUARD_VERSION')) {
-    define('CRAWLGUARD_VERSION', '1.0.0');
+    define('CRAWLGUARD_VERSION', '2.0.0');
 }
 
 if (!defined('CRAWLGUARD_PLUGIN_URL')) {
@@ -150,6 +150,11 @@ if (!class_exists('CrawlGuardWP')) {
         
         $charset_collate = $wpdb->get_charset_collate();
         
+        // Ensure dbDelta is available before any table creation
+        if (!function_exists('dbDelta')) {
+            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        }
+
         // Table for storing bot detection logs
         $table_name = $wpdb->prefix . 'crawlguard_logs';
         
@@ -184,7 +189,6 @@ if (!class_exists('CrawlGuardWP')) {
             PRIMARY KEY (id),
             UNIQUE KEY bucket_period (bucket, period)
         ) $charset_collate;";
-        dbDelta($sql_rl);
 
         // Signing keys table
         $keys_table = $wpdb->prefix . 'crawlguard_signing_keys';
@@ -197,7 +201,6 @@ if (!class_exists('CrawlGuardWP')) {
             PRIMARY KEY (id),
             UNIQUE KEY client_id (client_id)
         ) $charset_collate;";
-        dbDelta($sql_keys);
 
         // Fingerprints table
         $fp_table = $wpdb->prefix . 'crawlguard_fingerprints';
@@ -211,10 +214,12 @@ if (!class_exists('CrawlGuardWP')) {
             PRIMARY KEY (id),
             KEY ip (ip)
         ) $charset_collate;";
-        dbDelta($sql_fp);
         
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql);
+    // Create/upgrade all tables
+    dbDelta($sql);
+    dbDelta($sql_rl);
+    dbDelta($sql_keys);
+    dbDelta($sql_fp);
     }
     
     private function set_default_options() {

@@ -33,7 +33,7 @@ class CrawlGuard_Admin {
         );
         
         add_submenu_page(
-            'crawlguard',
+            'paypercrawl',
             'Dashboard',
             'Dashboard',
             'manage_options',
@@ -42,7 +42,7 @@ class CrawlGuard_Admin {
         );
         
         add_submenu_page(
-            'crawlguard',
+            'paypercrawl',
             'Settings',
             'Settings',
             'manage_options',
@@ -54,8 +54,17 @@ class CrawlGuard_Admin {
     public function admin_page() {
         ?>
         <div class="wrap">
-            <h1>CrawlGuard WP Dashboard</h1>
-            <div id="crawlguard-dashboard">
+            <h1 style="display:flex;align-items:center;gap:8px;">
+                <span class="dashicons dashicons-chart-line" style="font-size:24px;color:#2271b1;"></span>
+                CrawlGuard WP Dashboard
+            </h1>
+            <?php
+            $opts = get_option('crawlguard_options');
+            if (empty($opts['api_key'])) {
+                echo '<div class="notice notice-warning"><p><strong>Connect your site:</strong> Add your API Key in <a href="admin.php?page=crawlguard-settings">Settings</a> to enable live analytics. Showing local stats for now.</p></div>';
+            }
+            ?>
+            <div id="crawlguard-dashboard" class="crawlguard-dashboard-root">
                 <div class="crawlguard-loading">Loading dashboard...</div>
             </div>
         </div>
@@ -205,6 +214,35 @@ class CrawlGuard_Admin {
         check_ajax_referer('crawlguard_nonce', 'nonce');
         $api_client = new CrawlGuard_API_Client();
         $analytics = $api_client->get_analytics();
+
+        if (!$analytics || !is_array($analytics)) {
+            // Build a safe local fallback from plugin tables so UI can render
+            global $wpdb;
+            $table = $wpdb->prefix . 'crawlguard_logs';
+            $total_revenue = (float) $wpdb->get_var("SELECT SUM(revenue_generated) FROM $table");
+            $bot_visits = (int) $wpdb->get_var("SELECT COUNT(*) FROM $table");
+            $monetized_requests = (int) $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE revenue_generated > 0");
+
+            // Simple daily stats for the last 30 days
+            $rows = $wpdb->get_results($wpdb->prepare("SELECT DATE(timestamp) d, COALESCE(SUM(revenue_generated),0) r FROM $table WHERE timestamp >= DATE_SUB(NOW(), INTERVAL %d DAY) GROUP BY d ORDER BY d ASC", 30));
+            $daily = array();
+            foreach ($rows as $r) { $daily[] = array('date' => $r->d, 'revenue' => (float) $r->r); }
+
+            $analytics = array(
+                'monetization_enabled' => (bool) (($opts = get_option('crawlguard_options'))['monetization_enabled'] ?? false),
+                'total_revenue' => $total_revenue,
+                'revenue_change' => 0,
+                'bot_visits' => $bot_visits,
+                'visits_change' => 0,
+                'monetized_requests' => $monetized_requests,
+                'monetization_rate' => $bot_visits ? ($monetized_requests / max($bot_visits,1)) * 100 : 0,
+                'top_bots' => array(),
+                'recent_activity' => array(),
+                'daily_stats' => $daily,
+                'growth_rate' => 0,
+            );
+        }
+
         wp_send_json_success($analytics);
     }
 
