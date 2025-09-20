@@ -5,8 +5,8 @@ const archiver = require('archiver');
 async function createPluginZip() {
   console.log('🔧 Creating PayPerCrawl WordPress Plugin ZIP...\n');
 
-  const pluginDir = path.join(__dirname, 'crawlguard-wp');
-  const outputPath = path.join(__dirname, 'paypercrawl-wp-v2.0.0.zip');
+  const pluginDir = './crawlguard-wp';
+  const outputPath = './paypercrawl-wp-v2.0.0.zip';
 
   // Check if plugin directory exists
   if (!fs.existsSync(pluginDir)) {
