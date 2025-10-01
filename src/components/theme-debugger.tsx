@@ -22,7 +22,6 @@ export function ThemeDebugger({ show = false }: ThemeDebuggerProps) {
     isDark,
     isDim,
     isLight,
-    isCloudflare,
     mounted,
     cycleThemes,
   } = useThemeUtils();
@@ -54,9 +53,7 @@ export function ThemeDebugger({ show = false }: ThemeDebuggerProps) {
                   ? "Dark"
                   : isDim
                     ? "Dim"
-                    : isCloudflare
-                      ? "Cloudflare"
-                      : "Unknown"}
+                    : "Unknown"}
             </Badge>
           </div>
         </div>
