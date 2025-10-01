@@ -11,13 +11,26 @@ if (!defined('ABSPATH')) {
 
 class CrawlGuard_API_Client {
     
-    private $api_base_url = 'https://paypercrawl.tech/api/v1'; // Updated API endpoint
+    private $api_base_url; // Versioned base (normalized to include /v1)
     private $api_key;
     private $timeout = 5; // 5 second timeout to avoid slowing down sites
     
     public function __construct() {
         $options = get_option('crawlguard_options');
         $this->api_key = $options['api_key'] ?? '';
+        $configured_base = isset($options['api_base_url']) ? trim($options['api_base_url']) : '';
+        $this->api_base_url = $this->normalize_versioned_base($configured_base !== '' ? $configured_base : 'https://paypercrawl.tech/api');
+    }
+    
+    /**
+     * Normalize a base URL so that it ends with /v1 exactly once
+     */
+    private function normalize_versioned_base($base) {
+        $b = rtrim($base, "/");
+        if (substr($b, -3) === '/v1') {
+            return $b;
+        }
+        return $b . '/v1';
     }
     
     /**
@@ -28,7 +41,7 @@ class CrawlGuard_API_Client {
             return false;
         }
         
-        $endpoint = $this->api_base_url . '/v1/monetize';
+    $endpoint = $this->api_base_url . '/monetize';
         
         $payload = array(
             'api_key' => $this->api_key,
@@ -42,7 +55,7 @@ class CrawlGuard_API_Client {
      * Register site with backend
      */
     public function register_site($site_data) {
-        $endpoint = $this->api_base_url . '/v1/sites/register';
+    $endpoint = $this->api_base_url . '/sites/register';
         
         $payload = array(
             'site_url' => get_site_url(),
@@ -64,7 +77,7 @@ class CrawlGuard_API_Client {
             return false;
         }
         
-        $endpoint = $this->api_base_url . '/v1/analytics';
+    $endpoint = $this->api_base_url . '/analytics';
         
         $params = array(
             'api_key' => $this->api_key,
@@ -83,7 +96,7 @@ class CrawlGuard_API_Client {
             return false;
         }
         
-        $endpoint = $this->api_base_url . '/v1/sites/settings';
+    $endpoint = $this->api_base_url . '/sites/settings';
         
         $payload = array(
             'api_key' => $this->api_key,
@@ -102,7 +115,7 @@ class CrawlGuard_API_Client {
             return false;
         }
         
-        $endpoint = $this->api_base_url . '/v1/payments/' . $payment_id;
+    $endpoint = $this->api_base_url . '/payments/' . $payment_id;
         
         $params = array(
             'api_key' => $this->api_key
@@ -121,7 +134,7 @@ class CrawlGuard_API_Client {
             return false;
         }
         
-        $endpoint = $this->api_base_url . '/v1/auth/validate';
+    $endpoint = $this->api_base_url . '/auth/validate';
         
         $payload = array(
             'api_key' => $key_to_validate,
@@ -138,7 +151,7 @@ class CrawlGuard_API_Client {
      */
     public function send_beacon($data) {
         // Use a very short timeout for beacons to avoid impacting site performance
-        $endpoint = $this->api_base_url . '/v1/beacon';
+    $endpoint = $this->api_base_url . '/beacon';
         
         $payload = array(
             'api_key' => $this->api_key,
