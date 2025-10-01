@@ -14,8 +14,6 @@ export function useThemeUtils() {
   const isDark = mounted && (resolvedTheme === "dark" || theme === "dark");
   const isDim = mounted && (resolvedTheme === "dim" || theme === "dim");
   const isLight = mounted && (resolvedTheme === "light" || theme === "light");
-  const isCloudflare =
-    mounted && (resolvedTheme === "cloudflare" || theme === "cloudflare");
   const isSystem = mounted && theme === "system";
 
   const toggleTheme = () => {
@@ -29,21 +27,18 @@ export function useThemeUtils() {
         setTheme("dim");
         break;
       case "dim":
-        setTheme("cloudflare");
-        break;
-      case "cloudflare":
         setTheme("light");
         break;
       default:
-        setTheme("cloudflare");
+        setTheme("dark");
     }
   };
 
   const cycleThemes = () => {
     if (!mounted) return;
 
-    const themes = ["cloudflare", "light", "dark", "dim", "system"];
-    const currentIndex = themes.indexOf(theme || "cloudflare");
+    const themes = ["light", "dark", "dim", "system"];
+    const currentIndex = themes.indexOf(theme || "dark");
     const nextIndex = (currentIndex + 1) % themes.length;
     setTheme(themes[nextIndex]);
   };
@@ -56,7 +51,6 @@ export function useThemeUtils() {
     isDark,
     isDim,
     isLight,
-    isCloudflare,
     isSystem,
     toggleTheme,
     cycleThemes,
