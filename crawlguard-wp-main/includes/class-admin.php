@@ -177,20 +177,15 @@ class CrawlGuard_Admin {
                 <div class="crawlguard-panel full-width">
                     <div class="panel-header">
                         <h2><span class="dashicons dashicons-chart-line"></span> Bot Traffic Analytics</h2>
-                        <select id="analytics-period" class="analytics-filter">
-                            <option value="7">Last 7 Days</option>
-                            <option value="30" selected>Last 30 Days</option>
-                            <option value="90">Last 90 Days</option>
-                        </select>
                     </div>
                     <div class="panel-content">
-                        <div id="analytics-chart" class="analytics-chart">
-                            <?php if (!$api_key_valid): ?>
-                                <p class="no-data">Activate the plugin to see analytics</p>
-                            <?php else: ?>
-                                <canvas id="traffic-chart"></canvas>
-                            <?php endif; ?>
-                        </div>
+                        <?php if (!$api_key_valid): ?>
+                            <div class="no-data">
+                                <p>Activate the plugin to see analytics</p>
+                            </div>
+                        <?php else: ?>
+                            <div id="crawlguard-react-analytics"></div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -552,6 +547,14 @@ class CrawlGuard_Admin {
             CRAWLGUARD_VERSION
         );
         
+        // Enqueue analytics CSS
+        wp_enqueue_style(
+            'crawlguard-analytics-style',
+            CRAWLGUARD_PLUGIN_URL . 'assets/css/analytics.css',
+            array(),
+            CRAWLGUARD_VERSION
+        );
+        
         // Enqueue admin JavaScript
         wp_enqueue_script(
             'crawlguard-admin',
@@ -560,6 +563,20 @@ class CrawlGuard_Admin {
             CRAWLGUARD_VERSION,
             true
         );
+        
+        // Enqueue React analytics bundle
+        wp_enqueue_script(
+            'crawlguard-analytics',
+            CRAWLGUARD_PLUGIN_URL . 'assets/js/analytics.bundle.js',
+            array(),
+            CRAWLGUARD_VERSION,
+            true
+        );
+        
+        wp_localize_script('crawlguard-analytics', 'crawlguardData', array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('crawlguard_nonce')
+        ));
         
         wp_localize_script('crawlguard-admin', 'crawlguard_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
@@ -570,8 +587,10 @@ class CrawlGuard_Admin {
     public function ajax_get_analytics() {
         check_ajax_referer('crawlguard_nonce', 'nonce');
         
-        $api_client = new CrawlGuard_API_Client();
-        $analytics = $api_client->get_analytics();
+        require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-analytics.php';
+        
+        $period = isset($_POST['period']) ? intval($_POST['period']) : 30;
+        $analytics = CrawlGuard_Analytics::get_analytics_data($period);
         
         wp_send_json_success($analytics);
     }

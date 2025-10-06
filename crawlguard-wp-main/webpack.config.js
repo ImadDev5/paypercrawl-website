@@ -6,18 +6,17 @@ module.exports = (env, argv) => {
 
   return {
     entry: {
-      admin: './src/js/admin.js',
-      frontend: './src/js/frontend.js'
+      analytics: './assets/js/src/index.jsx'
     },
     output: {
       path: path.resolve(__dirname, 'assets'),
-      filename: 'js/[name].js',
-      clean: true
+      filename: 'js/[name].bundle.js',
+      clean: false
     },
     module: {
       rules: [
         {
-          test: /\.js$/,
+          test: /\.(js|jsx)$/,
           exclude: /node_modules/,
           use: {
             loader: 'babel-loader',
@@ -34,6 +33,9 @@ module.exports = (env, argv) => {
           ]
         }
       ]
+    },
+    resolve: {
+      extensions: ['.js', '.jsx']
     },
     plugins: [
       new MiniCssExtractPlugin({

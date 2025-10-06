@@ -44,11 +44,14 @@
     "webpack-cli": "^5.1.0"
   },
   "dependencies": {
+    "@wordpress/element": "^6.32.0",
+    "@wordpress/scripts": "^30.25.0",
     "axios": "^1.4.0",
     "chart.js": "^4.3.0",
     "itty-router": "^4.2.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.3.1",
+    "recharts": "^3.2.1"
   },
   "repository": {
     "type": "git",

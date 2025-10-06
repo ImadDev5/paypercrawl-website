@@ -87,6 +87,7 @@ if (!class_exists('CrawlGuardWP')) {
             'includes/class-api-client.php',
             'includes/class-admin.php',
             'includes/class-frontend.php',
+            'includes/class-analytics.php',
             'includes/class-rate-limiter.php',
             'includes/class-http-signatures.php',
             'includes/class-ip-intel.php'
@@ -113,6 +114,9 @@ if (!class_exists('CrawlGuardWP')) {
         // Optional early rate limiting (soft header only)
         add_action('parse_request', function(){ $opts=get_option('crawlguard_options'); if(!empty($opts['feature_flags']['enable_rate_limiting'])) { if(class_exists('CrawlGuard_RateLimiter')) { CrawlGuard_RateLimiter::maybe_limit_current_request(); } } }, 1);
         
+        // Schedule analytics cleanup (keep only 90 days)
+        add_action('crawlguard_cleanup_logs', array('CrawlGuard_Analytics', 'cleanup_old_logs'));
+        
         // Admin interface
         if (is_admin()) {
             new CrawlGuard_Admin();
@@ -134,6 +138,11 @@ if (!class_exists('CrawlGuardWP')) {
         $this->create_tables();
         $this->set_default_options();
 
+        // Schedule analytics cleanup (daily at 2 AM)
+        if (!wp_next_scheduled('crawlguard_cleanup_logs')) {
+            wp_schedule_event(strtotime('tomorrow 2:00 AM'), 'daily', 'crawlguard_cleanup_logs');
+        }
+
         flush_rewrite_rules();
 
         add_option('crawlguard_activation_time', time());
@@ -141,6 +150,9 @@ if (!class_exists('CrawlGuardWP')) {
     }
     
     public function deactivate() {
+        // Remove scheduled cleanup
+        wp_clear_scheduled_hook('crawlguard_cleanup_logs');
+        
         // Clean up if needed
         flush_rewrite_rules();
     }
