@@ -48,6 +48,7 @@ class CrawlGuardWP {
         require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-api-client.php';
         require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-admin.php';
         require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-frontend.php';
+        require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-analytics.php'; // Analytics data handler
         // New: Optional modules (feature-flagged and safe by default)
         require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-rate-limiter.php'; // Rate limiting (disabled by default)
         require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-http-signatures.php'; // HTTP Message Signatures (verification-only)
@@ -65,6 +66,9 @@ class CrawlGuardWP {
                 CrawlGuard_RateLimiter::maybe_limit_current_request(); // Non-destructive: returns early on allow
             }
         }, 1);
+        
+        // Schedule analytics cleanup (keep only 90 days)
+        add_action('crawlguard_cleanup_logs', array('CrawlGuard_Analytics', 'cleanup_old_logs'));
         
         // Admin interface
         if (is_admin()) {
@@ -86,11 +90,19 @@ class CrawlGuardWP {
         // Set default options
         $this->set_default_options();
         
+        // Schedule analytics cleanup (daily at 2 AM)
+        if (!wp_next_scheduled('crawlguard_cleanup_logs')) {
+            wp_schedule_event(strtotime('tomorrow 2:00 AM'), 'daily', 'crawlguard_cleanup_logs');
+        }
+        
         // Flush rewrite rules
         flush_rewrite_rules();
     }
     
     public function deactivate() {
+        // Remove scheduled cleanup
+        wp_clear_scheduled_hook('crawlguard_cleanup_logs');
+        
         // Clean up if needed
         flush_rewrite_rules();
     }

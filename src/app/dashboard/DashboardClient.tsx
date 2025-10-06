@@ -35,6 +35,8 @@ import {
   Eye,
   EyeOff,
   Loader2,
+  Search,
+  TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -358,6 +360,49 @@ export default function DashboardClient() {
             monetizing AI bot traffic on your website.
           </p>
         </div>
+
+        {/* Bot Analyzer CTA */}
+        <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-primary/30 shadow-xl hover:shadow-2xl transition-all duration-300 glass-card hover-glow mb-8">
+          <CardContent className="p-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex-1 space-y-3 text-center md:text-left">
+                <div className="flex items-center space-x-2 justify-center md:justify-start">
+                  <Search className="h-6 w-6 text-primary pulse-glow" />
+                  <h3 className="text-2xl font-bold text-foreground">
+                    Test Your Site for Bot Traffic
+                  </h3>
+                </div>
+                <p className="text-muted-foreground">
+                  Analyze any website to detect AI bot exposure, crawling activity, and potential revenue loss. Get real insights before you pitch!
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                  <Badge variant="outline" className="border-primary/30 badge-enhanced">
+                    <TrendingUp className="mr-1 h-3 w-3" />
+                    Real Data
+                  </Badge>
+                  <Badge variant="outline" className="border-primary/30 badge-enhanced">
+                    100% Free
+                  </Badge>
+                  <Badge variant="outline" className="border-primary/30 badge-enhanced">
+                    Instant Results
+                  </Badge>
+                </div>
+              </div>
+              <div className="flex-shrink-0">
+                <Link href="/dashboard/bot-analyzer">
+                  <Button
+                    size="lg"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 dim:shadow-2xl dim:hover:shadow-primary/20"
+                  >
+                    <Search className="mr-2 h-5 w-5" />
+                    Analyze Website
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
