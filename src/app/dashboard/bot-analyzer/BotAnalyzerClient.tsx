@@ -65,6 +65,11 @@ interface AnalysisResult {
     allowed: boolean;
     company: string;
   }[];
+  firecrawl?: {
+    success: boolean;
+    discoveredCount: number;
+    topics?: string[];
+  };
 }
 
 export default function BotAnalyzerClient() {
@@ -137,6 +142,13 @@ export default function BotAnalyzerClient() {
       default:
         return "UNKNOWN";
     }
+  };
+
+  const getFirecrawlConfidence = (fc?: AnalysisResult["firecrawl"]) => {
+    if (!fc || !fc.success || !fc.discoveredCount) return { label: "", cls: "" };
+    if (fc.discoveredCount >= 20) return { label: "High", cls: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30" };
+    if (fc.discoveredCount >= 5) return { label: "Medium", cls: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/30" };
+    return { label: "Low", cls: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-950/30" };
   };
 
   return (
@@ -248,6 +260,21 @@ export default function BotAnalyzerClient() {
                   </Badge>
                   <h2 className="text-3xl font-bold">{analysisResult.domain}</h2>
                     <p className="text-muted-foreground">Analysis completed successfully</p>
+                  {analysisResult.firecrawl && analysisResult.firecrawl.success && analysisResult.firecrawl.discoveredCount > 0 && (
+                    <div className="flex items-center justify-center gap-2 pt-2">
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950/30">
+                        Powered by Firecrawl
+                      </Badge>
+                      {(() => {
+                        const { label, cls } = getFirecrawlConfidence(analysisResult.firecrawl);
+                        return (
+                          <Badge variant="outline" className={cls}>
+                            Confidence: {label}
+                          </Badge>
+                        );
+                      })()}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
