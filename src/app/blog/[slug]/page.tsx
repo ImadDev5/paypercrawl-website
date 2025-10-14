@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -171,10 +171,89 @@ interface BlogPostPageProps {
 
 export default function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = use(params);
-  const post = blogPosts[slug as keyof typeof blogPosts];
+  const staticPost = blogPosts[slug as keyof typeof blogPosts];
+  const [fetched, setFetched] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [computedTitle, setComputedTitle] = useState<string | null>(null);
 
-  if (!post) {
-    notFound();
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/blogs/${slug}`, { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          setFetched(data.post);
+        }
+      } catch {}
+      finally { setLoading(false); }
+    };
+    load();
+  }, [slug]);
+
+  // If the fetched title looks generic (e.g., 'Vite + React'), try deriving from first h1/h2 in content
+  useEffect(() => {
+    if (!fetched?.content) return;
+    const looksGeneric = (t?: string) => {
+      if (!t) return true;
+      const lower = String(t).toLowerCase().trim();
+      const tooShort = lower.length < 6 || lower.split(/\s+/).length === 1;
+      return tooShort || lower === 'vite + react' || lower === 'react app' || lower === 'home' || lower === 'blog' || lower === 'comments';
+    };
+    if (!looksGeneric(fetched.title)) return;
+    try {
+      const el = document.createElement('div');
+      el.innerHTML = fetched.content;
+      const h1 = el.querySelector('h1');
+      const h2 = el.querySelector('h2');
+      const candidate = (h1?.textContent || h2?.textContent || '').replace(/\s+/g, ' ').trim();
+      if (candidate && candidate.length > 3) {
+        setComputedTitle(candidate);
+      }
+    } catch {}
+  }, [fetched]);
+
+  // Keep browser tab title in sync with computed/imported title
+  useEffect(() => {
+    const t = fetched ? (computedTitle || fetched.title) : (post as any)?.title;
+    if (t) {
+      document.title = `${t} | PayPerCrawl`;
+    }
+  }, [fetched, computedTitle]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-muted-foreground">Loading post…</div>
+      </div>
+    );
+  }
+
+  const post = fetched || staticPost;
+  if (!post) notFound();
+
+  // Compute a display date for either static or imported posts
+  let displayDate = "";
+  // @ts-ignore
+  if ((post as any).date) {
+    // @ts-ignore
+    displayDate = (post as any).date as string;
+  } else if ((post as any).publishedAt) {
+    try {
+      // @ts-ignore
+      displayDate = new Date((post as any).publishedAt as string).toDateString();
+    } catch {}
+  }
+
+  // Derive excerpt if missing for imported content
+  let derivedExcerpt: string | undefined
+  if (fetched && (!post as any).excerpt) {
+    try {
+      const tmp = document.createElement('div')
+      tmp.innerHTML = fetched.content || ''
+      const text = tmp.textContent || tmp.innerText || ''
+      const cleaned = text.replace(/\s+/g, ' ').trim()
+      derivedExcerpt = cleaned.slice(0, 180) + (cleaned.length > 180 ? '…' : '')
+    } catch {}
   }
 
   return (
@@ -231,7 +310,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             Blog
           </Link>
           <ChevronRight className="h-4 w-4" />
-          <span className="text-foreground">{post.title}</span>
+          <span className="text-foreground">{fetched ? (computedTitle || fetched.title) : post.title}</span>
         </div>
       </div>
 
@@ -239,35 +318,43 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <header className="mb-12">
           <div className="flex items-center gap-2 mb-4">
-            {post.tags.map((tag, index) => (
+            {(post.tags || []).map((tag: string, index: number) => (
               <Badge key={index} variant="secondary" className="text-sm">
                 {tag}
               </Badge>
             ))}
           </div>
 
-          <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
-            {post.title}
+          <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight text-foreground mb-6 leading-[1.1] break-words">
+            {fetched ? (computedTitle || fetched.title) : post.title}
           </h1>
 
-          <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-            {post.excerpt}
-          </p>
+          {(post as any).excerpt || derivedExcerpt ? (
+            <p className="text-xl md:text-2xl text-muted-foreground mb-8 md:mb-10 leading-relaxed max-w-3xl">
+              {(post as any).excerpt || derivedExcerpt}
+            </p>
+          ) : null}
 
           <div className="flex items-center justify-between border-t border-b border-border py-6">
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                <span>{post.author}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                <span>{post.date}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                <span>{post.readTime}</span>
-              </div>
+              {(post.author || "").trim() !== "" && (
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  <span>{post.author}</span>
+                </div>
+              )}
+              {displayDate && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>{displayDate}</span>
+                </div>
+              )}
+              {post.readTime && (
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  <span>{post.readTime}</span>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -281,15 +368,26 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
         {/* Article Content */}
         <div
-          className="prose prose-lg max-w-none mb-16
+          className="prose prose-lg md:prose-xl max-w-none mb-20 md:mb-24
                        prose-headings:text-foreground prose-headings:font-bold
-                       prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-6
-                       prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-6
-                       prose-ul:my-6 prose-li:text-muted-foreground prose-li:mb-2
-                       prose-strong:text-foreground prose-strong:font-semibold
+                       prose-h1:text-3xl prose-h1:mt-12 prose-h1:mb-6
+                       prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4
+                       prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+                       prose-p:text-muted-foreground prose-p:leading-7 md:prose-p:leading-8 prose-p:mb-6
+                       prose-a:text-primary hover:prose-a:underline
+                       prose-ul:list-disc prose-ul:pl-6 prose-ol:list-decimal prose-ol:pl-6
+                       prose-li:text-muted-foreground prose-li:my-1
+                       prose-img:rounded-xl prose-img:shadow
+                       prose-blockquote:border-l-4 prose-blockquote:border-muted prose-blockquote:pl-4 prose-blockquote:text-muted-foreground
+                       prose-code:px-1.5 prose-code:py-0.5 prose-code:bg-muted prose-code:rounded
+                       prose-pre:bg-muted/60 prose-pre:p-4 prose-pre:rounded-lg
                        dark:prose-invert"
         >
-          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          {fetched ? (
+            <div className="space-y-4 [&_h1]:text-3xl [&_h2]:text-2xl [&_h3]:text-xl [&_img]:rounded-lg [&_img]:shadow [&_p]:leading-7" dangerouslySetInnerHTML={{ __html: fetched.content }} />
+          ) : (
+            <div className="space-y-4 [&_h1]:text-3xl [&_h2]:text-2xl [&_h3]:text-xl [&_img]:rounded-lg [&_img]:shadow [&_p]:leading-7" dangerouslySetInnerHTML={{ __html: post.content }} />
+          )}
         </div>
 
         {/* Article Footer */}
