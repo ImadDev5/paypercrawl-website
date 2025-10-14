@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -150,6 +150,30 @@ export default function BlogPage() {
     { name: "Cloudflare & Infrastructure", count: 6 },
     { name: "AI Ethics", count: 4 },
   ];
+
+  // Imported posts from DB
+  const [importedPosts, setImportedPosts] = useState<
+    { slug: string; title: string; author: string | null; publishedAt: string | null; tags: string[] }[]
+  >([]);
+  const [importedLoading, setImportedLoading] = useState(false);
+  const [importedError, setImportedError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setImportedLoading(true);
+        const res = await fetch("/api/blogs?limit=24", { cache: "no-store" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to load imported posts");
+        setImportedPosts(data.posts || []);
+      } catch (e: any) {
+        setImportedError(e.message);
+      } finally {
+        setImportedLoading(false);
+      }
+    };
+    load();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -428,6 +452,51 @@ export default function BlogPage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Imported Posts (from external source via Admin → Fetch) */}
+      <section className="py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-foreground">Imported Posts</h2>
+            <Link href="/admin/fetch-blog" className="text-sm text-primary underline">Import new</Link>
+          </div>
+          {importedLoading && <p>Loading posts…</p>}
+          {importedError && <p className="text-red-500">{importedError}</p>}
+          {!importedLoading && !importedError && importedPosts.length === 0 && (
+            <p className="text-muted-foreground">No imported posts yet. Use Admin → Fetch Blog to add one.</p>
+          )}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {importedPosts.map((post) => (
+              <Card key={post.slug} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center gap-2 mb-3">
+                    {(post.tags || []).slice(0, 2).map((tag, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">{tag}</Badge>
+                    ))}
+                  </div>
+                  <Link href={`/blog/${post.slug}`}>
+                    <CardTitle className="text-lg hover:text-primary transition-colors cursor-pointer">
+                      {post.title}
+                    </CardTitle>
+                  </Link>
+                  {/* No excerpt for imported posts */}
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Clock className="h-4 w-4" />
+                      <span>{post.author || "Imported"}</span>
+                    </div>
+                    <Link href={`/blog/${post.slug}`}>
+                      <Button variant="ghost" size="sm">Read More</Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
