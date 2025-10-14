@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { XMLParser } from "fast-xml-parser";
 import { gunzipSync } from "node:zlib";
+import { crawlSampleDomain, firecrawlAvailable } from "@/lib/firecrawl";
 
 // 1) Crawlers list
 const AI_CRAWLERS = [
@@ -409,6 +410,21 @@ export async function POST(request: NextRequest) {
       detectTechStack(domain),
     ]);
 
+    // Optional Firecrawl enhancement: small sample crawl to reduce estimation
+    let firecrawlSample: any = null;
+    if (firecrawlAvailable()) {
+      firecrawlSample = await crawlSampleDomain(domain, 30);
+      // If we didn't find any sitemap but firecrawl discovered pages, infer existence and adjust estimates downwards from guessy heuristics
+      if ((!sitemap.exists || sitemap.pageCount === 0) && firecrawlSample.success && firecrawlSample.discoveredCount > 0) {
+        // We only use discovered count as a floor signal to avoid overestimation
+        sitemap.exists = true;
+        if (sitemap.pageCount < firecrawlSample.discoveredCount) {
+          sitemap.pageCount = firecrawlSample.discoveredCount;
+          sitemap.estimated = true; // still an estimate, but now data-backed
+        }
+      }
+    }
+
     const hasNewsSignals = (robotsTxt.sitemaps || []).some((u: string) => /news|latest/i.test(u));
     const estimates = calculateEstimates(sitemap.pageCount || 100, robotsTxt.allowsAIBots, hasNewsSignals);
     const riskScore = calculateRiskScore(robotsTxt.allowsAIBots, sitemap.pageCount || 100, techStack.hasProtection);
@@ -419,11 +435,11 @@ export async function POST(request: NextRequest) {
       company: crawler.company,
     }));
 
-    const result = { domain, riskScore, robotsTxt, sitemap, techStack, estimates, aiCrawlers };
+    const result = { domain, riskScore, robotsTxt, sitemap, techStack, estimates, aiCrawlers, firecrawl: firecrawlSample };
     return NextResponse.json({ success: true, result });
   } catch (error) {
     console.error("Error analyzing website:", error);
     return NextResponse.json({ success: false, error: "Failed to analyze website" }, { status: 500 });
   }
 }
-  const baseRequestsPerPage = 2; // Average crawls per page per month
+// End of analyzer route

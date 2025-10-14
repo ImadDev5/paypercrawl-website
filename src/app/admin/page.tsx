@@ -364,6 +364,9 @@ export default function AdminDashboard() {
           </Link>
           <div className="flex flex-1 items-center justify-end space-x-4">
             <ModeToggle />
+            <Link href="/admin/fetch-blog">
+              <Button variant="secondary">Fetch Blog</Button>
+            </Link>
             <Button
               variant="outline"
               onClick={() => {
@@ -390,6 +393,11 @@ export default function AdminDashboard() {
               Waitlist ({waitlistPagination.total})
             </TabsTrigger>
           </TabsList>
+          <div className="mt-4">
+            <Link href="/admin/fetch-blog">
+              <Button variant="outline">Go to Fetch Blog</Button>
+            </Link>
+          </div>
           <TabsContent value="applications">
             <Card>
               <CardHeader>
