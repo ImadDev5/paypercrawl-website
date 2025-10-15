@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Shield,
@@ -37,6 +38,10 @@ import { ModeToggle } from "@/components/mode-toggle";
 
 export default function ContactPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [category, setCategory] = useState<'general'|'support'|'careers'>('general');
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -261,15 +266,21 @@ export default function ContactPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <p className="font-medium">support@paypercrawl.com</p>
+                  <p className="font-medium">support@paypercrawl.tech</p>
                   <p className="text-sm text-muted-foreground">
                     Technical support & plugin help
                   </p>
                 </div>
                 <div className="space-y-2 mt-4">
-                  <p className="font-medium">sales@paypercrawl.com</p>
+                  <p className="font-medium">hello@paypercrawl.tech</p>
                   <p className="text-sm text-muted-foreground">
-                    Sales inquiries & partnerships
+                    General inquiries & partnerships
+                  </p>
+                </div>
+                <div className="space-y-2 mt-4">
+                  <p className="font-medium">careers@paypercrawl.tech</p>
+                  <p className="text-sm text-muted-foreground">
+                    Roles, internships, and hiring
                   </p>
                 </div>
               </CardContent>
@@ -327,7 +338,34 @@ export default function ContactPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-6">
+              <form className="space-y-6" onSubmit={async (e) => {
+                e.preventDefault();
+                setSubmitting(true);
+                setSuccess(null);
+                setError(null);
+                const form = e.currentTarget as HTMLFormElement;
+                const firstName = (form.querySelector('#first-name') as HTMLInputElement)?.value.trim();
+                const lastName = (form.querySelector('#last-name') as HTMLInputElement)?.value.trim();
+                const email = (form.querySelector('#email') as HTMLInputElement)?.value.trim();
+                const subject = (form.querySelector('#subject') as HTMLInputElement)?.value.trim();
+                const message = (form.querySelector('#message') as HTMLTextAreaElement)?.value.trim();
+                const name = [firstName, lastName].filter(Boolean).join(' ');
+                try {
+                  const res = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, subject, message, category }),
+                  });
+                  const data = await res.json();
+                  if (!res.ok) throw new Error(data?.error || 'Failed to submit');
+                  setSuccess(`Thanks! Your ticket was created. Ticket ID: ${data.ticketId}`);
+                  form.reset();
+                } catch (err: any) {
+                  setError(err.message || 'Submission failed');
+                } finally {
+                  setSubmitting(false);
+                }
+              }}>
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="first-name">First Name</Label>
@@ -347,6 +385,19 @@ export default function ContactPage() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label>Category</Label>
+                  <Select value={category} onValueChange={(v) => setCategory(v as any)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="general">General</SelectItem>
+                      <SelectItem value="support">Support</SelectItem>
+                      <SelectItem value="careers">Careers</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="subject">Subject</Label>
                   <Input
                     id="subject"
@@ -361,9 +412,19 @@ export default function ContactPage() {
                     className="min-h-[150px]"
                   />
                 </div>
-                <Button type="submit" size="lg" className="w-full">
+                {success && (
+                  <div className="text-sm rounded-md border border-green-200 bg-green-50 text-green-800 p-3">
+                    {success}
+                  </div>
+                )}
+                {error && (
+                  <div className="text-sm rounded-md border border-red-200 bg-red-50 text-red-800 p-3">
+                    {error}
+                  </div>
+                )}
+                <Button type="submit" size="lg" className="w-full" disabled={submitting}>
                   <Send className="mr-2 h-5 w-5" />
-                  Send Message
+                  {submitting ? 'Sending...' : 'Send Message'}
                 </Button>
               </form>
             </CardContent>

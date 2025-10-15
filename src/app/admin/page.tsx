@@ -84,6 +84,7 @@ interface WaitlistPagination {
 export default function AdminDashboard() {
   const [adminKey, setAdminKey] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [showKey, setShowKey] = useState(false);
   const [applications, setApplications] = useState<Application[]>([]);
   const [waitlistEntries, setWaitlistEntries] = useState<WaitlistEntry[]>([]);
@@ -111,6 +112,12 @@ export default function AdminDashboard() {
     if (key) {
       setAdminKey(key);
     }
+    // also verify cookie session to gate UI strictly
+    fetch("/api/admin/session", { method: "GET" })
+      .then((r) => r.json())
+      .then((j) => setIsAuthenticated(Boolean(j?.authenticated)))
+      .catch(() => setIsAuthenticated(false))
+      .finally(() => setChecking(false));
   }, []);
 
   const authenticate = () => {
@@ -305,6 +312,10 @@ export default function AdminDashboard() {
     }
   }, [selectedApplication]);
 
+  if (checking) {
+    return null;
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-4">
@@ -314,39 +325,14 @@ export default function AdminDashboard() {
               <Shield className="mr-2 h-6 w-6" /> Admin Access
             </CardTitle>
             <CardDescription>
-              Enter your secret key to access the dashboard.
+              Admin session required. Sign in first.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="admin-key">Admin Key</Label>
-                <div className="relative">
-                  <Input
-                    id="admin-key"
-                    type={showKey ? "text" : "password"}
-                    value={adminKey}
-                    onChange={(e) => setAdminKey(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && authenticate()}
-                    placeholder="Enter your secret key"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-1/2 right-2 -translate-y-1/2 h-7 w-7"
-                    onClick={() => setShowKey(!showKey)}
-                  >
-                    {showKey ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              <Button onClick={authenticate} className="w-full">
-                Authenticate
-              </Button>
+              <Link href="/admin/login">
+                <Button className="w-full">Go to Admin Login</Button>
+              </Link>
             </div>
           </CardContent>
         </Card>
@@ -364,6 +350,9 @@ export default function AdminDashboard() {
           </Link>
           <div className="flex flex-1 items-center justify-end space-x-4">
             <ModeToggle />
+            <Link href="/admin/tickets">
+              <Button variant="outline">Tickets</Button>
+            </Link>
             <Link href="/admin/fetch-blog">
               <Button variant="secondary">Fetch Blog</Button>
             </Link>
@@ -371,7 +360,9 @@ export default function AdminDashboard() {
               variant="outline"
               onClick={() => {
                 localStorage.removeItem("adminKey");
-                setIsAuthenticated(false);
+                fetch("/api/admin/session", { method: "DELETE" }).finally(() => {
+                  setIsAuthenticated(false);
+                });
                 toast.info("Logged out");
               }}
             >

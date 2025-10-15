@@ -2,13 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import * as cheerio from 'cheerio'
 import puppeteer from 'puppeteer'
+import { isAdminAuthenticated } from '@/lib/admin-auth'
 
 // Use puppeteer for JavaScript-rendered SPAs like Vite/React blogs
 
 function verifyAdminAuth(request: NextRequest): boolean {
-  const authHeader = request.headers.get('authorization')
-  const adminKey = authHeader?.replace('Bearer ', '')
-  return adminKey === process.env.ADMIN_API_KEY
+  return isAdminAuthenticated(request)
 }
 
 function isAllowedSource(urlStr: string): boolean {
