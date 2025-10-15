@@ -279,3 +279,104 @@ export async function sendContactNotification(
     html,
   });
 }
+
+// Map categories to internal recipient emails
+const CATEGORY_EMAIL_MAP: Record<string, string> = {
+  general: 'hello@paypercrawl.tech',
+  support: 'support@paypercrawl.tech',
+  careers: 'careers@paypercrawl.tech',
+};
+
+export interface SupportTicketEmail {
+  ticketId: string;
+  name: string;
+  email: string;
+  subject?: string | null;
+  message: string;
+  category: 'general' | 'support' | 'careers';
+  createdAt?: string;
+}
+
+// Sends a receipt to the user with ticket details and timeline expectations
+export async function sendSupportTicketReceipt(
+  to: string,
+  ticket: SupportTicketEmail
+) {
+  const subject = `We received your request (Ticket ${ticket.ticketId})`;
+  const html = `
+  <!doctype html>
+  <html>
+  <body style="font-family: Inter, Arial; color:#0f172a;">
+    <div style="max-width:640px;margin:0 auto;padding:24px;">
+      <h2 style="margin:0 0 12px;">Thanks, we've received your request</h2>
+      <p style="margin:0 0 16px;">Hi ${ticket.name},</p>
+      <p style="margin:0 0 16px;">Your ticket has been created and our team will get back to you within 24–48 hours.</p>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:16px 0;">
+        <p style="margin:0 0 8px;"><strong>Ticket ID:</strong> ${ticket.ticketId}</p>
+        <p style="margin:0 0 8px;"><strong>Category:</strong> ${ticket.category}</p>
+        <p style="margin:0 0 8px;"><strong>Subject:</strong> ${ticket.subject || 'No subject'}</p>
+        <div style="margin-top:12px;">
+          <p style="margin:0 0 6px;"><strong>Message</strong></p>
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:12px;">${ticket.message.replace(/\n/g, '<br>')}</div>
+        </div>
+      </div>
+      <p style="margin:16px 0 0;">Thank you.</p>
+      <p style="margin:16px 0 0;">— The PayPerCrawl Team</p>
+    </div>
+  </body>
+  </html>`;
+  return sendEmail({ to, subject, html });
+}
+
+// Sends an internal notification to the appropriate team inbox
+export async function sendSupportTicketInternal(ticket: SupportTicketEmail) {
+  const to = CATEGORY_EMAIL_MAP[ticket.category] || CATEGORY_EMAIL_MAP.general;
+  const subject = `[${ticket.category.toUpperCase()}] New ticket ${ticket.ticketId}: ${ticket.subject || 'No subject'}`;
+  const html = `
+  <!doctype html>
+  <html>
+  <body style="font-family: Inter, Arial; color:#0f172a;">
+    <div style="max-width:680px;margin:0 auto;padding:24px;">
+      <h2 style="margin:0 0 12px;">New Support Ticket</h2>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:16px 0;">
+        <p style="margin:0 0 8px;"><strong>Ticket ID:</strong> ${ticket.ticketId}</p>
+        <p style="margin:0 0 8px;"><strong>Category:</strong> ${ticket.category}</p>
+        <p style="margin:0 0 8px;"><strong>From:</strong> ${ticket.name} &lt;${ticket.email}&gt;</p>
+        <p style="margin:0 0 8px;"><strong>Subject:</strong> ${ticket.subject || 'No subject'}</p>
+        <div style="margin-top:12px;">
+          <p style="margin:0 0 6px;"><strong>Message</strong></p>
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:12px;">${ticket.message.replace(/\n/g, '<br>')}</div>
+        </div>
+      </div>
+      <p style="margin:16px 0 0;">Please triage and respond within 24–48 hours.</p>
+    </div>
+  </body>
+  </html>`;
+  return sendEmail({ to, subject, html });
+}
+
+// Sends a resolution message to the user when a ticket is resolved
+export async function sendSupportTicketResolution(
+  to: string,
+  ticketId: string,
+  resolutionMessage: string
+) {
+  const subject = `Your ticket ${ticketId} has been resolved`;
+  const html = `
+  <!doctype html>
+  <html>
+  <body style="font-family: Inter, Arial; color:#0f172a;">
+    <div style="max-width:640px;margin:0 auto;padding:24px;">
+      <h2 style="margin:0 0 12px;">Ticket Resolved</h2>
+      <p style="margin:0 0 16px;">We're writing to let you know that your ticket <strong>${ticketId}</strong> has been resolved.</p>
+      <div style="background:#ecfeff;border:1px solid #bae6fd;border-radius:8px;padding:16px;margin:16px 0;">
+        <p style="margin:0 0 6px;"><strong>Resolution Details</strong></p>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:12px;">${resolutionMessage.replace(/\n/g, '<br>')}</div>
+      </div>
+      <p style="margin:16px 0 0;">Thank you.</p>
+      <p style="margin:16px 0 0;">— The PayPerCrawl Support Team</p>
+    </div>
+  </body>
+  </html>`;
+  return sendEmail({ to, subject, html });
+}

@@ -12,6 +12,7 @@ import { Shield, Loader2, CheckCircle2, ArrowLeft } from "lucide-react";
 export default function AdminFetchBlogPage() {
   const [adminKey, setAdminKey] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ slug: string; title: string } | null>(null);
@@ -22,9 +23,10 @@ export default function AdminFetchBlogPage() {
   }, []);
 
   useEffect(() => {
-    const expectedAdminKey = process.env.NEXT_PUBLIC_ADMIN_KEY || process.env.ADMIN_API_KEY || "paypercrawl_admin_2025_secure_key";
-    if (adminKey && adminKey === expectedAdminKey) setIsAuthenticated(true);
-  }, [adminKey]);
+    fetch('/api/admin/session').then(r=>r.json()).then(j=>{
+      setIsAuthenticated(Boolean(j?.authenticated));
+    }).catch(()=>setIsAuthenticated(false)).finally(()=>setChecking(false));
+  }, []);
 
   const handleImport = async () => {
     setResult(null);
@@ -57,22 +59,18 @@ export default function AdminFetchBlogPage() {
     }
   };
 
+  if (checking) return null;
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl flex items-center"><Shield className="mr-2 h-6 w-6"/> Admin Access</CardTitle>
-            <CardDescription>Enter your secret key to import blogs.</CardDescription>
+            <CardDescription>Admin session required. Sign in first.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="admin-key">Admin Key</Label>
-                <Input id="admin-key" value={adminKey} onChange={(e)=>setAdminKey(e.target.value)} placeholder="Enter admin key" />
-              </div>
-              <Button onClick={()=>{ localStorage.setItem("adminKey", adminKey); setIsAuthenticated(true); }}>Authenticate</Button>
-            </div>
+            <Link href="/admin/login"><Button className="w-full">Go to Admin Login</Button></Link>
           </CardContent>
         </Card>
       </div>

@@ -28,6 +28,35 @@ async function createCustomServer() {
       if (req.url?.startsWith('/api/socketio')) {
         return;
       }
+
+      // Manual admin authentication check for /admin routes (custom server bypasses middleware)
+      try {
+        const pathname = new URL(req.url || '/', `http://${req.headers.host}`).pathname;
+        
+        // Allow admin login page
+        if (pathname === '/admin/login' || pathname === '/admin/login/') {
+          return handle(req, res);
+        }
+
+        // Block all other /admin routes without authentication
+        if (pathname.startsWith('/admin')) {
+          const cookieHeader = req.headers.cookie || '';
+          const adminAuthCookie = cookieHeader.split(';')
+            .find(c => c.trim().startsWith('admin_authenticated='));
+          const isAuthenticated = adminAuthCookie?.split('=')[1]?.trim() === 'true';
+
+          if (!isAuthenticated) {
+            // Redirect to login
+            res.writeHead(302, { Location: '/admin/login' });
+            res.end();
+            return;
+          }
+        }
+      } catch (error) {
+        // If URL parsing fails or any error occurs, just pass through to Next.js
+        console.error('Server auth check error:', error);
+      }
+
       handle(req, res);
     });
 
