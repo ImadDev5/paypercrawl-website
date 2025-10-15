@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { isAdminAuthenticated } from "@/lib/admin-auth";
 
 // Verify admin authentication
 function verifyAdminAuth(request: NextRequest): boolean {
-  const authHeader = request.headers.get("authorization");
-  const adminKey = authHeader?.replace("Bearer ", "");
-  return adminKey === process.env.ADMIN_API_KEY;
+  return isAdminAuthenticated(request);
 }
 
 export async function POST(request: NextRequest) {

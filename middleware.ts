@@ -17,6 +17,30 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // Strict admin protection: all /admin pages and /api/admin routes require either
+  // - Bearer ADMIN_API_KEY header, or
+  // - admin_session cookie set by POST /api/admin/session
+  const isAdminPath = pathname.startsWith("/admin");
+  const isAdminApi = pathname.startsWith("/api/admin");
+  if (isAdminPath || isAdminApi) {
+    const session = request.cookies.get("admin_session")?.value === "1";
+    const headerKey = request.headers
+      .get("authorization")
+      ?.replace("Bearer ", "");
+    const ok = session || (headerKey && headerKey === process.env.ADMIN_API_KEY);
+
+    // Allow admin login/session endpoint without pre-auth for creating session
+    const isSessionEndpoint = pathname === "/api/admin/session";
+    const isLoginPage = pathname === "/admin/login";
+    if (!ok && !isSessionEndpoint && !isLoginPage) {
+      if (isAdminApi) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      // For pages, redirect to the admin login page
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+  }
+
   // Get the invite token from cookies
   const inviteToken = request.cookies.get("invite_token")?.value;
   // Detect Firebase session cookies (set by Firebase Auth in some environments)
