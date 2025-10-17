@@ -11,6 +11,7 @@ export interface ThemeVariants {
   light?: string;
   dark?: string;
   dim?: string;
+  cloudflare?: string;
   default?: string;
 }
 

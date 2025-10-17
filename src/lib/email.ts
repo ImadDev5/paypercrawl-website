@@ -77,6 +77,94 @@ async function sendEmail({
   }
 }
 
+// Careers: send receipt to applicant
+export async function sendCareerApplicationReceipt(opts: {
+  to: string;
+  name: string;
+  position: string;
+}) {
+  const { to, name, position } = opts;
+  const subject = `We received your application for ${position}`;
+  const html = `
+  <!doctype html>
+  <html>
+  <body style="font-family: Inter, Arial; color:#0f172a;">
+    <div style="max-width:640px;margin:0 auto;padding:24px;">
+      <h2 style="margin:0 0 12px;">Thanks for applying to PayPerCrawl</h2>
+      <p style="margin:0 0 16px;">Hi ${name},</p>
+      <p style="margin:0 0 16px;">We've received your application for <strong>${position}</strong>. Our team will review your profile and get back to you within 5–7 business days.</p>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:16px 0;">
+        <p style="margin:0;">No further action needed from you at this time. We'll reach out if we need any additional information.</p>
+      </div>
+      <p style="margin:16px 0 0;">— The PayPerCrawl Careers Team</p>
+    </div>
+  </body>
+  </html>`;
+  return sendEmail({ to, subject, html, from: "PayPerCrawl Careers <careers@paypercrawl.tech>" });
+}
+
+// Careers: internal notification to careers inbox
+export async function sendCareerApplicationInternal(opts: {
+  name: string;
+  email: string;
+  phone?: string | null;
+  website?: string | null;
+  position: string;
+}) {
+  const { name, email, phone, website, position } = opts;
+  const to = 'careers@paypercrawl.tech';
+  const subject = `[Careers] New application: ${position}`;
+  const html = `
+  <!doctype html>
+  <html>
+  <body style="font-family: Inter, Arial; color:#0f172a;">
+    <div style="max-width:680px;margin:0 auto;padding:24px;">
+      <h2 style="margin:0 0 12px;">New Careers Application</h2>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:16px 0;">
+        <p style="margin:0 0 8px;"><strong>Position:</strong> ${position}</p>
+        <p style="margin:0 0 8px;"><strong>Candidate:</strong> ${name} &lt;${email}&gt;</p>
+        ${phone ? `<p style=\"margin:0 0 8px;\"><strong>Phone:</strong> ${phone}</p>` : ''}
+        ${website ? `<p style=\"margin:0 0 8px;\"><strong>Website:</strong> <a href=\"${website}\">${website}</a></p>` : ''}
+      </div>
+      <p style="margin:16px 0 0;">Log in to the admin applications page to review details.</p>
+    </div>
+  </body>
+  </html>`;
+  return sendEmail({ to, subject, html, from: "PayPerCrawl Careers <careers@paypercrawl.tech>" });
+}
+
+// Careers: status update to applicant (accept/reject)
+export async function sendCareerApplicationStatusUpdate(opts: {
+  to: string;
+  name: string;
+  position: string;
+  status: 'accepted' | 'rejected' | 'reviewed' | 'contacted';
+  message: string;
+}) {
+  const { to, name, position, status, message } = opts;
+  const subject = `Update on your application for ${position}`;
+  const statusColor = status === 'accepted' ? '#16a34a' : status === 'rejected' ? '#dc2626' : '#2563eb';
+  const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+  const html = `
+  <!doctype html>
+  <html>
+  <body style="font-family: Inter, Arial; color:#0f172a;">
+    <div style="max-width:640px;margin:0 auto;padding:24px;">
+      <h2 style="margin:0 0 12px;">Application Update</h2>
+      <p style="margin:0 0 16px;">Hi ${name},</p>
+      <p style="margin:0 0 16px;">We have an update regarding your application for <strong>${position}</strong>.</p>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:16px 0;">
+        <p style="margin:0 0 8px;"><strong>Status:</strong> <span style="color:${statusColor}">${statusLabel}</span></p>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:12px;white-space:pre-wrap;">${message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+      </div>
+      <p style="margin:16px 0 0;">Thank you for your interest in PayPerCrawl.</p>
+      <p style="margin:16px 0 0;">— The PayPerCrawl Careers Team</p>
+    </div>
+  </body>
+  </html>`;
+  return sendEmail({ to, subject, html, from: "PayPerCrawl Careers <careers@paypercrawl.tech>" });
+}
+
 export async function sendApplicationConfirmation(email: string, name: string) {
   const subject = "Application Received - PayPerCrawl Beta";
   const html = `
