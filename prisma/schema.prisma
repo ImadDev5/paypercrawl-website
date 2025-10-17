@@ -16,18 +16,62 @@ datasource db {
 model BetaApplication {
   id          String   @id @default(cuid())
   name        String
-  email       String   @unique
+  email       String
   position    String
-  resumeUrl   String?  // URL to stored resume file
+  // Resume stored in database (PDF only)
+  resumeData     Bytes?
+  resumeFilename String?
+  resumeMimeType String?
+  resumeSize     Int?
   phone       String?
   website     String?
   coverLetter String?
   status      String   @default("pending") // pending, reviewed, contacted, rejected
   notes       String?
+  // Optional link to a JobPosting
+  jobId       String?
+  job         JobPosting? @relation(fields: [jobId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@map("beta_applications")
+}
+
+model JobPosting {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String
+  category    String   // legacy category label
+  categoryId  String?
+  categoryRef JobCategory? @relation(fields: [categoryId], references: [id])
+  type        String   // e.g., Full-time, Part-time, Contract
+  location    String   // e.g., Remote, Onsite - City
+  description String
+  status      String   @default("published")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  applications BetaApplication[]
+
+  @@map("job_postings")
+}
+
+model JobCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  icon      String?
+  color     String?
+  position  Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jobs JobPosting[]
+
+  @@map("job_categories")
 }
 
 model WaitlistEntry {
