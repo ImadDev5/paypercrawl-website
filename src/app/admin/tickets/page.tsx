@@ -107,6 +107,10 @@ export default function AdminTicketsPage() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={() => (window.location.href = '/admin/jobs')}>Jobs</Button>
+        <Button variant="outline" onClick={() => (window.location.href = '/admin/applications')}>Applications</Button>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Admin Tickets</CardTitle>
