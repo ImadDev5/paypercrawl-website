@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -35,11 +35,16 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
+import CareerApplicationForm from "@/components/career-application-form";
 
 export default function CareersPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [formOpen, setFormOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<any | null>(null);
 
-  const positions = [
+  // Fallback positions if API fails
+  const fallbackPositions = [
     {
       category: "Engineering",
       icon: Code,
@@ -153,6 +158,65 @@ export default function CareersPage() {
       ],
     },
   ];
+
+  const [categories, setCategories] = useState<any[]>([])
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/jobs?active=true').then(r=>r.json()).catch(()=>({})),
+      fetch('/api/job-categories').then(r=>r.json()).catch(()=>({}))
+    ]).then(([j, c]) => {
+      if (Array.isArray(j.jobs)) setJobs(j.jobs)
+      if (Array.isArray(c.categories)) setCategories(c.categories)
+    })
+  }, [])
+
+  const grouped = jobs.length ?
+    jobs.reduce((acc: Record<string, { cat?: any, jobs: any[] }>, job) => {
+      const cat = categories.find((x:any)=>x.id===job.categoryId)
+      const key = cat?.name || job.category
+      if (!acc[key]) acc[key] = { cat, jobs: [] }
+      acc[key].jobs.push(job)
+      return acc
+    }, {}) : null
+
+  // Safelist mapping for tailwind color classes
+  const colorToTextClass: Record<string, string> = {
+    blue: 'text-blue-500',
+    green: 'text-green-500',
+    purple: 'text-purple-500',
+    orange: 'text-orange-500',
+    red: 'text-red-500',
+    yellow: 'text-yellow-500',
+    indigo: 'text-indigo-500',
+    pink: 'text-pink-500',
+    teal: 'text-teal-500',
+    cyan: 'text-cyan-500',
+    gray: 'text-gray-500',
+    slate: 'text-slate-500',
+    lime: 'text-lime-500',
+    emerald: 'text-emerald-500',
+    violet: 'text-violet-500',
+  }
+  const getColorClass = (c?: string) => (c && colorToTextClass[(c || '').toLowerCase()]) || 'text-primary'
+
+  const ICONS: Record<string, any> = {
+    Code,
+    Megaphone,
+    Building,
+    DollarSign,
+    Shield,
+    Star,
+    Briefcase,
+    Users,
+    Target,
+    TrendingUp,
+    Award,
+    Globe,
+    Home: HomeIcon,
+    Info,
+    BookOpen,
+    LayoutDashboard,
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -345,18 +409,28 @@ export default function CareersPage() {
         </div>
 
         <div className="grid gap-12">
-          {positions.map((positionCategory) => (
-            <div key={positionCategory.category}>
+          {(grouped ? Object.entries(grouped) : fallbackPositions.map((c:any) => [c.category, { jobs: c.roles }, c])).map((entry: any) => {
+            const [category, data, meta] = entry
+            const IconComp = grouped && data?.cat?.icon ? ICONS[data.cat.icon] : undefined
+            return (
+            <div key={category}>
               <h2 className="text-3xl font-bold mb-6 flex items-center">
-                <positionCategory.icon
-                  className={`h-8 w-8 mr-4 text-${positionCategory.color}-500`}
-                />
-                {positionCategory.category}
+                {/* Icon from category when available; fallback to static */}
+                {grouped ? (
+                  IconComp ? (
+                    <IconComp className={`h-8 w-8 mr-4 ${getColorClass(data.cat.color)}`} />
+                  ) : null
+                ) : (
+                  meta?.icon ? (
+                    <meta.icon className={`h-8 w-8 mr-4 ${getColorClass(meta.color)}`} />
+                  ) : null
+                )}
+                {category}
               </h2>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {positionCategory.roles.map((role) => (
+                {(grouped ? data.jobs : (data.jobs as any)).map((role: any) => (
                   <Card
-                    key={role.title}
+                    key={role.id || role.title}
                     className="bg-card text-card-foreground"
                   >
                     <CardHeader>
@@ -370,7 +444,11 @@ export default function CareersPage() {
                       <p className="text-muted-foreground">
                         {role.description}
                       </p>
-                      <Button variant="link" className="p-0 mt-4">
+                      <Button
+                        variant="link"
+                        className="p-0 mt-4"
+                        onClick={() => { setSelectedJob(role); setFormOpen(true); }}
+                      >
                         Apply Now <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </CardContent>
@@ -378,7 +456,8 @@ export default function CareersPage() {
                 ))}
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
 
         <Card className="mt-20 text-center p-8 bg-card">
@@ -410,6 +489,12 @@ export default function CareersPage() {
           </div>
         </div>
       </footer>
+      <CareerApplicationForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        position={selectedJob?.title || 'Role'}
+        jobId={selectedJob?.id}
+      />
     </div>
   );
 }

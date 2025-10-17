@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { sendCareerApplicationStatusUpdate } from '@/lib/email'
 
 export async function GET(
   request: NextRequest,
@@ -33,7 +34,7 @@ export async function PATCH(
 ) {
   try {
     const body = await request.json()
-    const { status, notes } = body
+    const { status, notes, message } = body
     
     const application = await db.betaApplication.update({
       where: { id: params.id },
@@ -43,7 +44,21 @@ export async function PATCH(
         updatedAt: new Date()
       }
     })
-    
+    // send email if status provided
+    if (status && message) {
+      try {
+        await sendCareerApplicationStatusUpdate({
+          to: application.email,
+          name: application.name,
+          position: application.position,
+          status: status,
+          message: message,
+        })
+      } catch (e) {
+        console.error('Failed to send status update email:', e)
+      }
+    }
+
     return NextResponse.json(application)
   } catch (error) {
     console.error('Error updating application:', error)
