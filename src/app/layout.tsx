@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeKeyboardShortcuts } from "@/components/theme-keyboard-shortcuts";
 import { AuthProvider } from "@/contexts/AuthContext";
+import BeamGridBackground from "@/components/lightswind/beam-grid-background";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -72,6 +73,15 @@ export default function RootLayout({
           disableTransitionOnChange={false}
         >
           <AuthProvider>
+            {/* Global BeamGridBackground for all pages */}
+            <BeamGridBackground 
+              className="lightswind-beam-grid -z-10"
+              gridSize={50}
+              interactive={true}
+              asBackground={true}
+              showFade={true}
+              fadeIntensity={25}
+            />
             <ThemeKeyboardShortcuts />
             {children}
           </AuthProvider>
