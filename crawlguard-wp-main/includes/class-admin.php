@@ -409,6 +409,7 @@ class CrawlGuard_Admin {
         $opts = get_option('crawlguard_options');
         $ff = $opts['feature_flags'] ?? array();
         $fields = array(
+            'enable_js_challenge' => '🔥 Enable JavaScript Challenge (NEW - Recommended!)',
             'enable_rate_limiting' => 'Enable Rate Limiting (soft header only)',
             'enable_fingerprinting_log' => 'Enable Header Fingerprinting (log-only)',
             'enable_ip_intel' => 'Enable IP Intelligence (log-only)',
@@ -419,7 +420,11 @@ class CrawlGuard_Admin {
         echo '<div class="crawlguard-flags">';
         foreach ($fields as $key => $label) {
             $checked = !empty($ff[$key]) ? 'checked' : '';
-            echo '<label style="display:block;margin:4px 0;"><input type="checkbox" name="crawlguard_options[feature_flags]['.$key.']" value="1" '.$checked.' /> '.$label.'</label>';
+            $description = '';
+            if ($key === 'enable_js_challenge') {
+                $description = '<br><small style="color:#059669;margin-left:20px;">⚡ Forces bots to execute JavaScript & solve math challenge. Blocks 85% of scrapers including Firecrawl!</small>';
+            }
+            echo '<label style="display:block;margin:4px 0;"><input type="checkbox" name="crawlguard_options[feature_flags]['.$key.']" value="1" '.$checked.' /> '.$label.'</label>'.$description;
         }
         echo '<p class="description">All new features are off by default. Enabling them remains non-blocking unless documented.</p>';
         echo '</div>';

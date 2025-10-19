@@ -27,8 +27,20 @@ class CrawlGuard_RateLimiter {
         $limited = self::touch_and_check($bucket_ua, '1m', (int)$limits['per_ua_per_min']) || $limited;
 
         if ($limited) {
-            // Non-destructive: add response header to indicate soft-limit; do not block here
+            // BLOCK the request - rate limit exceeded
+            status_header(429); // Too Many Requests
             header('X-CrawlGuard-Rate-Limited: 1');
+            header('Retry-After: 60'); // Tell client to wait 60 seconds
+            
+            // Log the blocked request
+            $_SERVER['X_CRAWLGUARD_RATE_LIMITED'] = true;
+            
+            // Send 429 response and exit
+            wp_die(
+                '<h1>Rate Limit Exceeded</h1><p>You have made too many requests. Please slow down and try again in 60 seconds.</p>',
+                'Too Many Requests',
+                array('response' => 429)
+            );
         }
     }
 
