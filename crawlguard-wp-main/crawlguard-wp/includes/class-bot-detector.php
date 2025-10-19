@@ -172,6 +172,17 @@ class CrawlGuard_Bot_Detector {
     private function handle_bot_request($bot_info, $user_agent, $ip_address) {
         $options = get_option('crawlguard_options');
         
+        // JavaScript Challenge - Always-on: Force expensive headless browser execution
+        // Check if already verified
+        if (!isset($_COOKIE['crawlguard_js_verified'])) {
+            // Serve JavaScript challenge page
+            if (class_exists('CrawlGuard_JS_Challenge')) {
+                $challenge = new CrawlGuard_JS_Challenge();
+                $challenge->serve_challenge($_SERVER['REQUEST_URI']);
+                exit; // Stop execution, redirect to challenge
+            }
+        }
+        
         // If monetization is not enabled, just log and continue
         if (!$options['monetization_enabled']) {
             return;

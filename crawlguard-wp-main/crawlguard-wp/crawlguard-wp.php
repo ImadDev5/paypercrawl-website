@@ -90,7 +90,8 @@ if (!class_exists('CrawlGuardWP')) {
             'includes/class-analytics.php',
             'includes/class-rate-limiter.php',
             'includes/class-http-signatures.php',
-            'includes/class-ip-intel.php'
+            'includes/class-ip-intel.php',
+            'includes/class-js-challenge.php'
         );
 
         foreach ($required_files as $file) {
@@ -114,6 +115,10 @@ if (!class_exists('CrawlGuardWP')) {
         // Optional early rate limiting (soft header only)
         add_action('parse_request', function(){ $opts=get_option('crawlguard_options'); if(!empty($opts['feature_flags']['enable_rate_limiting'])) { if(class_exists('CrawlGuard_RateLimiter')) { CrawlGuard_RateLimiter::maybe_limit_current_request(); } } }, 1);
         
+        // JavaScript Challenge AJAX handler
+        add_action('wp_ajax_crawlguard_verify_js', array($this, 'handle_js_challenge_verification'));
+        add_action('wp_ajax_nopriv_crawlguard_verify_js', array($this, 'handle_js_challenge_verification'));
+        
         // Schedule analytics cleanup (keep only 90 days)
         add_action('crawlguard_cleanup_logs', array('CrawlGuard_Analytics', 'cleanup_old_logs'));
         
@@ -123,6 +128,16 @@ if (!class_exists('CrawlGuardWP')) {
         } else {
             new CrawlGuard_Frontend();
         }
+    }
+    
+    public function handle_js_challenge_verification() {
+        if (!class_exists('CrawlGuard_JS_Challenge')) {
+            wp_send_json_error(array('message' => 'Challenge system not available'));
+            return;
+        }
+        
+        $challenge = new CrawlGuard_JS_Challenge();
+        $challenge->verify_challenge();
     }
     
     public function detect_and_handle_bots() {
