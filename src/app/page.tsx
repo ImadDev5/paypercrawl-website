@@ -30,21 +30,11 @@ import { Navigation } from "@/components/ui/navigation";
 export default function Home() {
   return (
     <div className="min-h-screen bg-background selection:bg-primary/20 selection:text-primary-foreground relative">
-      {/* Global decorative gradients */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-x-0 top-0 h-[750px] bg-[radial-gradient(ellipse_at_top,theme(colors.primary)/18%,transparent_70%)] opacity-80 dark:opacity-60" />
-      </div>
-
       {/* Navigation */}
       <Navigation />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        {/* Decorative radial gradient background (adapts to theme) */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(circle_at_center,white,transparent_70%)] bg-[radial-gradient(circle_at_center,theme(colors.primary)/12%,transparent_70%)]"
-        ></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
           <div className="text-center">
             <div className="relative inline-block mb-4">
