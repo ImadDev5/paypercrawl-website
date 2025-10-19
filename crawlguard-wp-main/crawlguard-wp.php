@@ -49,6 +49,7 @@ class CrawlGuardWP {
         require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-admin.php';
         require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-frontend.php';
         require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-analytics.php'; // Analytics data handler
+        require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-js-challenge.php'; // JavaScript challenge system
         // New: Optional modules (feature-flagged and safe by default)
         require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-rate-limiter.php'; // Rate limiting (disabled by default)
         require_once CRAWLGUARD_PLUGIN_PATH . 'includes/class-http-signatures.php'; // HTTP Message Signatures (verification-only)
@@ -58,6 +59,10 @@ class CrawlGuardWP {
     private function init_hooks() {
         // Initialize bot detection on every request
         add_action('wp', array($this, 'detect_and_handle_bots'));
+        
+        // JavaScript Challenge AJAX handler
+        add_action('wp_ajax_crawlguard_verify_challenge', array('CrawlGuard_JS_Challenge', 'ajax_verify_challenge'));
+        add_action('wp_ajax_nopriv_crawlguard_verify_challenge', array('CrawlGuard_JS_Challenge', 'ajax_verify_challenge'));
         
         // Optionally apply rate limiting early in the request lifecycle (feature-flagged)
         add_action('parse_request', function() {

@@ -8,7 +8,7 @@ let cachedZip: Buffer | null = null;
 let cacheTime: number = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
 
-// Force clear cache on module load to ensure latest changes
+// FORCE CACHE CLEAR: Always-on JS Challenge update - Oct 19, 2025 06:11 UTC
 cachedZip = null;
 cacheTime = 0;
 
