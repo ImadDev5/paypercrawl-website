@@ -45,13 +45,13 @@ export async function GET(request: NextRequest) {
     console.log('[ADMIN API] Fetching from database...');
 
     const [waitlistEntries, total] = await Promise.all([
-      db.waitlistEntry.findMany({
+      db.WaitlistEntry.findMany({
         where,
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
-      db.waitlistEntry.count({ where }),
+      db.WaitlistEntry.count({ where }),
     ]);
     
     console.log('[ADMIN API] Database query completed');
