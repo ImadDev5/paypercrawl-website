@@ -9,6 +9,8 @@ interface GoogleAuthRequest {
 
 export async function POST(request: NextRequest) {
   try {
+        console.log('[FIREBASE AUTH] Request received');
+    console.log('[FIREBASE AUTH] Request body:', JSON.stringify({ email: body?.email, name: body?.name }));
     const body: GoogleAuthRequest = await request.json();
     const { email, name, photoURL } = body;
 
@@ -23,6 +25,13 @@ export async function POST(request: NextRequest) {
     const waitlistEntry = await db.waitlistEntry.findUnique({
       where: { email },
     });
+    
+    console.log('[FIREBASE AUTH] Waitlist check for email:', email);
+    console.log('[FIREBASE AUTH] Waitlist entry found:', !!waitlistEntry);
+    if (waitlistEntry) {
+      console.log('[FIREBASE AUTH] Entry status:', waitlistEntry.status);
+      console.log('[FIREBASE AUTH] Entry ID:', waitlistEntry.id);
+    }
 
     if (!waitlistEntry) {
       // User is not on waitlist - return 404
@@ -38,6 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Check user status
     if (waitlistEntry.status === "pending") {
+          console.log('[FIREBASE AUTH] Checking status. Current:', waitlistEntry.status, 'Expected: accepted');
       // User is on waitlist but not yet approved - return 403
       return NextResponse.json(
         {
@@ -61,6 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (waitlistEntry.status === "invited" || waitlistEntry.status === "accepted") {
+          console.log('[FIREBASE AUTH] User authorized! Status:', waitlistEntry.status);
       // Ensure the user is marked as accepted and has an invite token
       let inviteToken = waitlistEntry.inviteToken;
 
@@ -86,6 +97,9 @@ export async function POST(request: NextRequest) {
           data: { inviteToken },
         });
       }
+      
+    console.log('[FIREBASE AUTH] Success! Returning user data and invite token');
+    console.log('[FIREBASE AUTH] Invite token:', inviteToken);
 
       // Return success with user data and invite token
       return NextResponse.json({
@@ -110,6 +124,9 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
+        console.error('[FIREBASE AUTH] Authentication error:', error);
+    console.error('[FIREBASE AUTH] Error details:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('[FIREBASE AUTH] Error stack:', error instanceof Error ? error.stack : 'No stack');
     console.error("Google auth error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
