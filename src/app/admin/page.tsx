@@ -121,6 +121,7 @@ export default function AdminDashboard() {
         if (auth) {
                   loadData();
        }
+                })
       .catch(() => setIsAuthenticated(false))
       .finally(() => setChecking(false));
   }, []);
