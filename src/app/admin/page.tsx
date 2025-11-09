@@ -149,8 +149,6 @@ export default function AdminDashboard() {
         setApplications(appsData.applications);
       }
 
-      // Load waitlist separately with pagination
-      await loadWaitlist(1);
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load data");
@@ -158,6 +156,10 @@ export default function AdminDashboard() {
       setLoading(false);
     }
   };
+
+        // Load waitlist separately with pagination
+      await loadWaitlist(1);
+
 
   const loadWaitlist = async (
     page: number = waitlistPagination.page,
