@@ -128,6 +128,7 @@ export async function POST(request: NextRequest) {
     console.error('[FIREBASE AUTH] Authentication error:', error);
     console.error('[FIREBASE AUTH] Error details:', error instanceof Error ? error.message : 'Unknown error');
     console.error('[FIREBASE AUTH] Error stack:', error instanceof Error ? error.stack : 'No stack');
+    console.error("Google auth error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

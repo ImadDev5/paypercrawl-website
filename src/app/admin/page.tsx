@@ -115,7 +115,13 @@ export default function AdminDashboard() {
     // also verify cookie session to gate UI strictly
     fetch("/api/admin/session", { method: "GET" })
       .then((r) => r.json())
-      .then((j) => setIsAuthenticated(Boolean(j?.authenticated)))
+      .then((j)  => {
+        const auth = Boolean(j?.authenticated);
+        setIsAuthenticated(auth);
+        if (auth) {
+                  loadData();
+       }
+                })
       .catch(() => setIsAuthenticated(false))
       .finally(() => setChecking(false));
   }, []);
@@ -149,13 +155,17 @@ export default function AdminDashboard() {
         setApplications(appsData.applications);
       }
 
-      // Load waitlist separately with pagination
-      await loadWaitlist(1);
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load data");
     } finally {
       setLoading(false);
+            // Load waitlist data independently
+      try {
+        await loadWaitlist(1);
+      } catch (error) {
+        console.error("Error loading waitlist:", error);
+      }
     }
   };
 

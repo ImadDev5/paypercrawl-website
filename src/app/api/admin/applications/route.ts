@@ -24,13 +24,13 @@ export async function GET(request: NextRequest) {
     const where = status ? { status } : {}
 
     const [applications, total] = await Promise.all([
-      db.betaApplication.findMany({
+      db.BetaApplication.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      db.betaApplication.count({ where })
+      db.BetaApplication.count({ where })
     ])
 
     return NextResponse.json({
@@ -63,7 +63,7 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json()
     const { applicationId, status, notes } = body
 
-    const application = await db.betaApplication.update({
+    const application = await db.BetaApplication.update({
       where: { id: applicationId },
       data: {
         status: status || undefined,
