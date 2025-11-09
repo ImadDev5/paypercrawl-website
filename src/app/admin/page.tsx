@@ -115,7 +115,12 @@ export default function AdminDashboard() {
     // also verify cookie session to gate UI strictly
     fetch("/api/admin/session", { method: "GET" })
       .then((r) => r.json())
-      .then((j) => setIsAuthenticated(Boolean(j?.authenticated)))
+      .then((j) => setIsAuthenticated(Boolean(j?.au => {
+        const auth = Boolean(j?.authenticated);
+        setIsAuthenticated(auth);
+        if (auth) {
+          loadData();
+        }
       .catch(() => setIsAuthenticated(false))
       .finally(() => setChecking(false));
   }, []);
