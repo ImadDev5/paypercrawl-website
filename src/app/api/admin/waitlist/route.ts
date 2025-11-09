@@ -11,8 +11,13 @@ function verifyAdminAuth(request: NextRequest): boolean {
 export async function GET(request: NextRequest) {
   try {
     if (!verifyAdminAuth(request)) {
+          console.log('[ADMIN API] Request received');
+    console.log('[ADMIN API] Headers:', request.headers.get('cookie'));
+    console.log('[ADMIN API] URL:', request.url);
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    
+    console.log('[ADMIN API] Authentication passed');
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
@@ -34,16 +39,28 @@ export async function GET(request: NextRequest) {
         { website: { contains: search, mode: "insensitive" } },
       ];
     }
+    
+    console.log('[ADMIN API] Query filters:', JSON.stringify(where));
+    console.log('[ADMIN API] DATABASE_URL exists:', !!process.env.DATABASE_URL);
+    console.log('[ADMIN API] Fetching from database...');
 
     const [waitlistEntries, total] = await Promise.all([
-      db.waitlistEntry.findMany({
+      db.WaitlistEntry.findMany({
         where,
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
-      db.waitlistEntry.count({ where }),
+      db.WaitlistEntry.count({ where }),
     ]);
+    
+    console.log('[ADMIN API] Database query completed');
+    console.log('[ADMIN API] Total count:', total);
+    console.log('[ADMIN API] Fetched entries:', waitlistEntries.length);
+    if (waitlistEntries.length > 0) {
+      console.log('[ADMIN API] First entry email:', waitlistEntries[0]?.email);
+      console.log('[ADMIN API] First entry status:', waitlistEntries[0]?.status);
+    }
 
     return NextResponse.json({
       waitlistEntries,
@@ -56,6 +73,8 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching waitlist:", error);
+        console.error('[ADMIN API] Error details:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('[ADMIN API] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
