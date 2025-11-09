@@ -154,12 +154,14 @@ export default function AdminDashboard() {
       toast.error("Failed to load data");
     } finally {
       setLoading(false);
+            // Load waitlist data independently
+      try {
+        await loadWaitlist(1);
+      } catch (error) {
+        console.error("Error loading waitlist:", error);
+      }
     }
   };
-
-        // Load waitlist separately with pagination
-      await loadWaitlist(1);
-
 
   const loadWaitlist = async (
     page: number = waitlistPagination.page,
