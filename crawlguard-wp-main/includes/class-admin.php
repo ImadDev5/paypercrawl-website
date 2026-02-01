@@ -670,13 +670,22 @@ class CrawlGuard_Admin {
                     <div class="panel-content">
                         <table class="form-table">
                             <tr>
-                                <th scope="row">Enable Live Sync</th>
+                                <th scope="row">Live Sync</th>
                                 <td>
-                                    <label class="crawlguard-toggle">
-                                        <input type="checkbox" id="live-sync-enabled" <?php checked(!empty($live_sync['enabled'])); ?> <?php disabled(!$api_key_valid); ?>>
-                                        <span class="slider"></span>
-                                    </label>
-                                    <p class="description">Enable real-time data synchronization for AI Tool access.</p>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <?php if (!empty($live_sync['enabled'])): ?>
+                                        <button type="button" id="live-sync-disable-btn" class="button button-secondary" <?php disabled(!$api_key_valid); ?>>
+                                            <span class="dashicons dashicons-no"></span> Disable Live Sync
+                                        </button>
+                                        <span class="badge badge-success" style="padding: 4px 10px; border-radius: 4px; background: #00a32a; color: #fff;">Active</span>
+                                        <?php else: ?>
+                                        <button type="button" id="live-sync-enable-btn" class="button button-primary" <?php disabled(!$api_key_valid); ?>>
+                                            <span class="dashicons dashicons-yes"></span> Enable Live Sync
+                                        </button>
+                                        <span class="badge badge-warning" style="padding: 4px 10px; border-radius: 4px; background: #dba617; color: #fff;">Disabled</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <p class="description" style="margin-top: 8px;">Enable real-time data synchronization for AI Tool access.</p>
                                 </td>
                             </tr>
                         </table>
@@ -697,13 +706,22 @@ class CrawlGuard_Admin {
                         <?php if ($woo_status['woocommerce_active']): ?>
                         <table class="form-table">
                             <tr>
-                                <th scope="row">Enable WooCommerce Sync</th>
+                                <th scope="row">WooCommerce Sync</th>
                                 <td>
-                                    <label class="crawlguard-toggle">
-                                        <input type="checkbox" id="woocommerce-enabled" <?php checked(!empty($live_sync['woocommerce_enabled'])); ?> <?php disabled(!$api_key_valid || empty($live_sync['enabled'])); ?>>
-                                        <span class="slider"></span>
-                                    </label>
-                                    <p class="description">Automatically sync product price and stock changes in real-time.</p>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <?php if (!empty($live_sync['woocommerce_enabled'])): ?>
+                                        <button type="button" id="woocommerce-disable-btn" class="button button-secondary" <?php disabled(!$api_key_valid || empty($live_sync['enabled'])); ?>>
+                                            <span class="dashicons dashicons-no"></span> Disable WooCommerce Sync
+                                        </button>
+                                        <span class="badge badge-success" style="padding: 4px 10px; border-radius: 4px; background: #00a32a; color: #fff;">Active</span>
+                                        <?php else: ?>
+                                        <button type="button" id="woocommerce-enable-btn" class="button button-primary" <?php disabled(!$api_key_valid || empty($live_sync['enabled'])); ?>>
+                                            <span class="dashicons dashicons-yes"></span> Enable WooCommerce Sync
+                                        </button>
+                                        <span class="badge badge-warning" style="padding: 4px 10px; border-radius: 4px; background: #dba617; color: #fff;">Disabled</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <p class="description" style="margin-top: 8px;">Automatically sync product price and stock changes in real-time.</p>
                                 </td>
                             </tr>
                             <tr>
@@ -753,45 +771,58 @@ class CrawlGuard_Admin {
         
         <script>
         jQuery(document).ready(function($) {
-            // Toggle Live Sync
-            $('#live-sync-enabled').on('change', function() {
-                var enabled = $(this).is(':checked');
+            // Helper function for Live Sync toggle
+            function toggleLiveSyncSetting(setting, value, $btn) {
+                var originalHtml = $btn.html();
+                $btn.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> Processing...');
+                
                 $.post(crawlguard_ajax.ajax_url, {
                     action: 'crawlguard_live_sync_toggle',
                     nonce: crawlguard_ajax.nonce,
-                    setting: 'enabled',
-                    value: enabled ? 1 : 0
+                    setting: setting,
+                    value: value
                 }, function(response) {
                     if (response.success) {
                         location.reload();
                     } else {
-                        alert('Error: ' + response.data);
+                        alert('Error: ' + (response.data || 'Unknown error'));
+                        $btn.prop('disabled', false).html(originalHtml);
                     }
+                }).fail(function() {
+                    alert('Connection error. Please try again.');
+                    $btn.prop('disabled', false).html(originalHtml);
                 });
+            }
+            
+            // Enable Live Sync Button
+            $('#live-sync-enable-btn').on('click', function() {
+                toggleLiveSyncSetting('enabled', 1, $(this));
             });
             
-            // Toggle WooCommerce
-            $('#woocommerce-enabled').on('change', function() {
-                var enabled = $(this).is(':checked');
-                $.post(crawlguard_ajax.ajax_url, {
-                    action: 'crawlguard_live_sync_toggle',
-                    nonce: crawlguard_ajax.nonce,
-                    setting: 'woocommerce_enabled',
-                    value: enabled ? 1 : 0
-                }, function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('Error: ' + response.data);
-                    }
-                });
+            // Disable Live Sync Button
+            $('#live-sync-disable-btn').on('click', function() {
+                if (confirm('Are you sure you want to disable Live Sync?')) {
+                    toggleLiveSyncSetting('enabled', 0, $(this));
+                }
+            });
+            
+            // Enable WooCommerce Sync Button
+            $('#woocommerce-enable-btn').on('click', function() {
+                toggleLiveSyncSetting('woocommerce_enabled', 1, $(this));
+            });
+            
+            // Disable WooCommerce Sync Button
+            $('#woocommerce-disable-btn').on('click', function() {
+                if (confirm('Are you sure you want to disable WooCommerce Sync?')) {
+                    toggleLiveSyncSetting('woocommerce_enabled', 0, $(this));
+                }
             });
             
             // Test WooCommerce sync
             $('#test-woo-sync').on('click', function() {
                 var $btn = $(this);
                 var $result = $('#test-result');
-                $btn.prop('disabled', true).text('Sending...');
+                $btn.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> Sending...');
                 $result.text('');
                 
                 $.post(crawlguard_ajax.ajax_url, {
@@ -805,6 +836,9 @@ class CrawlGuard_Admin {
                     } else {
                         $result.html('<span style="color: red;">✗ ' + response.data + '</span>');
                     }
+                }).fail(function() {
+                    $btn.prop('disabled', false).html('<span class="dashicons dashicons-controls-play"></span> Send Test Event');
+                    $result.html('<span style="color: red;">✗ Connection error</span>');
                 });
             });
         });
