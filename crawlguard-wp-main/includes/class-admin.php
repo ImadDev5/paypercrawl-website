@@ -1037,10 +1037,19 @@ class CrawlGuard_Admin {
             wp_send_json_error('Invalid setting');
         }
         
-        $options = get_option('crawlguard_options', array());
-        if (!is_array($options)) {
-            $options = array();
+        // Get current options or create empty array
+        $options = get_option('crawlguard_options');
+        
+        // If option doesn't exist or isn't an array, initialize it
+        if ($options === false || !is_array($options)) {
+            $options = array(
+                'api_key' => '',
+                'api_key_valid' => false,
+                'api_base_url' => 'https://paypercrawl.tech/api',
+            );
         }
+        
+        // Ensure live_sync array exists
         if (!isset($options['live_sync']) || !is_array($options['live_sync'])) {
             $options['live_sync'] = array(
                 'enabled' => false,
@@ -1052,21 +1061,32 @@ class CrawlGuard_Admin {
             );
         }
         
+        // Set the new value
         $options['live_sync'][$setting] = (bool) $value;
-        $updated = update_option('crawlguard_options', $options);
         
-        if ($updated) {
-            wp_send_json_success(array('message' => 'Setting updated', 'value' => $options['live_sync'][$setting]));
-        } else {
-            // update_option returns false if value hasn't changed OR on error
-            // Check if the value is already what we want
-            $check = get_option('crawlguard_options', array());
-            if (isset($check['live_sync'][$setting]) && $check['live_sync'][$setting] === (bool) $value) {
-                wp_send_json_success(array('message' => 'Setting already set', 'value' => $check['live_sync'][$setting]));
-            } else {
-                wp_send_json_error('Failed to update option');
+        // Try to update - use delete + add if update fails
+        $updated = update_option('crawlguard_options', $options, true);
+        
+        if (!$updated) {
+            // WordPress returns false if value is same - verify the value
+            $verify = get_option('crawlguard_options');
+            if (is_array($verify) && isset($verify['live_sync'][$setting]) && $verify['live_sync'][$setting] === (bool) $value) {
+                // Value is already set correctly
+                wp_send_json_success(array('message' => 'Setting saved', 'value' => (bool) $value));
+                return;
+            }
+            
+            // Try delete and re-add
+            delete_option('crawlguard_options');
+            $added = add_option('crawlguard_options', $options, '', 'yes');
+            
+            if (!$added) {
+                wp_send_json_error('Failed to save option. Please check WordPress permissions.');
+                return;
             }
         }
+        
+        wp_send_json_success(array('message' => 'Setting updated', 'value' => (bool) $value));
     }
     
     /**
