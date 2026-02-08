@@ -5,12 +5,18 @@ export function middleware(request: NextRequest) {
 
   // Add CORS headers for API routes
   const response = NextResponse.next();
-  
+
   if (pathname.startsWith("/api/")) {
     response.headers.set("Access-Control-Allow-Origin", "*");
-    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    
+    response.headers.set(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS",
+    );
+    response.headers.set(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization",
+    );
+
     // Handle preflight requests
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 200, headers: response.headers });
@@ -27,11 +33,15 @@ export function middleware(request: NextRequest) {
     const headerKey = request.headers
       .get("authorization")
       ?.replace("Bearer ", "");
-    const ok = session || (headerKey && headerKey === process.env.ADMIN_API_KEY);
+    const ok =
+      session || (headerKey && headerKey === process.env.ADMIN_API_KEY);
 
     // Allow admin login/session endpoint without pre-auth for creating session
-    const isSessionEndpoint = pathname === "/api/admin/session";
-    const isLoginPage = pathname === "/admin/login";
+    // Account for trailingSlash: true which appends / to all paths
+    const isSessionEndpoint =
+      pathname === "/api/admin/session" || pathname === "/api/admin/session/";
+    const isLoginPage =
+      pathname === "/admin/login" || pathname === "/admin/login/";
     if (!ok && !isSessionEndpoint && !isLoginPage) {
       if (isAdminApi) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -75,7 +85,10 @@ export function middleware(request: NextRequest) {
   }
 
   // For protected routes under /dashboard, allow if invite cookie or firebase session is present
-  if (pathname.startsWith("/dashboard") && !(inviteToken || hasFirebaseSession)) {
+  if (
+    pathname.startsWith("/dashboard") &&
+    !(inviteToken || hasFirebaseSession)
+  ) {
     return NextResponse.redirect(new URL("/waitlist", request.url));
   }
 
@@ -99,6 +112,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-  "/((?!_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };
