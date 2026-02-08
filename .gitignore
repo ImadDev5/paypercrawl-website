@@ -51,4 +51,7 @@ dev.log
 test
 prompt
 
-server.log
+server.logcrawlguard-wp-main/node_modules/
+
+# Plugin build artifacts
+crawlguard-wp-main/*.zip

@@ -17,11 +17,10 @@ export function getRazorpayInstance() {
     const trimmedKeyId = keyId.trim();
     const trimmedKeySecret = keySecret.trim();
 
-    console.log('Initializing Razorpay with:');
-    console.log('- Key ID:', trimmedKeyId.substring(0, 15) + '...');
-    console.log('- Key Secret:', trimmedKeySecret ? '[SET]' : '[NOT SET]');
-    console.log('- Key ID length:', trimmedKeyId.length);
-    console.log('- Key Secret length:', trimmedKeySecret.length);
+    // Validate keys exist (no logging of key details in production)
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Initializing Razorpay instance');
+    }
 
     razorpayInstance = new Razorpay({
       key_id: trimmedKeyId,

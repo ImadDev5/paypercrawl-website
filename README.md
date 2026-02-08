@@ -15,16 +15,19 @@
 ## ✨ Features at a Glance
 
 ### 💼 For Site Owners
+
 - **Bot Monetization Engine** – Earn from AI crawlers.
 - **One-Click WordPress Integration** – Works instantly with CrawlGuard plugin.
 - **Secure API Keys** – Manage, revoke, and validate access.
 
 ### ⚙️ For Developers
+
 - **REST API** – Easy integration with external services.
 - **Next.js 15 + TailwindCSS v4** – Modern, high-performance frontend.
 - **Prisma + PostgreSQL** – Robust database for scalability.
 
 ### 🛡 For Administrators
+
 - **Invite-Only Dashboard** – Restrict beta access with tokens.
 - **Bulk User Management** – Approve, revoke, and monitor users.
 - **Real-Time Status Tracking** – Know who’s in and who’s not.
@@ -33,22 +36,22 @@
 
 ## 🖼 UI Showcase
 
-| Dashboard – API Keys | Theme Customizer | WordPress Plugin |
-|----------------------|------------------|------------------|
+| Dashboard – API Keys                               | Theme Customizer                           | WordPress Plugin                     |
+| -------------------------------------------------- | ------------------------------------------ | ------------------------------------ |
 | ![Dashboard Screenshot](docs/assets/dashboard.png) | ![Theme Customizer](docs/assets/theme.png) | ![WP Plugin](docs/assets/plugin.png) |
 
 ---
 
 ## 🛠 Tech Stack
 
-| Category         | Technology |
-|------------------|------------|
-| **Frontend**     | Next.js 15, Tailwind CSS v4, ShadCN UI |
-| **Backend**      | Next.js API Routes, Prisma ORM |
-| **Database**     | PostgreSQL (Neon) |
-| **Email Service**| Resend API + DKIM |
-| **Plugin**       | WordPress (PHP, JS, CSS) |
-| **Hosting**      | Vercel / Hostinger |
+| Category          | Technology                             |
+| ----------------- | -------------------------------------- |
+| **Frontend**      | Next.js 15, Tailwind CSS v4, ShadCN UI |
+| **Backend**       | Next.js API Routes, Prisma ORM         |
+| **Database**      | PostgreSQL (Neon)                      |
+| **Email Service** | Resend API + DKIM                      |
+| **Plugin**        | WordPress (PHP, JS, CSS)               |
+| **Hosting**       | Vercel / Hostinger                     |
 
 ---
 
@@ -88,24 +91,26 @@ NODE_ENV=production
 ## 🚀 Deployment
 
 ### **Vercel (Recommended)**
+
 1. Import your GitHub repo into Vercel.
 2. Add environment variables.
 3. Deploy instantly.
 
 ### **Hostinger (Cost-Saving Alternative)**
+
 - Deployment scripts: `deploy-hostinger.sh` / `.bat`
 
 ---
 
 ## 📡 API Reference (Core Endpoints)
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/apikeys/generate` | POST | Generate new API key |
-| `/api/apikeys/validate` | POST | Validate API key |
-| `/api/plugin/download` | GET | Download WordPress plugin |
-| `/api/waitlist/join` | POST | Join waitlist |
-| `/api/waitlist/invite` | POST | Send invitation |
+| Endpoint                | Method | Description               |
+| ----------------------- | ------ | ------------------------- |
+| `/api/apikeys/generate` | POST   | Generate new API key      |
+| `/api/apikeys/validate` | POST   | Validate API key          |
+| `/api/plugin/download`  | GET    | Download WordPress plugin |
+| `/api/waitlist/join`    | POST   | Join waitlist             |
+| `/api/waitlist/invite`  | POST   | Send invitation           |
 
 Full API docs: See `docs/` folder
 
@@ -131,11 +136,13 @@ Run Playwright tests: `npx playwright test`
 ---
 
 ## 📜 License
+
 MIT License – See [LICENSE](LICENSE) for details.
 
 ---
 
 ## 📞 Support
+
 - **Documentation:** `/docs` folder
 - **Issues:** [GitHub Issues](../../issues)
 - **Email:** admin@paypercrawl.tech
@@ -143,6 +150,7 @@ MIT License – See [LICENSE](LICENSE) for details.
 ---
 
 ## ✅ Project Status
+
 **Production Ready** – Fully functional with optional persistence and analytics enhancements available.
 
-> 💡 *PayPerCrawl is designed to scale with your audience — from small blogs to enterprise-level AI traffic management.*
+> 💡 _PayPerCrawl is designed to scale with your audience — from small blogs to enterprise-level AI traffic management._

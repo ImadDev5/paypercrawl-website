@@ -97,8 +97,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Failed to generate API key',
-        details: errorMessage 
+        error: 'Failed to generate API key'
       },
       { status: 500 }
     );

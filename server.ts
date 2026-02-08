@@ -41,10 +41,11 @@ async function createCustomServer() {
             return [k.trim(), decodeURIComponent(rest.join('=').trim())];
           })
         );
-        const adminSession = cookies['admin_session'] === '1';
+        const adminSession = cookies['admin_session'];
+        const hasAdminSession = Boolean(adminSession && adminSession.length > 10);
 
         // If already authenticated, prevent showing login page; redirect to /admin
-        if ((pathname === '/admin/login' || pathname === '/admin/login/') && adminSession) {
+        if ((pathname === '/admin/login' || pathname === '/admin/login/') && hasAdminSession) {
           res.writeHead(302, { Location: '/admin' });
           res.end();
           return;
@@ -58,7 +59,7 @@ async function createCustomServer() {
         // Block all other /admin routes without authentication
         if (pathname.startsWith('/admin')) {
           // Block all other /admin routes without authentication
-          if (!adminSession) {
+          if (!hasAdminSession) {
             // Redirect to login
             res.writeHead(302, { Location: '/admin/login' });
             res.end();
@@ -77,8 +78,13 @@ async function createCustomServer() {
     const io = new Server(server, {
       path: '/api/socketio',
       cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
+        origin: [
+          'https://paypercrawl.tech',
+          'https://www.paypercrawl.tech',
+          ...(dev ? ['http://localhost:3000', 'http://localhost:3001'] : []),
+        ],
+        methods: ["GET", "POST"],
+        credentials: true
       }
     });
 

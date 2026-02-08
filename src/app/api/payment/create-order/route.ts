@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getRazorpayInstance, convertToCents } from '@/lib/razorpay';
+import { rateLimit, getClientIP } from '@/lib/rate-limit';
 
 const PLAN_PRICE_USD = 25; // $25 for API key access
 
 export async function POST(request: NextRequest) {
+  // Rate limit: 10 orders per minute per IP
+  const ip = getClientIP(request.headers);
+  const rl = rateLimit(`payment-create:${ip}`, 10, 60_000);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } }
+    );
+  }
   try {
     const body = await request.json();
     const { email, name, userId } = body;
@@ -93,10 +103,7 @@ export async function POST(request: NextRequest) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to create payment order';
     
     return NextResponse.json(
-      { 
-        error: 'Failed to create payment order',
-        details: errorMessage 
-      },
+      { error: 'Failed to create payment order' },
       { status: 500 }
     );
   }
