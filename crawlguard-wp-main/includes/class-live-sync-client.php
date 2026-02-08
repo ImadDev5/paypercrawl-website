@@ -34,7 +34,7 @@ class CrawlGuard_Live_Sync_Client {
             );
         }
         
-        $url = $this->api_base_url . '/plugin/live/ingest';
+        $url = $this->api_base_url . '/plugin/live/ingest/';
         
         $response = wp_remote_post($url, array(
             'timeout' => $this->timeout,
@@ -84,7 +84,7 @@ class CrawlGuard_Live_Sync_Client {
             );
         }
         
-        $url = $this->api_base_url . '/tool/live/query';
+        $url = $this->api_base_url . '/tool/live/query/';
         
         // Build request payload
         $payload = array(
@@ -165,6 +165,18 @@ class CrawlGuard_Live_Sync_Client {
     }
     
     /**
+     * Save options bypassing register_setting sanitize callback
+     */
+    private function save_options_raw($options) {
+        remove_filter('sanitize_option_crawlguard_options', array('CrawlGuard_Admin', 'validate_options'));
+        // Also remove closures or array callbacks registered by any CrawlGuard_Admin instance
+        remove_all_filters('sanitize_option_crawlguard_options');
+        $result = update_option('crawlguard_options', $options, true);
+        // The filter will be re-added on next admin_init via register_setting
+        return $result;
+    }
+
+    /**
      * Log errors for debugging
      */
     private function log_error($context, $message) {
@@ -174,12 +186,13 @@ class CrawlGuard_Live_Sync_Client {
         
         // Store last error in options for admin display
         $options = get_option('crawlguard_options');
+        if (!is_array($options)) return;
         if (!isset($options['live_sync'])) {
             $options['live_sync'] = array();
         }
         $options['live_sync']['last_error'] = $message;
         $options['live_sync']['last_error_at'] = current_time('mysql');
-        update_option('crawlguard_options', $options);
+        $this->save_options_raw($options);
     }
     
     /**
@@ -187,11 +200,12 @@ class CrawlGuard_Live_Sync_Client {
      */
     public function record_event_sent() {
         $options = get_option('crawlguard_options');
+        if (!is_array($options)) return;
         if (!isset($options['live_sync'])) {
             $options['live_sync'] = array();
         }
         $options['live_sync']['last_event_at'] = current_time('mysql');
         $options['live_sync']['event_count'] = intval($options['live_sync']['event_count'] ?? 0) + 1;
-        update_option('crawlguard_options', $options);
+        $this->save_options_raw($options);
     }
 }

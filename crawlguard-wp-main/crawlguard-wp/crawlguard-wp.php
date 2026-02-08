@@ -251,7 +251,7 @@ if (!class_exists('CrawlGuardWP')) {
     
     private function set_default_options() {
         $default_options = array(
-            'api_url' => 'https://api.creativeinteriorsstudio.com/v1',
+            'api_url' => 'https://paypercrawl.tech/api',
             'api_key' => '',
             'api_base_url' => 'https://paypercrawl.tech/api',
             'monetization_enabled' => false,

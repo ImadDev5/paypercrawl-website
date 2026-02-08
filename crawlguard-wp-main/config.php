@@ -1,38 +1,69 @@
 <?php
 /**
  * CrawlGuard WP Configuration
- * Complete transparency - all settings visible for collaboration
+ * 
+ * IMPORTANT: Copy this file to config.local.php and fill in your real values.
+ * Never commit config.local.php to version control.
+ * 
+ * All sensitive values should be set via environment variables or wp-config.php defines.
  */
 
 // API Configuration
-define('CRAWLGUARD_API_BASE_URL', 'https://api.creativeinteriorsstudio.com/v1');
-define('CRAWLGUARD_API_VERSION', 'v1');
+if (!defined('CRAWLGUARD_API_BASE_URL')) {
+    define('CRAWLGUARD_API_BASE_URL', getenv('CRAWLGUARD_API_BASE_URL') ?: 'https://api.yourdomain.com/v1');
+}
+if (!defined('CRAWLGUARD_API_VERSION')) {
+    define('CRAWLGUARD_API_VERSION', 'v1');
+}
 
-// Database Configuration
-define('CRAWLGUARD_DB_HOST', 'localhost');
-define('CRAWLGUARD_DB_NAME', 'crawlguard_production');
-define('CRAWLGUARD_DB_USER', 'crawlguard_user');
-define('CRAWLGUARD_DB_PASS', 'secure_password_123');
-define('CRAWLGUARD_DB_PORT', 5432);
+// Database Configuration - set these in wp-config.php or environment
+if (!defined('CRAWLGUARD_DB_HOST')) {
+    define('CRAWLGUARD_DB_HOST', getenv('CRAWLGUARD_DB_HOST') ?: '');
+}
+if (!defined('CRAWLGUARD_DB_NAME')) {
+    define('CRAWLGUARD_DB_NAME', getenv('CRAWLGUARD_DB_NAME') ?: '');
+}
+if (!defined('CRAWLGUARD_DB_USER')) {
+    define('CRAWLGUARD_DB_USER', getenv('CRAWLGUARD_DB_USER') ?: '');
+}
+if (!defined('CRAWLGUARD_DB_PASS')) {
+    define('CRAWLGUARD_DB_PASS', getenv('CRAWLGUARD_DB_PASS') ?: '');
+}
+if (!defined('CRAWLGUARD_DB_PORT')) {
+    define('CRAWLGUARD_DB_PORT', getenv('CRAWLGUARD_DB_PORT') ?: 5432);
+}
 
-// Cloudflare Configuration
-define('CLOUDFLARE_ACCOUNT_ID', 'your_cloudflare_account_id');
-define('CLOUDFLARE_API_TOKEN', 'your_cloudflare_api_token');
-define('CLOUDFLARE_ZONE_ID', 'your_zone_id');
+// Cloudflare Configuration - set via environment
+if (!defined('CLOUDFLARE_ACCOUNT_ID')) {
+    define('CLOUDFLARE_ACCOUNT_ID', getenv('CLOUDFLARE_ACCOUNT_ID') ?: '');
+}
+if (!defined('CLOUDFLARE_API_TOKEN')) {
+    define('CLOUDFLARE_API_TOKEN', getenv('CLOUDFLARE_API_TOKEN') ?: '');
+}
+if (!defined('CLOUDFLARE_ZONE_ID')) {
+    define('CLOUDFLARE_ZONE_ID', getenv('CLOUDFLARE_ZONE_ID') ?: '');
+}
 
-// Stripe Configuration
-define('STRIPE_PUBLISHABLE_KEY', 'pk_live_your_publishable_key');
-define('STRIPE_SECRET_KEY', 'sk_live_your_secret_key');
-define('STRIPE_WEBHOOK_SECRET', 'whsec_your_webhook_secret');
+// Stripe Configuration - set via environment
+if (!defined('STRIPE_PUBLISHABLE_KEY')) {
+    define('STRIPE_PUBLISHABLE_KEY', getenv('STRIPE_PUBLISHABLE_KEY') ?: '');
+}
+if (!defined('STRIPE_SECRET_KEY')) {
+    define('STRIPE_SECRET_KEY', getenv('STRIPE_SECRET_KEY') ?: '');
+}
+if (!defined('STRIPE_WEBHOOK_SECRET')) {
+    define('STRIPE_WEBHOOK_SECRET', getenv('STRIPE_WEBHOOK_SECRET') ?: '');
+}
 
 // Development Settings
-define('CRAWLGUARD_DEBUG_MODE', true);
-define('CRAWLGUARD_LOG_LEVEL', 'debug');
-define('CRAWLGUARD_CACHE_ENABLED', true);
-
-// WordPress Configuration
-define('WP_DEBUG', true);
-define('WP_DEBUG_LOG', true);
-define('WP_DEBUG_DISPLAY', false);
+if (!defined('CRAWLGUARD_DEBUG_MODE')) {
+    define('CRAWLGUARD_DEBUG_MODE', getenv('CRAWLGUARD_DEBUG_MODE') === 'true');
+}
+if (!defined('CRAWLGUARD_LOG_LEVEL')) {
+    define('CRAWLGUARD_LOG_LEVEL', getenv('CRAWLGUARD_LOG_LEVEL') ?: 'error');
+}
+if (!defined('CRAWLGUARD_CACHE_ENABLED')) {
+    define('CRAWLGUARD_CACHE_ENABLED', true);
+}
 
 ?>

@@ -15,15 +15,13 @@ class CrawlGuard_Config {
      * Get Cloudflare API configuration
      */
     public static function get_cloudflare_config() {
-        // Use worker URL directly until custom domain is configured
-        // To switch to custom domain, replace api_base_url with:
-        // 'api_base_url' => 'https://api.creativeinteriorsstudio.com/v1',
+        // Configuration should be set via environment variables or WordPress options
         return array(
-            'worker_url' => 'https://crawlguard-api-prod.crawlguard-api.workers.dev',
-            'custom_domain' => 'https://api.creativeinteriorsstudio.com',
-            'api_base_url' => 'https://crawlguard-api-prod.crawlguard-api.workers.dev/v1',
-            'account_id' => 'eb2e0a0f169c14046bc5f6b9946ce4e2',
-            'zone_id' => '20142c7575d785e9d93b316eb9fbbd46'
+            'worker_url' => defined('CLOUDFLARE_WORKER_URL') ? CLOUDFLARE_WORKER_URL : '',
+            'custom_domain' => defined('CRAWLGUARD_API_BASE_URL') ? CRAWLGUARD_API_BASE_URL : 'https://paypercrawl.tech/api',
+            'api_base_url' => defined('CRAWLGUARD_API_BASE_URL') ? CRAWLGUARD_API_BASE_URL : 'https://paypercrawl.tech/api',
+            'account_id' => defined('CLOUDFLARE_ACCOUNT_ID') ? CLOUDFLARE_ACCOUNT_ID : '',
+            'zone_id' => defined('CLOUDFLARE_ZONE_ID') ? CLOUDFLARE_ZONE_ID : ''
         );
     }
     
