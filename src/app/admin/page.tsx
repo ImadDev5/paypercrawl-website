@@ -100,7 +100,7 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"pagination" | "loadmore">(
-    "pagination"
+    "pagination",
   );
   const [selectedApplication, setSelectedApplication] =
     useState<Application | null>(null);
@@ -115,13 +115,13 @@ export default function AdminDashboard() {
     // also verify cookie session to gate UI strictly
     fetch("/api/admin/session", { method: "GET" })
       .then((r) => r.json())
-      .then((j)  => {
+      .then((j) => {
         const auth = Boolean(j?.authenticated);
         setIsAuthenticated(auth);
         if (auth) {
-                  loadData();
-       }
-                })
+          loadData();
+        }
+      })
       .catch(() => setIsAuthenticated(false))
       .finally(() => setChecking(false));
   }, []);
@@ -161,13 +161,12 @@ export default function AdminDashboard() {
         const appsData = await appsResponse.json();
         setApplications(appsData.applications);
       }
-
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load data");
     } finally {
       setLoading(false);
-            // Load waitlist data independently
+      // Load waitlist data independently
       try {
         await loadWaitlist(1);
       } catch (error) {
@@ -181,7 +180,7 @@ export default function AdminDashboard() {
     limit: number = waitlistPagination.limit,
     search: string = searchTerm,
     append: boolean = false,
-    status: string = statusFilter
+    status: string = statusFilter,
   ) => {
     setWaitlistLoading(true);
     try {
@@ -204,7 +203,7 @@ export default function AdminDashboard() {
           headers: {
             Authorization: `Bearer ${adminKey}`,
           },
-        }
+        },
       );
 
       if (waitlistResponse.ok) {
@@ -289,7 +288,7 @@ export default function AdminDashboard() {
       waitlistPagination.limit,
       searchTerm,
       false,
-      statusFilter
+      statusFilter,
     );
   };
 
@@ -318,7 +317,7 @@ export default function AdminDashboard() {
       waitlistPagination.limit,
       searchTerm,
       true,
-      statusFilter
+      statusFilter,
     );
   };
 
@@ -377,9 +376,11 @@ export default function AdminDashboard() {
               variant="outline"
               onClick={() => {
                 localStorage.removeItem("adminKey");
-                fetch("/api/admin/session", { method: "DELETE" }).finally(() => {
-                  setIsAuthenticated(false);
-                });
+                fetch("/api/admin/session", { method: "DELETE" }).finally(
+                  () => {
+                    setIsAuthenticated(false);
+                  },
+                );
                 toast.info("Logged out");
               }}
             >
@@ -456,7 +457,7 @@ export default function AdminDashboard() {
                             <CardDescription>
                               Applied on{" "}
                               {formatDate(
-                                new Date(selectedApplication.createdAt)
+                                new Date(selectedApplication.createdAt),
                               )}
                             </CardDescription>
                           </CardHeader>
@@ -636,7 +637,7 @@ export default function AdminDashboard() {
                           waitlistPagination.limit,
                           searchTerm,
                           false,
-                          statusFilter
+                          statusFilter,
                         )
                       }
                       disabled={waitlistLoading}
@@ -702,7 +703,7 @@ export default function AdminDashboard() {
                             {Math.min(
                               waitlistPagination.page *
                                 waitlistPagination.limit,
-                              waitlistPagination.total
+                              waitlistPagination.total,
                             )}{" "}
                             of {waitlistPagination.total} entries
                           </span>
@@ -748,7 +749,7 @@ export default function AdminDashboard() {
                                         waitlistPagination.limit,
                                         "",
                                         false,
-                                        "all"
+                                        "all",
                                       );
                                     }}
                                   >
@@ -805,7 +806,7 @@ export default function AdminDashboard() {
                                       const inviteUrl = `${window.location.origin}/dashboard?token=${entry.inviteToken}`;
                                       navigator.clipboard.writeText(inviteUrl);
                                       toast.success(
-                                        "Invite link copied to clipboard!"
+                                        "Invite link copied to clipboard!",
                                       );
                                     }}
                                   >
@@ -873,7 +874,7 @@ export default function AdminDashboard() {
                                     {pageNum}
                                   </Button>
                                 );
-                              }
+                              },
                             )}
                           </div>
 

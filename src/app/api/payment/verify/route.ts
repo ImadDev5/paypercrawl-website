@@ -93,10 +93,7 @@ export async function POST(request: NextRequest) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to verify payment';
     
     return NextResponse.json(
-      { 
-        error: 'Failed to verify payment',
-        details: errorMessage 
-      },
+      { error: 'Failed to verify payment' },
       { status: 500 }
     );
   }
