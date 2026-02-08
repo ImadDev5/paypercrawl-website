@@ -126,16 +126,23 @@ export default function AdminDashboard() {
       .finally(() => setChecking(false));
   }, []);
 
-  const authenticate = () => {
-    const expectedAdminKey =
-      process.env.NEXT_PUBLIC_ADMIN_KEY || "paypercrawl_admin_2025_secure_key";
-    if (adminKey === expectedAdminKey) {
+  const authenticate = async () => {
+    try {
+      const res = await fetch("/api/admin/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: adminKey }),
+      });
+      if (!res.ok) {
+        toast.error("Invalid admin key");
+        return;
+      }
       localStorage.setItem("adminKey", adminKey);
       setIsAuthenticated(true);
       toast.success("Authentication successful");
       loadData();
-    } else {
-      toast.error("Invalid admin key");
+    } catch {
+      toast.error("Authentication failed");
     }
   };
 

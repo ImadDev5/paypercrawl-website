@@ -15,12 +15,15 @@ class CrawlGuard_Database {
     private $db_config;
     
     public function __construct() {
+        // Read DB config from environment variables or WordPress options
+        // NEVER hardcode credentials in source code
+        $options = get_option('crawlguard_settings', array());
         $this->db_config = array(
-            'host' => 'ep-steep-resonance-adkp2zt6-pooler.c-2.us-east-1.aws.neon.tech',
-            'database' => 'neondb',
-            'username' => 'neondb_owner',
-            'password' => 'npg_nf1TKzFajLV2',
-            'port' => 5432,
+            'host' => defined('CRAWLGUARD_DB_HOST') ? CRAWLGUARD_DB_HOST : ($options['db_host'] ?? ''),
+            'database' => defined('CRAWLGUARD_DB_NAME') ? CRAWLGUARD_DB_NAME : ($options['db_name'] ?? ''),
+            'username' => defined('CRAWLGUARD_DB_USER') ? CRAWLGUARD_DB_USER : ($options['db_user'] ?? ''),
+            'password' => defined('CRAWLGUARD_DB_PASS') ? CRAWLGUARD_DB_PASS : ($options['db_pass'] ?? ''),
+            'port' => defined('CRAWLGUARD_DB_PORT') ? CRAWLGUARD_DB_PORT : ($options['db_port'] ?? 5432),
             'sslmode' => 'require'
         );
     }

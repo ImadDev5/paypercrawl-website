@@ -2,7 +2,7 @@
 
 ## 📋 **API Overview**
 
-**Base URL**: `https://api.creativeinteriorsstudio.com/v1/`  
+**Base URL**: `https://paypercrawl.tech/api/`  
 **Authentication**: API Key via `X-API-Key` header  
 **Content Type**: `application/json`  
 **Rate Limiting**: Tier-based (Free: 100/hour, Pro: 1000/hour, Business: 5000/hour)
@@ -14,7 +14,7 @@ All API requests require authentication via API key in the request header:
 ```bash
 curl -H "X-API-Key: your-api-key-here" \
      -H "Content-Type: application/json" \
-     https://api.creativeinteriorsstudio.com/v1/status
+     https://paypercrawl.tech/api/status
 ```
 
 ### **API Key Management**
@@ -33,7 +33,7 @@ Check API health and service status.
 
 #### **Request**
 ```bash
-curl -X GET https://api.creativeinteriorsstudio.com/v1/status
+curl -X GET https://paypercrawl.tech/api/status
 ```
 
 #### **Response**
@@ -70,7 +70,7 @@ Register a new WordPress site with CrawlGuard.
 
 #### **Request**
 ```bash
-curl -X POST https://api.creativeinteriorsstudio.com/v1/sites/register \
+curl -X POST https://paypercrawl.tech/api/sites/register \
   -H "Content-Type: application/json" \
   -d '{
     "site_url": "https://example.com",
@@ -109,7 +109,7 @@ Get information about the authenticated site.
 
 #### **Request**
 ```bash
-curl -X GET https://api.creativeinteriorsstudio.com/v1/sites/info \
+curl -X GET https://paypercrawl.tech/api/sites/info \
   -H "X-API-Key: your-api-key"
 ```
 
@@ -136,7 +136,7 @@ Analyze a request to determine if it's from an AI bot.
 
 #### **Request**
 ```bash
-curl -X POST https://api.creativeinteriorsstudio.com/v1/detect \
+curl -X POST https://paypercrawl.tech/api/detect \
   -H "X-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -194,7 +194,7 @@ Process monetization for a detected AI bot request.
 
 #### **Request**
 ```bash
-curl -X POST https://api.creativeinteriorsstudio.com/v1/monetize \
+curl -X POST https://paypercrawl.tech/api/monetize \
   -H "X-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -226,7 +226,7 @@ Retrieve analytics data for the authenticated site.
 
 #### **Request**
 ```bash
-curl -X GET "https://api.creativeinteriorsstudio.com/v1/analytics?range=30d&metrics=revenue,requests,bots" \
+curl -X GET "https://paypercrawl.tech/api/analytics?range=30d&metrics=revenue,requests,bots" \
   -H "X-API-Key: your-api-key"
 ```
 
@@ -308,7 +308,7 @@ Retrieve payment history for the authenticated site.
 
 #### **Request**
 ```bash
-curl -X GET "https://api.creativeinteriorsstudio.com/v1/payments?limit=50&status=succeeded" \
+curl -X GET "https://paypercrawl.tech/api/payments?limit=50&status=succeeded" \
   -H "X-API-Key: your-api-key"
 ```
 
@@ -345,7 +345,7 @@ Request a payout of accumulated earnings.
 
 #### **Request**
 ```bash
-curl -X POST https://api.creativeinteriorsstudio.com/v1/payouts/request \
+curl -X POST https://paypercrawl.tech/api/payouts/request \
   -H "X-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -373,7 +373,7 @@ Update site configuration settings.
 
 #### **Request**
 ```bash
-curl -X PUT https://api.creativeinteriorsstudio.com/v1/settings \
+curl -X PUT https://paypercrawl.tech/api/settings \
   -H "X-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -472,7 +472,7 @@ CrawlGuard can send webhooks for important events:
 
 ### **Webhook Configuration**
 ```bash
-curl -X POST https://api.creativeinteriorsstudio.com/v1/webhooks \
+curl -X POST https://paypercrawl.tech/api/webhooks \
   -H "X-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{

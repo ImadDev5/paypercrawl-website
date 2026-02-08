@@ -93,7 +93,6 @@ NODE_ENV=production
 3. Deploy instantly.
 
 ### **Hostinger (Cost-Saving Alternative)**
-- Full guide: [HOSTINGER_DEPLOYMENT_GUIDE.md](HOSTINGER_DEPLOYMENT_GUIDE.md)
 - Deployment scripts: `deploy-hostinger.sh` / `.bat`
 
 ---
@@ -108,7 +107,7 @@ NODE_ENV=production
 | `/api/waitlist/join` | POST | Join waitlist |
 | `/api/waitlist/invite` | POST | Send invitation |
 
-Full API docs: [docs/API_REFERENCE.md](docs/API_REFERENCE.md)
+Full API docs: See `docs/` folder
 
 ---
 
@@ -127,9 +126,7 @@ Full API docs: [docs/API_REFERENCE.md](docs/API_REFERENCE.md)
 - **Email Delivery:** Verified via Resend API + DKIM
 - **Browser Compatibility:** Chrome, Firefox, Safari, Edge
 
-Testing guides:  
-- [PRODUCTION_TESTING_GUIDE.md](PRODUCTION_TESTING_GUIDE.md)  
-- [DASHBOARD_PROTECTION_TEST.md](DASHBOARD_PROTECTION_TEST.md)
+Run Playwright tests: `npx playwright test`
 
 ---
 
