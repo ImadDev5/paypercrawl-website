@@ -656,8 +656,8 @@ class CrawlGuard_Admin {
                         </div>
                         <div class="card-content">
                             <h3>Last Event</h3>
-                            <p class="card-value"><?php echo $live_sync['last_event_at'] ? human_time_diff(strtotime($live_sync['last_event_at'])) . ' ago' : 'Never'; ?></p>
-                            <p class="card-description"><?php echo $live_sync['last_event_at'] ?? 'No events sent yet'; ?></p>
+                            <p class="card-value"><?php echo !empty($live_sync['last_event_at']) ? human_time_diff(strtotime($live_sync['last_event_at'])) . ' ago' : 'Never'; ?></p>
+                            <p class="card-description"><?php echo !empty($live_sync['last_event_at']) ? esc_html($live_sync['last_event_at']) : 'No events sent yet'; ?></p>
                         </div>
                     </div>
                 </div>
@@ -771,74 +771,174 @@ class CrawlGuard_Admin {
         
         <script>
         jQuery(document).ready(function($) {
-            // Helper function for Live Sync toggle
+
+            /* ============================================================
+             *  UI updater — refreshes the page sections without a reload.
+             * ============================================================ */
+            function applyLiveSyncState(state) {
+                // --- Live Sync main toggle ---
+                var $lsCard = $('.crawlguard-cards-row .crawlguard-card').first();
+                if (state.enabled) {
+                    $lsCard.removeClass('status-inactive').addClass('status-active');
+                    $lsCard.find('.dashicons').first().removeClass('dashicons-warning').addClass('dashicons-yes-alt');
+                    $lsCard.find('.card-value').text('Active');
+                    $lsCard.find('.card-description').text('Real-time data is being synced');
+                } else {
+                    $lsCard.removeClass('status-active').addClass('status-inactive');
+                    $lsCard.find('.dashicons').first().removeClass('dashicons-yes-alt').addClass('dashicons-warning');
+                    $lsCard.find('.card-value').text('Disabled');
+                    $lsCard.find('.card-description').text('Enable to start syncing live data');
+                }
+
+                // Swap the enable/disable button
+                var $lsBtnCell = $('#live-sync-enable-btn, #live-sync-disable-btn').closest('td');
+                if (state.enabled) {
+                    $lsBtnCell.find('.badge').css({background:'#00a32a'}).text('Active');
+                    $lsBtnCell.find('button')
+                        .attr('id', 'live-sync-disable-btn')
+                        .removeClass('button-primary').addClass('button-secondary')
+                        .html('<span class="dashicons dashicons-no"></span> Disable Live Sync')
+                        .prop('disabled', false);
+                } else {
+                    $lsBtnCell.find('.badge').css({background:'#dba617'}).text('Disabled');
+                    $lsBtnCell.find('button')
+                        .attr('id', 'live-sync-enable-btn')
+                        .removeClass('button-secondary').addClass('button-primary')
+                        .html('<span class="dashicons dashicons-yes"></span> Enable Live Sync')
+                        .prop('disabled', false);
+                }
+
+                // --- WooCommerce toggle ---
+                var $wooBtnCell = $('#woocommerce-enable-btn, #woocommerce-disable-btn').closest('td');
+                var wooDisabled = !state.enabled; // disable woo buttons when live sync is off
+                if (state.woocommerce_enabled && state.enabled) {
+                    $wooBtnCell.find('.badge').css({background:'#00a32a'}).text('Active');
+                    $wooBtnCell.find('button')
+                        .attr('id', 'woocommerce-disable-btn')
+                        .removeClass('button-primary').addClass('button-secondary')
+                        .html('<span class="dashicons dashicons-no"></span> Disable WooCommerce Sync')
+                        .prop('disabled', wooDisabled);
+                } else {
+                    $wooBtnCell.find('.badge').css({background:'#dba617'}).text('Disabled');
+                    $wooBtnCell.find('button')
+                        .attr('id', 'woocommerce-enable-btn')
+                        .removeClass('button-secondary').addClass('button-primary')
+                        .html('<span class="dashicons dashicons-yes"></span> Enable WooCommerce Sync')
+                        .prop('disabled', wooDisabled);
+                }
+
+                // Re-bind click handlers (ids were swapped)
+                bindToggleButtons();
+            }
+
+            /* ============================================================
+             *  Generic AJAX toggle helper — no page reload.
+             * ============================================================ */
             function toggleLiveSyncSetting(setting, value, $btn) {
                 var originalHtml = $btn.html();
-                $btn.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> Processing...');
-                
-                $.post(crawlguard_ajax.ajax_url, {
-                    action: 'crawlguard_live_sync_toggle',
-                    nonce: crawlguard_ajax.nonce,
-                    setting: setting,
-                    value: value
-                }, function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('Error: ' + (response.data || 'Unknown error'));
+                $btn.prop('disabled', true)
+                    .html('<span class="dashicons dashicons-update spin"></span> Processing...');
+
+                $.ajax({
+                    url: crawlguard_ajax.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'crawlguard_live_sync_toggle',
+                        nonce: crawlguard_ajax.nonce,
+                        setting: setting,
+                        value: value
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success && response.data && response.data.live_sync) {
+                            // Update UI in-place from server-returned state
+                            applyLiveSyncState(response.data.live_sync);
+                            showNotice('success', response.data.message || 'Setting saved.');
+                        } else {
+                            var msg = (response.data && typeof response.data === 'string')
+                                ? response.data
+                                : (response.data && response.data.message) || 'Unknown error';
+                            showNotice('error', msg);
+                            $btn.prop('disabled', false).html(originalHtml);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        showNotice('error', 'Connection error: ' + (error || status));
                         $btn.prop('disabled', false).html(originalHtml);
                     }
-                }).fail(function() {
-                    alert('Connection error. Please try again.');
-                    $btn.prop('disabled', false).html(originalHtml);
                 });
             }
-            
-            // Enable Live Sync Button
-            $('#live-sync-enable-btn').on('click', function() {
-                toggleLiveSyncSetting('enabled', 1, $(this));
-            });
-            
-            // Disable Live Sync Button
-            $('#live-sync-disable-btn').on('click', function() {
-                if (confirm('Are you sure you want to disable Live Sync?')) {
-                    toggleLiveSyncSetting('enabled', 0, $(this));
-                }
-            });
-            
-            // Enable WooCommerce Sync Button
-            $('#woocommerce-enable-btn').on('click', function() {
-                toggleLiveSyncSetting('woocommerce_enabled', 1, $(this));
-            });
-            
-            // Disable WooCommerce Sync Button
-            $('#woocommerce-disable-btn').on('click', function() {
-                if (confirm('Are you sure you want to disable WooCommerce Sync?')) {
-                    toggleLiveSyncSetting('woocommerce_enabled', 0, $(this));
-                }
-            });
-            
-            // Test WooCommerce sync
+
+            /* ============================================================
+             *  Bind click handlers (re-callable after ID swap).
+             * ============================================================ */
+            function bindToggleButtons() {
+                // Unbind first to prevent duplicates
+                $(document).off('click.cg_live_sync');
+
+                $(document).on('click.cg_live_sync', '#live-sync-enable-btn', function(e) {
+                    e.preventDefault();
+                    toggleLiveSyncSetting('enabled', 1, $(this));
+                });
+                $(document).on('click.cg_live_sync', '#live-sync-disable-btn', function(e) {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to disable Live Sync? This will also disable WooCommerce Sync.')) {
+                        toggleLiveSyncSetting('enabled', 0, $(this));
+                    }
+                });
+                $(document).on('click.cg_live_sync', '#woocommerce-enable-btn', function(e) {
+                    e.preventDefault();
+                    toggleLiveSyncSetting('woocommerce_enabled', 1, $(this));
+                });
+                $(document).on('click.cg_live_sync', '#woocommerce-disable-btn', function(e) {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to disable WooCommerce Sync?')) {
+                        toggleLiveSyncSetting('woocommerce_enabled', 0, $(this));
+                    }
+                });
+            }
+
+            /* ============================================================
+             *  Toast-style notice helper.
+             * ============================================================ */
+            function showNotice(type, message) {
+                var cls = type === 'success' ? 'notice-success' : 'notice-error';
+                var $notice = $('<div class="notice ' + cls + ' is-dismissible" style="margin:15px 0;"><p>' + message + '</p></div>');
+                $('.crawlguard-header').after($notice);
+                setTimeout(function() { $notice.fadeOut(400, function() { $(this).remove(); }); }, 4000);
+            }
+
+            // --- Initial bind ---
+            bindToggleButtons();
+
+            // --- Test WooCommerce sync ---
             $('#test-woo-sync').on('click', function() {
                 var $btn = $(this);
                 var $result = $('#test-result');
                 $btn.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> Sending...');
                 $result.text('');
-                
-                $.post(crawlguard_ajax.ajax_url, {
-                    action: 'crawlguard_live_sync_test',
-                    nonce: crawlguard_ajax.nonce,
-                    connector: 'woocommerce'
-                }, function(response) {
-                    $btn.prop('disabled', false).html('<span class="dashicons dashicons-controls-play"></span> Send Test Event');
-                    if (response.success) {
-                        $result.html('<span style="color: green;">✓ ' + response.data.message + '</span>');
-                    } else {
-                        $result.html('<span style="color: red;">✗ ' + response.data + '</span>');
+
+                $.ajax({
+                    url: crawlguard_ajax.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'crawlguard_live_sync_test',
+                        nonce: crawlguard_ajax.nonce,
+                        connector: 'woocommerce'
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        $btn.prop('disabled', false).html('<span class="dashicons dashicons-controls-play"></span> Send Test Event');
+                        if (response.success) {
+                            $result.html('<span style="color: green;">✓ ' + response.data.message + '</span>');
+                        } else {
+                            $result.html('<span style="color: red;">✗ ' + (response.data || 'Unknown error') + '</span>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $btn.prop('disabled', false).html('<span class="dashicons dashicons-controls-play"></span> Send Test Event');
+                        $result.html('<span style="color: red;">✗ Connection error: ' + error + '</span>');
                     }
-                }).fail(function() {
-                    $btn.prop('disabled', false).html('<span class="dashicons dashicons-controls-play"></span> Send Test Event');
-                    $result.html('<span style="color: red;">✗ Connection error</span>');
                 });
             });
         });
@@ -1020,13 +1120,35 @@ class CrawlGuard_Admin {
     }
     
     /**
+     * Helper: save crawlguard_options bypassing the register_setting sanitize
+     * callback (validate_options) which re-validates the API key and corrupts
+     * AJAX responses with add_settings_error().
+     */
+    private function save_options_raw($options) {
+        // Remove the sanitize filter that register_setting added
+        remove_filter('sanitize_option_crawlguard_options', array($this, 'validate_options'));
+
+        $result = update_option('crawlguard_options', $options, true);
+
+        // Re-add it so the Settings page form still validates normally
+        add_filter('sanitize_option_crawlguard_options', array($this, 'validate_options'));
+
+        return $result;
+    }
+
+    /**
      * AJAX: Toggle Live Sync settings
      */
     public function ajax_live_sync_toggle() {
-        check_ajax_referer('crawlguard_nonce', 'nonce');
+        // Verify nonce
+        if (!check_ajax_referer('crawlguard_nonce', 'nonce', false)) {
+            wp_send_json_error('Security check failed (nonce invalid)');
+            return;
+        }
         
         if (!current_user_can('manage_options')) {
-            wp_send_json_error('Unauthorized');
+            wp_send_json_error('Unauthorized - you need administrator permissions');
+            return;
         }
         
         $setting = sanitize_text_field($_POST['setting'] ?? '');
@@ -1034,10 +1156,11 @@ class CrawlGuard_Admin {
         
         $allowed_settings = array('enabled', 'woocommerce_enabled');
         if (!in_array($setting, $allowed_settings)) {
-            wp_send_json_error('Invalid setting');
+            wp_send_json_error('Invalid setting: ' . $setting);
+            return;
         }
         
-        // Get current options or create empty array
+        // Get current options
         $options = get_option('crawlguard_options');
         
         // If option doesn't exist or isn't an array, initialize it
@@ -1061,32 +1184,41 @@ class CrawlGuard_Admin {
             );
         }
         
+        // If disabling live sync, also disable woocommerce sync
+        if ($setting === 'enabled' && !$value) {
+            $options['live_sync']['woocommerce_enabled'] = false;
+        }
+        
         // Set the new value
         $options['live_sync'][$setting] = (bool) $value;
         
-        // Try to update - use delete + add if update fails
-        $updated = update_option('crawlguard_options', $options, true);
+        // Save bypassing the register_setting sanitize callback
+        $this->save_options_raw($options);
         
-        if (!$updated) {
-            // WordPress returns false if value is same - verify the value
-            $verify = get_option('crawlguard_options');
-            if (is_array($verify) && isset($verify['live_sync'][$setting]) && $verify['live_sync'][$setting] === (bool) $value) {
-                // Value is already set correctly
-                wp_send_json_success(array('message' => 'Setting saved', 'value' => (bool) $value));
-                return;
-            }
-            
-            // Try delete and re-add
-            delete_option('crawlguard_options');
-            $added = add_option('crawlguard_options', $options, '', 'yes');
-            
-            if (!$added) {
-                wp_send_json_error('Failed to save option. Please check WordPress permissions.');
-                return;
-            }
+        // Verify the write
+        $verify = get_option('crawlguard_options');
+        $verified = is_array($verify)
+            && isset($verify['live_sync'][$setting])
+            && $verify['live_sync'][$setting] === (bool) $value;
+        
+        if (!$verified) {
+            wp_send_json_error('Failed to persist setting. Please try again.');
+            return;
         }
         
-        wp_send_json_success(array('message' => 'Setting updated', 'value' => (bool) $value));
+        // Build current state for the UI to update in-place
+        $live_sync = $verify['live_sync'];
+        wp_send_json_success(array(
+            'message' => ucfirst(str_replace('_', ' ', $setting)) . ($value ? ' enabled' : ' disabled') . ' successfully',
+            'setting' => $setting,
+            'value' => (bool) $value,
+            'live_sync' => array(
+                'enabled' => !empty($live_sync['enabled']),
+                'woocommerce_enabled' => !empty($live_sync['woocommerce_enabled']),
+                'event_count' => intval($live_sync['event_count'] ?? 0),
+                'last_event_at' => $live_sync['last_event_at'] ?? null,
+            ),
+        ));
     }
     
     /**

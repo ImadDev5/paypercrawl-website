@@ -290,14 +290,14 @@ class CrawlGuard_API_Client {
         }
 
         // Production URL - accessible from any WordPress site
-        $url = 'https://paypercrawl.tech/api/plugin/sync-content';
+        $url = 'https://paypercrawl.tech/api/plugin/sync-content/';
         
         // For local development testing (when WP and Next.js are on same machine):
-        // $url = 'http://localhost:3000/api/plugin/sync-content';
+        // $url = 'http://localhost:3000/api/plugin/sync-content/';
         
         // Override: If CRAWLGUARD_DEV_MODE is set, use localhost
         if (defined('CRAWLGUARD_DEV_MODE') && CRAWLGUARD_DEV_MODE) {
-             $url = 'http://localhost:3000/api/plugin/sync-content';
+             $url = 'http://localhost:3000/api/plugin/sync-content/';
         }
 
         $payload = array(
