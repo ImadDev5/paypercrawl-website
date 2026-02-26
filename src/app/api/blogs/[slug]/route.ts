@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(_req: NextRequest, { params }: { params: { slug: string } }) {
   try {
-    const post = await db.blogPost.findUnique({ where: { slug: params.slug } })
+    const sb = getSupabaseAdmin()
+    const { data: post } = await sb
+      .from('blog_posts')
+      .select('*')
+      .eq('slug', params.slug)
+      .maybeSingle()
     if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     return NextResponse.json({ post })
   } catch (e) {

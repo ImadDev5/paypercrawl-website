@@ -289,11 +289,8 @@ class CrawlGuard_API_Client {
             return new \WP_Error('missing_key', 'API Key is missing');
         }
 
-        // Production URL - accessible from any WordPress site
-        $url = 'https://paypercrawl.tech/api/plugin/sync-content/';
-        
-        // For local development testing (when WP and Next.js are on same machine):
-        // $url = 'http://localhost:3000/api/plugin/sync-content/';
+        // Use the configured API base URL (same as other API methods)
+        $url = rtrim($this->api_base_url, '/') . '/plugin/sync-content/';
         
         // Override: If CRAWLGUARD_DEV_MODE is set, use localhost
         if (defined('CRAWLGUARD_DEV_MODE') && CRAWLGUARD_DEV_MODE) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getDb } from '@/lib/db'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { z } from 'zod'
 import { generateInviteToken } from '@/lib/utils'
 import { sendWaitlistConfirmation } from '@/lib/email'
@@ -17,12 +17,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = waitlistSchema.parse(body)
     
-    const db = await getDb();
+    const sb = getSupabaseAdmin()
 
     // Check if already on waitlist
-    const existingEntry = await db.waitlistEntry.findUnique({
-      where: { email: validatedData.email }
-    })
+    const { data: existingEntry } = await sb
+      .from('waitlist_entries')
+      .select('id')
+      .eq('email', validatedData.email)
+      .maybeSingle()
     
     if (existingEntry) {
       return NextResponse.json(
@@ -32,16 +34,20 @@ export async function POST(request: NextRequest) {
     }
     
     // Create waitlist entry
-    const waitlistEntry = await db.waitlistEntry.create({
-      data: {
+    const { data: waitlistEntry, error: insertErr } = await sb
+      .from('waitlist_entries')
+      .insert({
         name: validatedData.name,
         email: validatedData.email,
         website: validatedData.website || null,
         companySize: validatedData.companySize || null,
         useCase: validatedData.useCase || null,
-        inviteToken: generateInviteToken(), // Generate unique token
-      }
-    })
+        inviteToken: generateInviteToken(),
+      })
+      .select()
+      .single()
+
+    if (insertErr) throw insertErr
     
     // Get waitlist position
     const position = await getWaitlistPosition(validatedData.email)
@@ -51,7 +57,6 @@ export async function POST(request: NextRequest) {
       await sendWaitlistConfirmation(validatedData.email, validatedData.name, position)
     } catch (emailError) {
       console.error('Failed to send confirmation email:', emailError)
-      // Continue with success response even if email fails
     }
     
     return NextResponse.json({
@@ -77,30 +82,32 @@ export async function POST(request: NextRequest) {
 }
 
 async function getWaitlistPosition(email: string): Promise<number> {
-  const db = await getDb();
-  const entry = await db.waitlistEntry.findUnique({
-    where: { email }
-  })
+  const sb = getSupabaseAdmin()
+  const { data: entry } = await sb
+    .from('waitlist_entries')
+    .select('createdAt')
+    .eq('email', email)
+    .maybeSingle()
   
   if (!entry) return 0
   
-  const count = await db.waitlistEntry.count({
-    where: {
-      createdAt: {
-        lte: entry.createdAt
-      }
-    }
-  })
-  return count
+  const { count } = await sb
+    .from('waitlist_entries')
+    .select('*', { count: 'exact', head: true })
+    .lte('createdAt', entry.createdAt)
+
+  return count || 0
 }
 
 export async function GET() {
   try {
-    const db = await getDb();
-    const waitlist = await db.waitlistEntry.findMany({
-      orderBy: { createdAt: 'desc' }
-    })
+    const sb = getSupabaseAdmin()
+    const { data: waitlist, error } = await sb
+      .from('waitlist_entries')
+      .select('*')
+      .order('createdAt', { ascending: false })
     
+    if (error) throw error
     return NextResponse.json(waitlist)
   } catch (error) {
     console.error('Error fetching waitlist:', error)

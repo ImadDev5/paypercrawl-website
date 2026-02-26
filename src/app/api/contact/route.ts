@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { sendSupportTicketReceipt, sendSupportTicketInternal } from '@/lib/email'
 import { z } from 'zod'
 
@@ -22,21 +22,24 @@ export async function POST(request: NextRequest) {
     const random = Math.random().toString(36).substring(2,6).toUpperCase()
     const ticketId = `TCK-${ymd}-${random}`
 
+    const sb = getSupabaseAdmin()
+
     // Save to database with ticketing fields
-    const contactSubmission = await db.contactSubmission.create({
-      data: {
+    const { data: contactSubmission, error: insertErr } = await sb
+      .from('contact_submissions')
+      .insert({
         name: validatedData.name,
         email: validatedData.email,
         subject: validatedData.subject || 'General Inquiry',
         message: validatedData.message,
-        // @ts-ignore Prisma types update after `prisma generate`
         category: validatedData.category,
-        // @ts-ignore Prisma types update after `prisma generate`
         ticketId,
-        // @ts-ignore Prisma types update after `prisma generate`
         status: 'open',
-      }
-    })
+      })
+      .select()
+      .single()
+
+    if (insertErr) throw insertErr
     
     // Send emails in parallel: receipt to user and internal to team inbox
     try {
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
           subject: validatedData.subject || 'General Inquiry',
           message: validatedData.message,
           category: validatedData.category,
-          createdAt: contactSubmission.createdAt.toISOString(),
+          createdAt: contactSubmission.createdAt,
         }),
         sendSupportTicketInternal({
           ticketId,
@@ -57,12 +60,11 @@ export async function POST(request: NextRequest) {
           subject: validatedData.subject || 'General Inquiry',
           message: validatedData.message,
           category: validatedData.category,
-          createdAt: contactSubmission.createdAt.toISOString(),
+          createdAt: contactSubmission.createdAt,
         })
       ])
     } catch (emailError) {
       console.error('Failed to send contact notification email:', emailError)
-      // Don't fail the request if email fails
     }
     
     return NextResponse.json({

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { verifyPaymentSignature } from '@/lib/razorpay';
 
 export async function POST(request: NextRequest) {
@@ -34,11 +34,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const sb = getSupabaseAdmin();
+
     // Find the payment record
-    const payment = await db.payment.findUnique({
-      where: { orderId: razorpay_order_id },
-      include: { user: true },
-    });
+    const { data: payment } = await sb
+      .from('payments')
+      .select('*')
+      .eq('orderId', razorpay_order_id)
+      .maybeSingle();
 
     if (!payment) {
       return NextResponse.json(
@@ -56,24 +59,24 @@ export async function POST(request: NextRequest) {
     }
 
     // Update payment record
-    const updatedPayment = await db.payment.update({
-      where: { orderId: razorpay_order_id },
-      data: {
+    const { data: updatedPayment, error: updateErr } = await sb
+      .from('payments')
+      .update({
         paymentId: razorpay_payment_id,
         signature: razorpay_signature,
         status: 'captured',
-      },
-    });
+      })
+      .eq('orderId', razorpay_order_id)
+      .select()
+      .single();
+    if (updateErr) throw updateErr;
 
     // Update user to have active plan (lifetime access)
-    await db.user.update({
-      where: { id: payment.userId },
-      data: {
-        hasActivePlan: true,
-        // Optional: Set expiration date if you want timed access
-        // planExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
-      },
-    });
+    const { error: userErr } = await sb
+      .from('users')
+      .update({ hasActivePlan: true })
+      .eq('id', payment.userId);
+    if (userErr) throw userErr;
 
     return NextResponse.json({
       success: true,
@@ -89,8 +92,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error verifying payment:', error);
-    
-    const errorMessage = error instanceof Error ? error.message : 'Failed to verify payment';
     
     return NextResponse.json(
       { error: 'Failed to verify payment' },

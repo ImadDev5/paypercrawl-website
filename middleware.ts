@@ -87,12 +87,16 @@ export function middleware(request: NextRequest) {
   // Get the invite token from cookies
   const inviteToken = request.cookies.get("invite_token")?.value;
 
-  // Firebase session validation: check for actual Firebase ID token content,
-  // not just cookie existence. The __session cookie should contain a real JWT.
-  const firebaseSession = request.cookies.get("__session")?.value;
-  const hasFirebaseSession = Boolean(
-    firebaseSession && firebaseSession.length > 50
-  );
+  // Supabase session validation: allow access when auth cookies are present.
+  const hasSupabaseSession = request.cookies
+    .getAll()
+    .some(
+      ({ name, value }) =>
+        Boolean(value) &&
+        (name.startsWith("sb-") ||
+          name === "sb-access-token" ||
+          name === "sb-refresh-token"),
+    );
 
   // Special handling for dashboard route
   if (pathname === "/dashboard" || pathname === "/dashboard/") {
@@ -100,15 +104,15 @@ export function middleware(request: NextRequest) {
     const urlToken = request.nextUrl.searchParams.get("token");
     const tokenToUse = urlToken || inviteToken;
 
-    // If no token and no firebase session, redirect to waitlist
-    if (!tokenToUse && !hasFirebaseSession) {
+    // If no token and no Supabase session, redirect to waitlist
+    if (!tokenToUse && !hasSupabaseSession) {
       return NextResponse.redirect(new URL("/waitlist", request.url));
     }
 
     // If token comes from URL, store it in cookie then continue
     if (urlToken) {
       response.cookies.set("invite_token", urlToken, {
-        httpOnly: true,
+        httpOnly: false, // must be false so client JS can read it
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 60 * 60 * 24 * 30,
@@ -119,18 +123,20 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
-  // For protected routes under /dashboard, allow if invite cookie or firebase session is present
+  // For protected routes under /dashboard, allow if invite cookie or Supabase session is present
   if (
     pathname.startsWith("/dashboard") &&
-    !(inviteToken || hasFirebaseSession)
+    !(inviteToken || hasSupabaseSession)
   ) {
     return NextResponse.redirect(new URL("/waitlist", request.url));
   }
 
-  // Handle a client-side signout helper route to clear cookie at edge
+  // Handle a client-side signout helper route to clear cookies at edge
   if (pathname === "/api/auth/signout") {
     const res = NextResponse.json({ ok: true });
     res.cookies.set("invite_token", "", { path: "/", maxAge: 0 });
+    res.cookies.set("sb-access-token", "", { path: "/", maxAge: 0 });
+    res.cookies.set("sb-refresh-token", "", { path: "/", maxAge: 0 });
     return res;
   }
 

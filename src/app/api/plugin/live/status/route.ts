@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,10 +12,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const sb = getSupabaseAdmin();
+
     // 2. Validate API key
-    const apiKeyRecord = await db.apiKey.findUnique({
-      where: { key: apiKey },
-    });
+    const { data: apiKeyRecord } = await sb
+      .from("api_keys")
+      .select("*")
+      .eq("key", apiKey)
+      .single();
 
     if (!apiKeyRecord || !apiKeyRecord.active) {
       return NextResponse.json(
@@ -36,23 +40,11 @@ export async function GET(request: NextRequest) {
     }
 
     // 4. Find site
-    const site = await db.site.findFirst({
-      where: { url: siteUrl },
-      include: {
-        liveConnectors: {
-          select: {
-            id: true,
-            type: true,
-            status: true,
-            lastEventAt: true,
-            eventCount: true,
-            lastError: true,
-            lastErrorAt: true,
-            createdAt: true,
-          },
-        },
-      },
-    });
+    const { data: site } = await sb
+      .from("sites")
+      .select("*")
+      .eq("url", siteUrl)
+      .maybeSingle();
 
     if (!site) {
       return NextResponse.json({
@@ -65,24 +57,31 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // 5. Get snapshot counts per connector
-    const connectorStats = await Promise.all(
-      site.liveConnectors.map(async (connector) => {
-        const snapshotCount = await db.liveEntitySnapshot.count({
-          where: { connectorId: connector.id },
-        });
+    // 5. Get connectors for this site
+    const { data: connectors } = await sb
+      .from("live_connectors")
+      .select("id, type, status, lastEventAt, eventCount, lastError, lastErrorAt, createdAt")
+      .eq("siteId", site.id);
 
-        const recentEventCount = await db.liveEvent.count({
-          where: {
-            connectorId: connector.id,
-            occurredAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-          },
-        });
+    // 6. Get snapshot counts per connector
+    const connectorStats = await Promise.all(
+      (connectors || []).map(async (connector) => {
+        const { count: snapshotCount } = await sb
+          .from("live_entity_snapshots")
+          .select("*", { count: "exact", head: true })
+          .eq("connectorId", connector.id);
+
+        const gte24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { count: recentEventCount } = await sb
+          .from("live_events")
+          .select("*", { count: "exact", head: true })
+          .eq("connectorId", connector.id)
+          .gte("occurredAt", gte24h);
 
         return {
           ...connector,
-          snapshotCount,
-          eventsLast24h: recentEventCount,
+          snapshotCount: snapshotCount || 0,
+          eventsLast24h: recentEventCount || 0,
         };
       })
     );

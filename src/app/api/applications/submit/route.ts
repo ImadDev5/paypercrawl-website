@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { z } from 'zod'
 import { sendCareerApplicationReceipt, sendCareerApplicationInternal } from '@/lib/email'
 
@@ -51,12 +51,12 @@ export async function POST(request: NextRequest) {
     const validatedData = applicationSchema.parse(body)
     
     // Create application
-    const resumeBuffer = validatedData.resume
-      ? Buffer.from(validatedData.resume.base64, 'base64')
-      : undefined
+    const resumeBase64 = validatedData.resume?.base64 || null
 
-    const application = await db.betaApplication.create({
-      data: {
+    const sb = getSupabaseAdmin()
+    const { data: application, error: insertErr } = await sb
+      .from('beta_applications')
+      .insert({
         name: validatedData.name,
         email: validatedData.email,
         position: validatedData.position,
@@ -64,12 +64,15 @@ export async function POST(request: NextRequest) {
         phone: validatedData.phone || null,
         website: validatedData.website || null,
         coverLetter: validatedData.coverLetter || null,
-        resumeData: resumeBuffer,
-        resumeFilename: validatedData.resume?.filename,
-        resumeMimeType: validatedData.resume?.mimeType,
-        resumeSize: validatedData.resume?.size,
-      }
-    })
+        resumeData: resumeBase64,
+        resumeFilename: validatedData.resume?.filename || null,
+        resumeMimeType: validatedData.resume?.mimeType || null,
+        resumeSize: validatedData.resume?.size || null,
+      })
+      .select()
+      .single()
+
+    if (insertErr) throw insertErr
     
     // Send confirmation email
     try {
@@ -89,7 +92,6 @@ export async function POST(request: NextRequest) {
       ])
     } catch (emailError) {
       console.error('Failed to send confirmation email:', emailError)
-      // Continue with success response even if email fails
     }
     
     return NextResponse.json({
@@ -116,10 +118,13 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const applications = await db.betaApplication.findMany({
-      orderBy: { createdAt: 'desc' }
-    })
-    
+    const sb = getSupabaseAdmin()
+    const { data: applications, error } = await sb
+      .from('beta_applications')
+      .select('*')
+      .order('createdAt', { ascending: false })
+
+    if (error) throw error
     return NextResponse.json(applications)
   } catch (error) {
     console.error('Error fetching applications:', error)

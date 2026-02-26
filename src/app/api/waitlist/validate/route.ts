@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,14 +13,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find waitlist entry with this invite token and invited status
-    const waitlistEntry = await db.waitlistEntry.findUnique({
-      where: {
-        inviteToken: token,
-      },
-    });
+    const sb = getSupabaseAdmin();
 
-    if (!waitlistEntry) {
+    const { data: waitlistEntry, error } = await sb
+      .from("waitlist_entries")
+      .select("*")
+      .eq("inviteToken", token)
+      .single();
+
+    if (error || !waitlistEntry) {
       return NextResponse.json(
         { valid: false, error: "Invalid invite token" },
         { status: 401 }
@@ -43,10 +44,14 @@ export async function POST(request: NextRequest) {
 
     // Update status to accepted if this is the first time accessing
     if (waitlistEntry.status === "invited") {
-      await db.waitlistEntry.update({
-        where: { id: waitlistEntry.id },
-        data: { status: "accepted" },
-      });
+      const { error: updateError } = await sb
+        .from("waitlist_entries")
+        .update({ status: "accepted" })
+        .eq("id", waitlistEntry.id);
+
+      if (updateError) {
+        console.error("Failed to update waitlist status:", updateError);
+      }
     }
 
     return NextResponse.json({
@@ -78,15 +83,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Find waitlist entry with this invite token
-    const waitlistEntry = await db.waitlistEntry.findUnique({
-      where: {
-        inviteToken: token,
-        status: "invited",
-      },
-    });
+    const sb = getSupabaseAdmin();
 
-    if (!waitlistEntry) {
+    const { data: waitlistEntry, error } = await sb
+      .from("waitlist_entries")
+      .select("*")
+      .eq("inviteToken", token)
+      .eq("status", "invited")
+      .single();
+
+    if (error || !waitlistEntry) {
       return NextResponse.json(
         { valid: false, error: "Invalid or expired invite token" },
         { status: 401 }

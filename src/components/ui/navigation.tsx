@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ModeToggle } from "@/components/mode-toggle";
 import { SignInModal } from "@/components/ui/sign-in-modal";
-import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import {
   Shield,
   Menu,

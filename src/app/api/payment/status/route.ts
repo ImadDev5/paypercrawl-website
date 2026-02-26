@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,17 +13,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const sb = getSupabaseAdmin();
+
     // Check if user exists and has active plan
-    const user = await db.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        hasActivePlan: true,
-        planExpiresAt: true,
-      },
-    });
+    const { data: user } = await sb
+      .from('users')
+      .select('id, email, name, hasActivePlan, planExpiresAt')
+      .eq('id', userId)
+      .maybeSingle();
 
     if (!user) {
       return NextResponse.json({
@@ -35,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     // Check if plan has expired (if expiration is set)
     const isExpired = user.planExpiresAt 
-      ? new Date() > user.planExpiresAt 
+      ? new Date() > new Date(user.planExpiresAt) 
       : false;
 
     return NextResponse.json({

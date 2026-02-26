@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { isAdminAuthenticated } from '@/lib/admin-auth'
 
 function verifyAdminAuth(request: NextRequest): boolean {
@@ -19,22 +19,25 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
-    const skip = (page - 1) * limit
+    const offset = (page - 1) * limit
 
-    const where = status ? { status } : {}
+    const sb = getSupabaseAdmin()
 
-    const [contactSubmissions, total] = await Promise.all([
-      db.contactSubmission.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      db.contactSubmission.count({ where })
-    ])
+    let query = sb
+      .from('contact_submissions')
+      .select('*', { count: 'exact' })
+      .order('createdAt', { ascending: false })
+      .range(offset, offset + limit - 1)
+
+    if (status) query = query.eq('status', status)
+
+    const { data: contactSubmissions, count, error } = await query
+    if (error) throw error
+
+    const total = count || 0
 
     return NextResponse.json({
-      contactSubmissions,
+      contactSubmissions: contactSubmissions || [],
       pagination: {
         page,
         limit,
@@ -63,14 +66,18 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json()
     const { contactId, status } = body
 
-    const contact = await db.contactSubmission.update({
-      where: { id: contactId },
-      data: {
-        status: status || undefined,
-        updatedAt: new Date()
-      }
-    })
+    const sb = getSupabaseAdmin()
+    const { data: contact, error } = await sb
+      .from('contact_submissions')
+      .update({
+        ...(status ? { status } : {}),
+        updatedAt: new Date().toISOString(),
+      })
+      .eq('id', contactId)
+      .select()
+      .single()
 
+    if (error) throw error
     return NextResponse.json(contact)
   } catch (error) {
     console.error('Error updating contact submission:', error)

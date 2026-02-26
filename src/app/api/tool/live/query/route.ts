@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { z } from "zod";
 
 // ===== Zod Schemas =====
@@ -51,11 +51,20 @@ export async function POST(request: NextRequest) {
     }
 
     const data = parseResult.data;
+    // Normalize siteUrl: strip trailing slash to prevent mismatch
+    data.siteUrl = data.siteUrl.replace(/\/+$/, '');
+    const sb = getSupabaseAdmin();
 
     // 3. Validate API key
-    const apiKeyRecord = await db.apiKey.findUnique({
-      where: { key: apiKey },
-    });
+    const { data: apiKeyRecord, error: keyError } = await sb
+      .from("api_keys")
+      .select("*")
+      .eq("key", apiKey)
+      .maybeSingle();
+
+    if (keyError) {
+      console.error("API key lookup error:", keyError);
+    }
 
     if (!apiKeyRecord || !apiKeyRecord.active) {
       // Log failed query
@@ -77,13 +86,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. Find the site
-    const site = await db.site.findFirst({
-      where: { url: data.siteUrl },
-      include: {
-        liveConnectors: true,
-      },
-    });
+    // 4. Find the site (scoped to this API key's owner for security)
+    const { data: site, error: siteError } = await sb
+      .from("sites")
+      .select("*")
+      .eq("url", data.siteUrl)
+      .eq("userId", apiKeyRecord.userId)
+      .maybeSingle();
+
+    if (siteError) {
+      console.error("Site lookup error:", siteError);
+    }
 
     if (!site) {
       await logQuery({
@@ -108,69 +121,80 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 5. Build query for live snapshots
+    // 5. Get connectors for this site (optionally filtered by type)
+    let connectorQuery = sb
+      .from("live_connectors")
+      .select("*")
+      .eq("siteId", site.id);
+
+    if (data.filters?.connector) {
+      connectorQuery = connectorQuery.eq("type", data.filters.connector);
+    }
+
+    const { data: connectors, error: connectorError } = await connectorQuery;
+    if (connectorError) {
+      console.error("Connector lookup error:", connectorError);
+    }
+    const connectorIds = (connectors || []).map((c: { id: string }) => c.id);
+    const connectorMap = Object.fromEntries(
+      (connectors || []).map((c: { id: string }) => [c.id, c])
+    );
+
+    // 6. Build query for live snapshots
     const freshnessThreshold = new Date(
       Date.now() - data.freshnessSeconds * 1000
     );
 
-    // Build where clause for snapshots
-    const snapshotWhere: {
-      connector: { siteId: string; type?: string };
-      occurredAt: { gte: Date };
-      entityType?: string;
-      entityId?: string;
-    } = {
-      connector: { siteId: site.id },
-      occurredAt: { gte: freshnessThreshold },
-    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let liveResults: any[] = [];
 
-    // Apply filters
-    if (data.filters) {
-      if (data.filters.connector) {
-        snapshotWhere.connector.type = data.filters.connector;
-      }
-      if (data.filters.entityType) {
-        snapshotWhere.entityType = data.filters.entityType;
-      }
-      if (data.filters.sku) {
-        snapshotWhere.entityId = data.filters.sku;
-      } else if (data.filters.productId) {
-        snapshotWhere.entityId = String(data.filters.productId);
-      }
-    }
+    if (data.mode !== "kb_only" && connectorIds.length > 0) {
+      let snapQuery = sb
+        .from("live_entity_snapshots")
+        .select("*")
+        .in("connectorId", connectorIds)
+        .gte("occurredAt", freshnessThreshold.toISOString())
+        .order("occurredAt", { ascending: false })
+        .limit(data.limit);
 
-    // 6. Query live snapshots
-    let liveResults: Awaited<
-      ReturnType<typeof db.liveEntitySnapshot.findMany>
-    > = [];
+      // Apply filters
+      if (data.filters?.entityType) {
+        snapQuery = snapQuery.eq("entityType", data.filters.entityType);
+      }
+      if (data.filters?.sku) {
+        snapQuery = snapQuery.eq("entityId", data.filters.sku);
+      } else if (data.filters?.productId) {
+        snapQuery = snapQuery.eq("entityId", String(data.filters.productId));
+      }
 
-    if (data.mode !== "kb_only") {
-      liveResults = await db.liveEntitySnapshot.findMany({
-        where: snapshotWhere,
-        include: {
-          connector: true,
-        },
-        orderBy: { occurredAt: "desc" },
-        take: data.limit,
-      });
+      const { data: snapshots, error: snapError } = await snapQuery;
+      if (snapError) {
+        console.error("Snapshot query error:", snapError);
+      }
+      liveResults = (snapshots || []).map((s: { connectorId: string }) => ({
+        ...s,
+        connector: connectorMap[s.connectorId],
+      }));
     }
 
     // 7. Optionally query static KB (hybrid mode)
-    let kbResults: Awaited<ReturnType<typeof db.scrapedPage.findMany>> = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let kbResults: any[] = [];
 
     if (data.mode === "hybrid" || data.mode === "kb_only") {
       // Simple keyword search over scraped pages if question provided
       if (data.question) {
-        kbResults = await db.scrapedPage.findMany({
-          where: {
-            siteId: site.id,
-            OR: [
-              { title: { contains: data.question, mode: "insensitive" } },
-              { contentToon: { contains: data.question, mode: "insensitive" } },
-            ],
-          },
-          take: 5,
-        });
+        const escapedQ = data.question.replace(/%/g, "\\%");
+        const { data: kbData, error: kbError } = await sb
+          .from("scraped_pages")
+          .select("*")
+          .eq("siteId", site.id)
+          .or(`title.ilike.%${escapedQ}%,contentToon.ilike.%${escapedQ}%`)
+          .limit(5);
+        if (kbError) {
+          console.error("KB query error:", kbError);
+        }
+        kbResults = kbData || [];
       }
     }
 
@@ -222,8 +246,8 @@ export async function POST(request: NextRequest) {
       // Citation
       citations.push({
         type: "live",
-        connector: snapshot.connector.type,
-        occurredAt: snapshot.occurredAt.toISOString(),
+        connector: snapshot.connector?.type,
+        occurredAt: snapshot.occurredAt,
         entityId: snapshot.entityId,
       });
     }
@@ -290,18 +314,17 @@ async function logQuery(params: {
   resultCount: number;
 }) {
   try {
-    await db.toolQueryLog.create({
-      data: {
-        apiKeyId: params.apiKeyId,
-        siteId: params.siteId,
-        mode: params.mode,
-        question: params.question,
-        filters: params.filters,
-        status: params.status,
-        errorMessage: params.errorMessage,
-        latencyMs: params.latencyMs,
-        resultCount: params.resultCount,
-      },
+    const sb = getSupabaseAdmin();
+    await sb.from("tool_query_logs").insert({
+      apiKeyId: params.apiKeyId,
+      siteId: params.siteId,
+      mode: params.mode,
+      question: params.question,
+      filters: params.filters,
+      status: params.status,
+      errorMessage: params.errorMessage,
+      latencyMs: params.latencyMs,
+      resultCount: params.resultCount,
     });
   } catch (err) {
     console.error("Failed to log query:", err);

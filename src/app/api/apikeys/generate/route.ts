@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { db } from '@/lib/db';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,10 +15,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const sb = getSupabaseAdmin();
+
     // Check if user has paid
-    const user = await db.user.findUnique({
-      where: { id: userId },
-    });
+    const { data: user } = await sb
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
 
     if (!user) {
       return NextResponse.json(
@@ -43,7 +47,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if plan has expired (if expiration is set)
-    if (user.planExpiresAt && new Date() > user.planExpiresAt) {
+    if (user.planExpiresAt && new Date() > new Date(user.planExpiresAt)) {
       return NextResponse.json(
         { 
           success: false, 
@@ -55,12 +59,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already has an active API key
-    const existingApiKey = await db.apiKey.findFirst({
-      where: {
-        userId: user.id,
-        active: true,
-      },
-    });
+    const { data: existingApiKey } = await sb
+      .from('api_keys')
+      .select('*')
+      .eq('userId', user.id)
+      .eq('active', true)
+      .maybeSingle();
 
     if (existingApiKey) {
       return NextResponse.json({
@@ -75,13 +79,17 @@ export async function POST(request: NextRequest) {
     const apiKey = `ppk_${crypto.randomBytes(32).toString('hex')}`;
     
     // Store the API key in database
-    const newApiKey = await db.apiKey.create({
-      data: {
+    const { data: newApiKey, error: insertErr } = await sb
+      .from('api_keys')
+      .insert({
         userId: user.id,
         key: apiKey,
         active: true,
-      },
-    });
+      })
+      .select()
+      .single();
+
+    if (insertErr) throw insertErr;
 
     return NextResponse.json({
       success: true,
@@ -91,8 +99,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error generating API key:', error);
-    
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
     return NextResponse.json(
       { 

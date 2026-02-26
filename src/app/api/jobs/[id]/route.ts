@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { z } from 'zod'
 import { isAdminAuthenticated } from '@/lib/admin-auth'
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const job = await db.jobPosting.findUnique({ where: { id: params.id } })
+    const sb = getSupabaseAdmin()
+    const { data: job } = await sb
+      .from('job_postings')
+      .select('*')
+      .eq('id', params.id)
+      .maybeSingle()
     if (!job) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     return NextResponse.json({ job })
   } catch (e) {
@@ -26,7 +31,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (!isAdminAuthenticated(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const data = patchSchema.parse(await req.json())
-    const job = await db.jobPosting.update({ where: { id: params.id }, data: data as any })
+    const sb = getSupabaseAdmin()
+    const { data: job, error } = await sb
+      .from('job_postings')
+      .update(data as any)
+      .eq('id', params.id)
+      .select()
+      .single()
+    if (error) throw error
     return NextResponse.json({ job })
   } catch (e: any) {
     return NextResponse.json({ error: e.message || 'Bad request' }, { status: 400 })
@@ -36,13 +48,22 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   if (!isAdminAuthenticated(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
-    const job = await db.jobPosting.delete({ where: { id: params.id } })
+    const sb = getSupabaseAdmin()
+    const { data: job, error } = await sb
+      .from('job_postings')
+      .delete()
+      .eq('id', params.id)
+      .select()
+      .single()
+    if (error) {
+      // Foreign key constraint
+      if (error.code === '23503') {
+        return NextResponse.json({ error: 'Cannot delete job with linked applications' }, { status: 409 })
+      }
+      throw error
+    }
     return NextResponse.json({ success: true, job })
   } catch (e: any) {
-    // Foreign key constraint (e.g., applications linked to this job)
-    if (e?.code === 'P2003') {
-      return NextResponse.json({ error: 'Cannot delete job with linked applications' }, { status: 409 })
-    }
     return NextResponse.json({ error: e?.message || 'Failed to delete job' }, { status: 400 })
   }
 }

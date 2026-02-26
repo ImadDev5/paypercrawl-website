@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { z } from "zod";
 
 // ===== Zod Schemas =====
@@ -39,7 +39,7 @@ const LiveIngestSchema = z.object({
   connector: z.string().min(1),
   eventType: z.string().min(1),
   eventId: z.string().min(1),
-  occurredAt: z.string().datetime(),
+  occurredAt: z.string().datetime({ offset: true }),
   entity: z.union([ProductEntitySchema, GenericEntitySchema]),
 });
 
@@ -72,12 +72,20 @@ export async function POST(request: NextRequest) {
     }
 
     const data = parseResult.data;
+    // Normalize siteUrl: strip trailing slash to prevent mismatch with stored records
+    data.siteUrl = data.siteUrl.replace(/\/+$/, '');
+    const sb = getSupabaseAdmin();
 
-    // 3. Validate API key and get site
-    const apiKeyRecord = await db.apiKey.findUnique({
-      where: { key: apiKey },
-      include: { user: true },
-    });
+    // 3. Validate API key and get user
+    const { data: apiKeyRecord, error: keyError } = await sb
+      .from("api_keys")
+      .select("*")
+      .eq("key", apiKey)
+      .maybeSingle();
+
+    if (keyError) {
+      console.error("API key lookup error:", keyError);
+    }
 
     if (!apiKeyRecord || !apiKeyRecord.active) {
       return NextResponse.json(
@@ -86,61 +94,112 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. Find or create Site
-    const site = await db.site.upsert({
-      where: {
-        userId_url: {
+    // 4. Find or create Site (upsert on userId + url composite)
+    const { data: existingSite } = await sb
+      .from("sites")
+      .select("*")
+      .eq("userId", apiKeyRecord.userId)
+      .eq("url", data.siteUrl)
+      .maybeSingle();
+
+    let site;
+    if (existingSite) {
+      const { data: updated, error: updateErr } = await sb
+        .from("sites")
+        .update({ apiKey: apiKey, updatedAt: new Date().toISOString() })
+        .eq("id", existingSite.id)
+        .select()
+        .single();
+      if (updateErr) {
+        console.error("Site update error:", updateErr);
+        return NextResponse.json(
+          { success: false, error: "Failed to update site: " + updateErr.message },
+          { status: 500 }
+        );
+      }
+      site = updated;
+    } else {
+      const { data: created, error: createErr } = await sb
+        .from("sites")
+        .insert({
           userId: apiKeyRecord.userId,
           url: data.siteUrl,
-        },
-      },
-      update: {
-        apiKey: apiKey,
-        updatedAt: new Date(),
-      },
-      create: {
-        userId: apiKeyRecord.userId,
-        url: data.siteUrl,
-        apiKey: apiKey,
-        name: new URL(data.siteUrl).hostname,
-      },
-    });
+          apiKey: apiKey,
+          name: new URL(data.siteUrl).hostname,
+        })
+        .select()
+        .single();
+      if (createErr) {
+        console.error("Site create error:", createErr);
+        return NextResponse.json(
+          { success: false, error: "Failed to create site: " + createErr.message },
+          { status: 500 }
+        );
+      }
+      site = created;
+    }
 
-    // 5. Find or create LiveConnector
-    const connector = await db.liveConnector.upsert({
-      where: {
-        siteId_type: {
+    // 5. Find or create LiveConnector (handle increment manually)
+    const { data: existingConnector } = await sb
+      .from("live_connectors")
+      .select("*")
+      .eq("siteId", site.id)
+      .eq("type", data.connector)
+      .maybeSingle();
+
+    let connector;
+    if (existingConnector) {
+      const { data: updated, error: updateErr } = await sb
+        .from("live_connectors")
+        .update({
+          lastEventAt: new Date().toISOString(),
+          eventCount: (existingConnector.eventCount || 0) + 1,
+          status: "active",
+          lastError: null,
+          lastErrorAt: null,
+          updatedAt: new Date().toISOString(),
+        })
+        .eq("id", existingConnector.id)
+        .select()
+        .single();
+      if (updateErr) {
+        console.error("Connector update error:", updateErr);
+        return NextResponse.json(
+          { success: false, error: "Failed to update connector: " + updateErr.message },
+          { status: 500 }
+        );
+      }
+      connector = updated;
+    } else {
+      const { data: created, error: createErr } = await sb
+        .from("live_connectors")
+        .insert({
           siteId: site.id,
           type: data.connector,
-        },
-      },
-      update: {
-        lastEventAt: new Date(),
-        eventCount: { increment: 1 },
-        status: "active",
-        lastError: null,
-        lastErrorAt: null,
-        updatedAt: new Date(),
-      },
-      create: {
-        siteId: site.id,
-        type: data.connector,
-        name: data.connector.charAt(0).toUpperCase() + data.connector.slice(1),
-        status: "active",
-        lastEventAt: new Date(),
-        eventCount: 1,
-      },
-    });
+          name: data.connector.charAt(0).toUpperCase() + data.connector.slice(1),
+          status: "active",
+          lastEventAt: new Date().toISOString(),
+          eventCount: 1,
+        })
+        .select()
+        .single();
+      if (createErr) {
+        console.error("Connector create error:", createErr);
+        return NextResponse.json(
+          { success: false, error: "Failed to create connector: " + createErr.message },
+          { status: 500 }
+        );
+      }
+      connector = created;
+    }
 
     // 6. Check for duplicate event (idempotency)
-    const existingEvent = await db.liveEvent.findUnique({
-      where: {
-        connectorId_eventId: {
-          connectorId: connector.id,
-          eventId: data.eventId,
-        },
-      },
-    });
+    const { data: existingEvent } = await sb
+      .from("live_events")
+      .select("id")
+      .eq("connectorId", connector.id)
+      .eq("eventId", data.eventId)
+      .maybeSingle();
 
     if (existingEvent) {
       return NextResponse.json({
@@ -164,63 +223,78 @@ export async function POST(request: NextRequest) {
             : data.eventId;
 
     // 8. Create LiveEvent (append-only log)
-    await db.liveEvent.create({
-      data: {
-        connectorId: connector.id,
-        eventId: data.eventId,
-        eventType: data.eventType,
-        occurredAt: new Date(data.occurredAt),
-        payload: entity as object,
-        entityType: entityType,
-        entityId: entityId,
-      },
+    const { error: eventInsertErr } = await sb.from("live_events").insert({
+      connectorId: connector.id,
+      eventId: data.eventId,
+      eventType: data.eventType,
+      occurredAt: new Date(data.occurredAt).toISOString(),
+      payload: entity as object,
+      entityType: entityType,
+      entityId: entityId,
     });
+    if (eventInsertErr) {
+      console.error("LiveEvent insert error:", eventInsertErr);
+      return NextResponse.json(
+        { success: false, error: "Failed to store event: " + eventInsertErr.message },
+        { status: 500 }
+      );
+    }
 
     // 9. Upsert LiveEntitySnapshot (latest state)
-    const snapshotData: {
-      name?: string;
-      currency?: string;
-      price?: number;
-      stockStatus?: string;
-      stockQuantity?: number;
-      permalink?: string;
-      data: object;
-      occurredAt: Date;
-    } = {
+    const snapshotFields: Record<string, unknown> = {
       data: entity as object,
-      occurredAt: new Date(data.occurredAt),
+      occurredAt: new Date(data.occurredAt).toISOString(),
     };
 
     // Extract normalized fields for WooCommerce product
     if (entity.type === "product") {
       const productEntity = entity as z.infer<typeof ProductEntitySchema>;
-      snapshotData.name = productEntity.name;
-      snapshotData.currency = productEntity.currency;
-      snapshotData.price = productEntity.price.effective;
-      snapshotData.stockStatus = productEntity.stock.status;
-      snapshotData.stockQuantity = productEntity.stock.quantity ?? undefined;
-      snapshotData.permalink = productEntity.permalink;
+      snapshotFields.name = productEntity.name;
+      snapshotFields.currency = productEntity.currency;
+      snapshotFields.price = productEntity.price.effective;
+      snapshotFields.stockStatus = productEntity.stock.status;
+      if (productEntity.stock.quantity != null) {
+        snapshotFields.stockQuantity = productEntity.stock.quantity;
+      }
+      snapshotFields.permalink = productEntity.permalink;
     }
 
-    await db.liveEntitySnapshot.upsert({
-      where: {
-        connectorId_entityType_entityId: {
-          connectorId: connector.id,
-          entityType: entityType,
-          entityId: entityId,
-        },
-      },
-      update: {
-        ...snapshotData,
-        updatedAt: new Date(),
-      },
-      create: {
+    // Upsert on composite (connectorId, entityType, entityId)
+    const { data: existingSnapshot } = await sb
+      .from("live_entity_snapshots")
+      .select("id")
+      .eq("connectorId", connector.id)
+      .eq("entityType", entityType)
+      .eq("entityId", entityId)
+      .maybeSingle();
+
+    if (existingSnapshot) {
+      const { error: snapUpdateErr } = await sb
+        .from("live_entity_snapshots")
+        .update({ ...snapshotFields, updatedAt: new Date().toISOString() })
+        .eq("id", existingSnapshot.id);
+      if (snapUpdateErr) {
+        console.error("Snapshot update error:", snapUpdateErr);
+        return NextResponse.json(
+          { success: false, error: "Failed to update snapshot: " + snapUpdateErr.message },
+          { status: 500 }
+        );
+      }
+    } else {
+      const { error: snapInsertErr } = await sb.from("live_entity_snapshots").insert({
         connectorId: connector.id,
         entityType: entityType,
         entityId: entityId,
-        ...snapshotData,
-      },
-    });
+        ...snapshotFields,
+      });
+      if (snapInsertErr) {
+        console.error("Snapshot insert error:", snapInsertErr);
+        return NextResponse.json(
+          { success: false, error: "Failed to store snapshot: " + snapInsertErr.message },
+          { status: 500 }
+        );
+      }
+    }
 
     const latencyMs = Date.now() - startTime;
 

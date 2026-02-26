@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { sendBetaInvite } from "@/lib/email";
 import { z } from "zod";
 import { randomBytes } from "crypto";
@@ -19,12 +19,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Find waitlist entry
-    const waitlistEntry = await db.waitlistEntry.findUnique({
-      where: { email },
-    });
+    const sb = getSupabaseAdmin();
 
-    if (!waitlistEntry) {
+    // Find waitlist entry
+    const { data: waitlistEntry, error: fetchErr } = await sb
+      .from("waitlist_entries")
+      .select("*")
+      .eq("email", email)
+      .single();
+
+    if (fetchErr || !waitlistEntry) {
       return NextResponse.json(
         { error: "Email not found on waitlist" },
         { status: 404 }
@@ -45,14 +49,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Update status to invited
-    const updatedEntry = await db.waitlistEntry.update({
-      where: { email },
-      data: {
+    const { data: updatedEntry, error: updateErr } = await sb
+      .from("waitlist_entries")
+      .update({
         status: "invited",
         inviteToken,
-        invitedAt: new Date(),
-      },
-    });
+        invitedAt: new Date().toISOString(),
+      })
+      .eq("email", email)
+      .select()
+      .single();
+
+    if (updateErr) {
+      return NextResponse.json({ error: "Failed to update entry" }, { status: 500 });
+    }
 
     // Send beta invite email
     try {
@@ -65,8 +75,6 @@ export async function POST(request: NextRequest) {
         "Email error details:",
         JSON.stringify(emailError, null, 2)
       );
-      // Even if email fails, we still consider the invite sent
-      // The admin can manually send the invite later
     }
     return NextResponse.json({
       message: "Beta invite sent successfully",
@@ -98,10 +106,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const invitedUsers = await db.waitlistEntry.findMany({
-      where: { status: "invited" },
-      orderBy: { invitedAt: "desc" },
-    });
+    const sb = getSupabaseAdmin();
+
+    const { data: invitedUsers, error } = await sb
+      .from("waitlist_entries")
+      .select("*")
+      .eq("status", "invited")
+      .order("invitedAt", { ascending: false });
+
+    if (error) {
+      return NextResponse.json({ error: "Database error" }, { status: 500 });
+    }
 
     return NextResponse.json(invitedUsers);
   } catch (error) {

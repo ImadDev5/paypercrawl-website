@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signInWithPopup, signOut } from "firebase/auth";
-import { auth, googleProvider } from "@/lib/firebase";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -33,12 +32,12 @@ export function GoogleAuthButton({
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
-  const { logout: contextLogout, login: contextLogin } = useAuth();
+  const { logout: contextLogout } = useAuth();
 
   const handleGoogleSignOut = async () => {
     try {
       setIsLoading(true);
-      await signOut(auth);
+      await supabase.auth.signOut();
       
       document.cookie = "invite_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
       
@@ -66,100 +65,30 @@ export function GoogleAuthButton({
     try {
       setIsLoading(true);
 
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
+      // Determine the redirect URL based on environment
+      const redirectTo = `${window.location.origin}/api/auth/callback`;
 
-      if (!user.email) {
-        throw new Error("No email provided by Google");
-      }
-
-      const response = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
         },
-        body: JSON.stringify({
-          email: user.email,
-          name: user.displayName || "Unknown User",
-          photoURL: user.photoURL,
-        }),
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        if (data.inviteToken) {
-          document.cookie = `invite_token=${data.inviteToken}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=lax`;
-        }
-
-        toast({
-          title: "Welcome back!",
-          description: `Signed in successfully as ${data.user.name}`,
-        });
-
-        if (data.inviteToken) {
-          try { await contextLogin(data.inviteToken); } catch {}
-        }
-
-        if (onAuthSuccess) {
-          onAuthSuccess(data.inviteToken, data.user);
-        } else {
-          router.push("/dashboard");
-        }
-      } else {
-        await signOut(auth);
-        
-        const errorMessage = data.message || "Authentication failed";
-        const redirectTo = data.redirectTo || "/waitlist";
-
-        if (response.status === 404) {
-          toast({
-            title: "Not on waitlist",
-            description: errorMessage,
-            variant: "destructive",
-          });
-        } else if (response.status === 403) {
-          toast({
-            title: "Access pending",
-            description: errorMessage,
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Authentication failed",
-            description: errorMessage,
-            variant: "destructive",
-          });
-        }
-
-        if (onAuthError) {
-          onAuthError(data.error || "authentication_failed");
-        }
-
-        router.push(redirectTo);
+      if (error) {
+        throw error;
       }
+      // Browser will redirect to Google; no further action needed here
     } catch (error) {
       console.error("Google sign-in error:", error);
-      
-      try {
-        await signOut(auth);
-      } catch (signOutError) {
-        console.error("Sign out error:", signOutError);
-      }
-
-      const errorMessage = error instanceof Error ? error.message : "Sign in failed";
-      
-      toast({
-        title: "Sign-in failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-
-      if (onAuthError) {
-        onAuthError(errorMessage);
-      }
-    } finally {
       setIsLoading(false);
+      const errorMessage = error instanceof Error ? error.message : "Sign in failed";
+      toast({ title: "Sign-in failed", description: errorMessage, variant: "destructive" });
+      if (onAuthError) onAuthError(errorMessage);
     }
   };
 

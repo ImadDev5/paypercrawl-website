@@ -134,7 +134,7 @@ class CrawlGuard_API_Client {
             return false;
         }
         
-    $endpoint = $this->api_base_url . '/auth/validate';
+    $endpoint = $this->api_base_url . '/apikeys/validate';
         
         $payload = array(
             'api_key' => $key_to_validate,

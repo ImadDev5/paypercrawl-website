@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { sendBetaInvite } from "@/lib/email";
 import { generateInviteToken } from "@/lib/utils";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
@@ -9,206 +9,145 @@ function verifyAdminAuth(request: NextRequest): boolean {
 }
 
 export async function GET(request: NextRequest) {
+  if (!verifyAdminAuth(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const status = searchParams.get("status");
+  const search = searchParams.get("search");
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = parseInt(searchParams.get("limit") || "50");
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
   try {
-    if (!verifyAdminAuth(request)) {
-          console.log('[ADMIN API] Request received');
-    console.log('[ADMIN API] Headers:', request.headers.get('cookie'));
-    console.log('[ADMIN API] URL:', request.url);
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    
-    console.log('[ADMIN API] Authentication passed');
+    const sb = getSupabaseAdmin();
 
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get("status");
-    const search = searchParams.get("search");
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const skip = (page - 1) * limit;
+    let query = sb
+      .from("waitlist_entries")
+      .select("*", { count: "exact" })
+      .order("createdAt", { ascending: false })
+      .range(from, to);
 
-    let where: any = {};
-
-    if (status) {
-      where.status = status;
+    if (status && status !== "all") {
+      query = query.eq("status", status);
     }
 
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-        { website: { contains: search, mode: "insensitive" } },
-      ];
+    if (search?.trim()) {
+      query = query.or(
+        `name.ilike.%${search.trim()}%,email.ilike.%${search.trim()}%,website.ilike.%${search.trim()}%`
+      );
     }
-    
-    console.log('[ADMIN API] Query filters:', JSON.stringify(where));
-    console.log('[ADMIN API] DATABASE_URL exists:', !!process.env.DATABASE_URL);
-    console.log('[ADMIN API] Fetching from database...');
 
-    const [waitlistEntries, total] = await Promise.all([
-      db.WaitlistEntry.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-      }),
-      db.WaitlistEntry.count({ where }),
-    ]);
-    
-    console.log('[ADMIN API] Database query completed');
-    console.log('[ADMIN API] Total count:', total);
-    console.log('[ADMIN API] Fetched entries:', waitlistEntries.length);
-    if (waitlistEntries.length > 0) {
-      console.log('[ADMIN API] First entry email:', waitlistEntries[0]?.email);
-      console.log('[ADMIN API] First entry status:', waitlistEntries[0]?.status);
+    const { data, error, count } = await query;
+
+    if (error) {
+      console.error("[ADMIN WAITLIST] Supabase error:", error.message);
+      return NextResponse.json({ error: "Database error" }, { status: 500 });
     }
+
+    // DB columns are already camelCase (Prisma convention)
+    const waitlistEntries = data ?? [];
+
+    const total = count ?? 0;
 
     return NextResponse.json({
       waitlistEntries,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
-  } catch (error) {
-    console.error("Error fetching waitlist:", error);
-        console.error('[ADMIN API] Error details:', error instanceof Error ? error.message : 'Unknown error');
-    console.error('[ADMIN API] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error("[ADMIN WAITLIST] GET error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    if (!verifyAdminAuth(request)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  if (!verifyAdminAuth(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
+  try {
     const body = await request.json();
     const { action, email, emails } = body;
+    const sb = getSupabaseAdmin();
 
     if (action === "invite") {
       if (email) {
         // Single invite
-        const waitlistEntry = await db.waitlistEntry.findUnique({
-          where: { email },
-        });
+        const { data: entry, error: fetchErr } = await sb
+          .from("waitlist_entries")
+          .select("*")
+          .eq("email", email)
+          .single() as { data: any; error: any };
 
-        if (!waitlistEntry) {
-          return NextResponse.json(
-            { error: "Email not found on waitlist" },
-            { status: 404 }
-          );
+        if (fetchErr || !entry) {
+          return NextResponse.json({ error: "Email not found on waitlist" }, { status: 404 });
+        }
+        if (entry.status === "invited") {
+          return NextResponse.json({ error: "User already invited" }, { status: 400 });
         }
 
-        if (waitlistEntry.status === "invited") {
-          return NextResponse.json(
-            { error: "User already invited" },
-            { status: 400 }
-          );
+        const inviteToken = entry.inviteToken || generateInviteToken();
+
+        const { data: updated, error: updateErr } = await sb
+          .from("waitlist_entries")
+          .update({ status: "invited", inviteToken: inviteToken, invitedAt: new Date().toISOString() } as any)
+          .eq("email", email)
+          .select()
+          .single() as { data: any; error: any };
+
+        if (updateErr) {
+          return NextResponse.json({ error: "Failed to update entry" }, { status: 500 });
         }
 
-        // Update status and generate invite token if not exists
-        const inviteToken = waitlistEntry.inviteToken || generateInviteToken();
-        const updatedEntry = await db.waitlistEntry.update({
-          where: { email },
-          data: {
-            status: "invited",
-            inviteToken: inviteToken,
-            invitedAt: new Date(),
-          },
-        });
-
-        // Send invite email
         try {
-          await sendBetaInvite(
-            email,
-            waitlistEntry.name,
-            updatedEntry.inviteToken!
-          );
+          await sendBetaInvite(email, entry.name, inviteToken);
         } catch (emailError) {
           console.error("Failed to send beta invite:", emailError);
-          // Note: Email will only work for verified domains/addresses
         }
 
-        return NextResponse.json({
-          message: "Beta invite sent successfully",
-          entry: updatedEntry,
-        });
+        return NextResponse.json({ message: "Beta invite sent successfully", entry: updated });
+
       } else if (emails && Array.isArray(emails)) {
         // Bulk invite
         const results: any[] = [];
 
         for (const emailAddr of emails) {
           try {
-            const waitlistEntry = await db.waitlistEntry.findUnique({
-              where: { email: emailAddr },
-            });
+            const { data: entry, error: fetchErr } = await sb
+              .from("waitlist_entries")
+              .select("*")
+              .eq("email", emailAddr)
+              .single() as { data: any; error: any };
 
-            if (!waitlistEntry || waitlistEntry.status === "invited") {
-              continue;
-            }
+            if (fetchErr || !entry || entry.status === "invited") continue;
 
-            // Update status and generate invite token if not exists
-            const inviteToken =
-              waitlistEntry.inviteToken || generateInviteToken();
-            const updatedEntry = await db.waitlistEntry.update({
-              where: { email: emailAddr },
-              data: {
-                status: "invited",
-                inviteToken: inviteToken,
-                invitedAt: new Date(),
-              },
-            });
+            const inviteToken = entry.inviteToken || generateInviteToken();
 
-            // Send invite email
+            await sb
+              .from("waitlist_entries")
+              .update({ status: "invited", inviteToken: inviteToken, invitedAt: new Date().toISOString() } as any)
+              .eq("email", emailAddr);
+
             try {
-              await sendBetaInvite(
-                emailAddr,
-                waitlistEntry.name,
-                updatedEntry.inviteToken!
-              );
+              await sendBetaInvite(emailAddr, entry.name, inviteToken);
               results.push({ email: emailAddr, success: true });
-            } catch (emailError) {
-              console.error(
-                `Failed to send beta invite to ${emailAddr}:`,
-                emailError
-              );
-              results.push({
-                email: emailAddr,
-                success: false,
-                error: "Email failed",
-              });
+            } catch {
+              results.push({ email: emailAddr, success: false, error: "Email failed" });
             }
-          } catch (error) {
-            results.push({
-              email: emailAddr,
-              success: false,
-              error: "Database error",
-            });
+          } catch {
+            results.push({ email: emailAddr, success: false, error: "Database error" });
           }
         }
 
-        return NextResponse.json({
-          message: "Bulk invite completed",
-          results,
-        });
+        return NextResponse.json({ message: "Bulk invite completed", results });
       }
     }
 
-    return NextResponse.json(
-      { error: "Invalid action or missing parameters" },
-      { status: 400 }
-    );
-  } catch (error) {
-    console.error("Error processing waitlist action:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Invalid action or missing parameters" }, { status: 400 });
+  } catch (err) {
+    console.error("[ADMIN WAITLIST] POST error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

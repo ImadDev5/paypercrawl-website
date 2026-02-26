@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 
 // Verify admin authentication
@@ -8,39 +8,45 @@ function verifyAdminAuth(request: NextRequest): boolean {
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    if (!verifyAdminAuth(request)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  if (!verifyAdminAuth(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
+  try {
     const { email } = await request.json();
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    // Find and revoke access for the user
-    const waitlistEntry = await db.waitlistEntry.findUnique({
-      where: { email },
-    });
+    const sb = getSupabaseAdmin();
 
-    if (!waitlistEntry) {
+    // Find user
+    const { data: entry, error: fetchErr } = await sb
+      .from("waitlist_entries")
+      .select("*")
+      .eq("email", email)
+      .single();
+
+    if (fetchErr || !entry) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Update status to revoked and clear invite token
-    const updatedEntry = await db.waitlistEntry.update({
-      where: { email },
-      data: {
-        status: "pending", // Reset to pending
-        inviteToken: null,
-        invitedAt: null,
-      },
-    });
+    // Reset to pending and clear invite token
+    const { data: updated, error: updateErr } = await sb
+      .from("waitlist_entries")
+      .update({ status: "pending", inviteToken: null, invitedAt: null })
+      .eq("email", email)
+      .select()
+      .single();
+
+    if (updateErr) {
+      return NextResponse.json({ error: "Failed to revoke access" }, { status: 500 });
+    }
 
     return NextResponse.json({
       message: "Access revoked successfully",
-      entry: updatedEntry,
+      entry: updated,
     });
   } catch (error) {
     console.error("Error revoking access:", error);

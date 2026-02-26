@@ -1,6 +1,9 @@
 import { Resend } from "resend";
 import { db } from "./db";
 
+const TEMP_INTERNAL_INBOX =
+  process.env.INTERNAL_SUPPORT_INBOX || "suhailult777@gmail.com";
+
 // Lazily initialize the Resend client to avoid build-time failures
 // when RESEND_API_KEY isn't present during static bundling.
 let _resend: Resend | null = null;
@@ -112,7 +115,7 @@ export async function sendCareerApplicationInternal(opts: {
   position: string;
 }) {
   const { name, email, phone, website, position } = opts;
-  const to = 'careers@paypercrawl.tech';
+  const to = TEMP_INTERNAL_INBOX;
   const subject = `[Careers] New application: ${position}`;
   const html = `
   <!doctype html>
@@ -359,7 +362,7 @@ export async function sendContactNotification(
   `;
 
   // Send to admin email from environment or fallback
-  const adminEmail = process.env.ADMIN_EMAIL || "imaduddin.dev@gmail.com";
+  const adminEmail = process.env.ADMIN_EMAIL || TEMP_INTERNAL_INBOX;
 
   return sendEmail({
     to: adminEmail,
@@ -370,9 +373,9 @@ export async function sendContactNotification(
 
 // Map categories to internal recipient emails
 const CATEGORY_EMAIL_MAP: Record<string, string> = {
-  general: 'hello@paypercrawl.tech',
-  support: 'support@paypercrawl.tech',
-  careers: 'careers@paypercrawl.tech',
+  general: TEMP_INTERNAL_INBOX,
+  support: TEMP_INTERNAL_INBOX,
+  careers: TEMP_INTERNAL_INBOX,
 };
 
 export interface SupportTicketEmail {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 interface GoogleAuthRequest {
   email: string;
@@ -9,9 +9,9 @@ interface GoogleAuthRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('[FIREBASE AUTH] Request received');
+    console.log('[AUTH] Request received');
     const body: GoogleAuthRequest = await request.json();
-    console.log('[FIREBASE AUTH] Request body:', JSON.stringify({ email: body?.email, name: body?.name }));
+    console.log('[AUTH] Request body:', JSON.stringify({ email: body?.email, name: body?.name }));
     
     const { email, name, photoURL } = body;
 
@@ -22,19 +22,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const sb = getSupabaseAdmin();
+
     // Check if user exists in waitlist
-    const waitlistEntry = await db.waitlistEntry.findUnique({
-      where: { email },
-    });
+    const { data: waitlistEntry, error: fetchErr } = await sb
+      .from("waitlist_entries")
+      .select("*")
+      .eq("email", email)
+      .single();
     
-    console.log('[FIREBASE AUTH] Waitlist check for email:', email);
-    console.log('[FIREBASE AUTH] Waitlist entry found:', !!waitlistEntry);
+    console.log('[AUTH] Waitlist check for email:', email);
+    console.log('[AUTH] Waitlist entry found:', !!waitlistEntry);
     if (waitlistEntry) {
-      console.log('[FIREBASE AUTH] Entry status:', waitlistEntry.status);
-      console.log('[FIREBASE AUTH] Entry ID:', waitlistEntry.id);
+      console.log('[AUTH] Entry status:', waitlistEntry.status);
     }
 
-    if (!waitlistEntry) {
+    if (fetchErr || !waitlistEntry) {
       // User is not on waitlist - return 404
       return NextResponse.json(
         { 
@@ -48,8 +51,6 @@ export async function POST(request: NextRequest) {
 
     // Check user status
     if (waitlistEntry.status === "pending") {
-      console.log('[FIREBASE AUTH] Checking status. Current:', waitlistEntry.status, 'Expected: accepted');
-      // User is on waitlist but not yet approved - return 403
       return NextResponse.json(
         {
           error: "waitlist_pending",
@@ -72,37 +73,32 @@ export async function POST(request: NextRequest) {
     }
 
     if (waitlistEntry.status === "invited" || waitlistEntry.status === "accepted") {
-      console.log('[FIREBASE AUTH] User authorized! Status:', waitlistEntry.status);
-      // Ensure the user is marked as accepted and has an invite token
+      console.log('[AUTH] User authorized! Status:', waitlistEntry.status);
       let inviteToken = waitlistEntry.inviteToken;
 
       // If they were invited, promote to accepted
       if (waitlistEntry.status === "invited") {
-        // Generate a token if missing
         if (!inviteToken) {
-          // Lazy import to avoid top-level crypto on edge if not needed
           const { randomBytes } = await import("crypto");
           inviteToken = randomBytes(32).toString("hex");
         }
 
-        await db.waitlistEntry.update({
-          where: { id: waitlistEntry.id },
-          data: { status: "accepted", inviteToken },
-        });
+        await sb
+          .from("waitlist_entries")
+          .update({ status: "accepted", inviteToken })
+          .eq("id", waitlistEntry.id);
       } else if (!inviteToken) {
-        // Already accepted but missing token (legacy rows) -> generate and persist
+        // Already accepted but missing token (legacy rows)
         const { randomBytes } = await import("crypto");
         inviteToken = randomBytes(32).toString("hex");
-        await db.waitlistEntry.update({
-          where: { id: waitlistEntry.id },
-          data: { inviteToken },
-        });
+        await sb
+          .from("waitlist_entries")
+          .update({ inviteToken })
+          .eq("id", waitlistEntry.id);
       }
       
-      console.log('[FIREBASE AUTH] Success! Returning user data and invite token');
-      console.log('[FIREBASE AUTH] Invite token:', inviteToken);
+      console.log('[AUTH] Success! Returning user data and invite token');
 
-      // Return success with user data and invite token
       return NextResponse.json({
         success: true,
         user: {
@@ -125,10 +121,7 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error('[FIREBASE AUTH] Authentication error:', error);
-    console.error('[FIREBASE AUTH] Error details:', error instanceof Error ? error.message : 'Unknown error');
-    console.error('[FIREBASE AUTH] Error stack:', error instanceof Error ? error.stack : 'No stack');
-    console.error("Google auth error:", error);
+    console.error('[AUTH] Authentication error:', error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

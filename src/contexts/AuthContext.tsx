@@ -7,8 +7,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { auth } from "@/lib/firebase";
-import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
+import { supabase } from "@/lib/supabase";
 
 interface User {
   email: string;
@@ -18,7 +17,6 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  firebaseUser: FirebaseUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (token: string) => Promise<boolean>;
@@ -30,7 +28,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -50,7 +47,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const tokenToUse = urlToken || cookieToken;
 
+      // If no invite token, check Supabase session
       if (!tokenToUse) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.email) {
+          // User has a Supabase session — validate with backend
+          const response = await fetch("/api/auth/google", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: session.user.email,
+              name:
+                session.user.user_metadata?.full_name ||
+                session.user.user_metadata?.name ||
+                session.user.email,
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.inviteToken) {
+              document.cookie = `invite_token=${data.inviteToken}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
+              setIsAuthenticated(true);
+              setUser(data.user);
+              setIsLoading(false);
+              return;
+            }
+          }
+        }
+
         setIsAuthenticated(false);
         setUser(null);
         setIsLoading(false);
@@ -126,31 +151,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      // Sign out from Firebase if user is signed in
-      if (firebaseUser) {
-        await signOut(auth);
-      }
+      await supabase.auth.signOut();
     } catch (error) {
-      console.error("Firebase sign out error:", error);
+      console.error("Supabase sign out error:", error);
     }
 
     setIsAuthenticated(false);
     setUser(null);
-    setFirebaseUser(null);
     // Clear the cookie
     document.cookie =
       "invite_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
   };
 
   useEffect(() => {
-    // Listen for Firebase auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setFirebaseUser(user);
-    });
+    // Listen for Supabase auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        // If user signs in/out via Supabase, re-check our auth status
+        if (_event === "SIGNED_IN" || _event === "SIGNED_OUT") {
+          checkAuthStatus();
+        }
+      }
+    );
 
     checkAuthStatus();
 
-    return () => unsubscribe();
+    return () => subscription.unsubscribe();
   }, []);
 
   // Re-check auth status when URL changes (to pick up new tokens)
@@ -176,7 +202,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
-        firebaseUser,
         isAuthenticated,
         isLoading,
         login,

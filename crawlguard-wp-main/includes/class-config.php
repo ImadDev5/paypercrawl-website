@@ -32,7 +32,7 @@ class CrawlGuard_Config {
         $base_url = self::get_cloudflare_config()['api_base_url'];
         
         return array(
-            'validate' => $base_url . '/auth/validate',
+            'validate' => $base_url . '/apikeys/validate',
             'monetize' => $base_url . '/monetize',
             'analytics' => $base_url . '/analytics',
             'register' => $base_url . '/sites/register',

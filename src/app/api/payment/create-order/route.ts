@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getRazorpayInstance, convertToCents } from '@/lib/razorpay';
 import { rateLimit, getClientIP } from '@/lib/rate-limit';
 
@@ -27,10 +27,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const sb = getSupabaseAdmin();
+
     // Check if user already has an active plan
-    const existingUser = await db.user.findUnique({
-      where: { id: userId },
-    });
+    const { data: existingUser } = await sb
+      .from('users')
+      .select('id, hasActivePlan')
+      .eq('id', userId)
+      .maybeSingle();
 
     if (existingUser?.hasActivePlan) {
       return NextResponse.json(
@@ -39,20 +43,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create or update user
-    const user = await db.user.upsert({
-      where: { id: userId },
-      update: {
-        email,
-        name: name || email,
-      },
-      create: {
-        id: userId,
-        email,
-        name: name || email,
-        hasActivePlan: false,
-      },
-    });
+    // Create or update user (upsert)
+    let user;
+    if (existingUser) {
+      const { data: updated, error: ue } = await sb
+        .from('users')
+        .update({ email, name: name || email })
+        .eq('id', userId)
+        .select()
+        .single();
+      if (ue) throw ue;
+      user = updated;
+    } else {
+      const { data: created, error: ce } = await sb
+        .from('users')
+        .insert({ id: userId, email, name: name || email, hasActivePlan: false })
+        .select()
+        .single();
+      if (ce) throw ce;
+      user = created;
+    }
 
     // Create Razorpay order
     const razorpay = getRazorpayInstance();
@@ -71,8 +81,9 @@ export async function POST(request: NextRequest) {
     });
 
     // Save payment record in database
-    const payment = await db.payment.create({
-      data: {
+    const { data: payment, error: pe } = await sb
+      .from('payments')
+      .insert({
         userId: user.id,
         orderId: razorpayOrder.id,
         amount: amountInCents,
@@ -83,8 +94,10 @@ export async function POST(request: NextRequest) {
           plan: 'api_key_access',
           email,
         },
-      },
-    });
+      })
+      .select()
+      .single();
+    if (pe) throw pe;
 
     return NextResponse.json({
       success: true,
@@ -98,9 +111,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error creating payment order:', error);
-    
-    // More detailed error message
-    const errorMessage = error instanceof Error ? error.message : 'Failed to create payment order';
     
     return NextResponse.json(
       { error: 'Failed to create payment order' },

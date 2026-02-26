@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { z } from 'zod'
 import { isAdminAuthenticated } from '@/lib/admin-auth'
 
@@ -7,12 +7,12 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const onlyActive = searchParams.get('active') === 'true'
-    let jobs = await db.jobPosting.findMany({ orderBy: { createdAt: 'desc' } as any })
-    // If schema has 'active' use it; otherwise, pass all
-    if (onlyActive) {
-      jobs = jobs.filter((j: any) => j.active !== false)
-    }
-    return NextResponse.json({ jobs })
+    const sb = getSupabaseAdmin()
+    let query = sb.from('job_postings').select('*').order('createdAt', { ascending: false })
+    if (onlyActive) query = query.neq('active', false)
+    const { data: jobs, error } = await query
+    if (error) throw error
+    return NextResponse.json({ jobs: jobs || [] })
   } catch (e) {
     console.error('List jobs error:', e)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -40,18 +40,23 @@ export async function POST(req: NextRequest) {
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .slice(0, 80)
-    const data: any = {
-      title: input.title,
-      slug,
-      category: input.category,
-      categoryId: input.categoryId || null,
-      type: input.type,
-      location: input.location,
-      description: input.description,
-      status: 'published',
-      active: input.active ?? true,
-    }
-    const job = await (db as any).jobPosting.create({ data })
+    const sb = getSupabaseAdmin()
+    const { data: job, error } = await sb
+      .from('job_postings')
+      .insert({
+        title: input.title,
+        slug,
+        category: input.category,
+        categoryId: input.categoryId || null,
+        type: input.type,
+        location: input.location,
+        description: input.description,
+        status: 'published',
+        active: input.active ?? true,
+      })
+      .select()
+      .single()
+    if (error) throw error
     return NextResponse.json({ job })
   } catch (e: any) {
     return NextResponse.json({ error: e.message || 'Bad request' }, { status: 400 })

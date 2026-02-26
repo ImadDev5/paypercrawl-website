@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,18 +14,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    let waitlistEntry;
+    const sb = getSupabaseAdmin();
+    let waitlistEntry: any = null;
 
     if (token) {
-      // Check by token
-      waitlistEntry = await db.waitlistEntry.findUnique({
-        where: { inviteToken: token },
-      });
+      const { data } = await sb
+        .from("waitlist_entries")
+        .select("*")
+        .eq("inviteToken", token)
+        .single();
+      waitlistEntry = data;
     } else if (email) {
-      // Check by email
-      waitlistEntry = await db.waitlistEntry.findUnique({
-        where: { email },
-      });
+      const { data } = await sb
+        .from("waitlist_entries")
+        .select("*")
+        .eq("email", email)
+        .single();
+      waitlistEntry = data;
     }
 
     if (!waitlistEntry) {

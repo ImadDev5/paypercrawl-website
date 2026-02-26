@@ -1,32 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
-    const skip = (page - 1) * limit
+    const offset = (page - 1) * limit
 
-    const [posts, total] = await Promise.all([
-      db.blogPost.findMany({
-        orderBy: { publishedAt: 'desc' },
-        skip,
-        take: limit,
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          author: true,
-          publishedAt: true,
-          tags: true,
-        }
-      }),
-      db.blogPost.count(),
-    ])
+    const sb = getSupabaseAdmin()
+
+    const { data: posts, count, error } = await sb
+      .from('blog_posts')
+      .select('id, slug, title, author, publishedAt, tags', { count: 'exact' })
+      .order('publishedAt', { ascending: false })
+      .range(offset, offset + limit - 1)
+
+    if (error) throw error
+    const total = count || 0
 
     return NextResponse.json({
-      posts,
+      posts: posts || [],
       pagination: {
         page,
         limit,

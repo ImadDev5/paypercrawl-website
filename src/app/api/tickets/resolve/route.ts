@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { z } from 'zod'
 import { sendSupportTicketResolution } from '@/lib/email'
 import { isAdminAuthenticated } from '@/lib/admin-auth'
@@ -18,26 +18,30 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { id, resolutionMessage } = resolveSchema.parse(body)
 
-    const existing = await db.contactSubmission.findUnique({ where: { id } })
+    const sb = getSupabaseAdmin()
+    const { data: existing } = await sb
+      .from('contact_submissions')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle()
     if (!existing) {
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 })
     }
 
-    const updated = await db.contactSubmission.update({
-      where: { id },
-      data: {
-        // @ts-ignore Prisma types update after `prisma generate`
+    const { data: updated, error } = await sb
+      .from('contact_submissions')
+      .update({
         status: 'resolved',
-        // @ts-ignore Prisma types update after `prisma generate`
         resolutionMessage,
-        // @ts-ignore Prisma types update after `prisma generate`
-        resolvedAt: new Date(),
-      },
-    })
+        resolvedAt: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
 
     try {
-  // @ts-ignore Prisma types update after `prisma generate`
-  await sendSupportTicketResolution(existing.email, existing.ticketId, resolutionMessage)
+      await sendSupportTicketResolution(existing.email, existing.ticketId, resolutionMessage)
     } catch (emailError) {
       console.error('Failed to send resolution email:', emailError)
     }

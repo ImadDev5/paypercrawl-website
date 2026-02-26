@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import * as cheerio from 'cheerio'
 import puppeteer from 'puppeteer'
 import { isAdminAuthenticated } from '@/lib/admin-auth'
@@ -412,26 +412,47 @@ export async function POST(req: NextRequest) {
     // Store the raw HTML content for rendering; optionally could sanitize further server-side when rendering
     const publishedAt = publishedRaw ? new Date(publishedRaw) : null
 
-    const upserted = await (db as any).blogPost.upsert({
-      where: { sourceUrl: url },
-      update: {
-        slug,
-        title: finalTitle,
-        content: articleHtml,
-        author: finalAuthor,
-        publishedAt: publishedAt ?? undefined,
-        tags,
-      },
-      create: {
-        slug,
-        sourceUrl: url,
-        title: finalTitle,
-        content: articleHtml,
-        author: finalAuthor,
-        publishedAt: publishedAt ?? undefined,
-        tags,
-      },
-    })
+    const sb = getSupabaseAdmin()
+
+    // Check if blog post exists by sourceUrl
+    const { data: existing } = await sb
+      .from('blog_posts')
+      .select('id')
+      .eq('sourceUrl', url)
+      .maybeSingle()
+
+    let upserted
+    if (existing) {
+      const { data: updated } = await sb
+        .from('blog_posts')
+        .update({
+          slug,
+          title: finalTitle,
+          content: articleHtml,
+          author: finalAuthor,
+          publishedAt: publishedAt?.toISOString() ?? undefined,
+          tags,
+        })
+        .eq('id', existing.id)
+        .select()
+        .single()
+      upserted = updated
+    } else {
+      const { data: created } = await sb
+        .from('blog_posts')
+        .insert({
+          slug,
+          sourceUrl: url,
+          title: finalTitle,
+          content: articleHtml,
+          author: finalAuthor,
+          publishedAt: publishedAt?.toISOString() ?? undefined,
+          tags,
+        })
+        .select()
+        .single()
+      upserted = created
+    }
 
     return NextResponse.json({ post: upserted })
   } catch (e) {

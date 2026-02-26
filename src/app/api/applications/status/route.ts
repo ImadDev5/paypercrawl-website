@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 // Public endpoint to check application status by email (lightweight)
 export async function GET(req: NextRequest) {
@@ -9,10 +9,12 @@ export async function GET(req: NextRequest) {
 		if (!email) {
 			return NextResponse.json({ error: 'Email is required' }, { status: 400 })
 		}
-		const app = await db.betaApplication.findFirst({
-			where: { email },
-			select: { id: true, status: true, position: true, createdAt: true }
-		})
+		const sb = getSupabaseAdmin()
+		const { data: app } = await sb
+			.from('beta_applications')
+			.select('id, status, position, createdAt')
+			.eq('email', email)
+			.maybeSingle()
 		if (!app) return NextResponse.json({ found: false })
 		return NextResponse.json({ found: true, ...app })
 	} catch (e) {

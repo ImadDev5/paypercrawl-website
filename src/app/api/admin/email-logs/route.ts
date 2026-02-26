@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,24 +11,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const sb = getSupabaseAdmin()
+
     // Get recent email logs
-    const emailLogs = await db.emailLog.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 50,
-      select: {
-        id: true,
-        to: true,
-        subject: true,
-        status: true,
-        provider: true,
-        createdAt: true,
-        body: true
-      }
-    })
+    const { data: emailLogs, error } = await sb
+      .from('email_logs')
+      .select('id, to, subject, status, provider, createdAt, body')
+      .order('createdAt', { ascending: false })
+      .limit(50)
+
+    if (error) throw error
 
     return NextResponse.json({
-      logs: emailLogs,
-      total: emailLogs.length
+      logs: emailLogs || [],
+      total: (emailLogs || []).length
     })
 
   } catch (error) {

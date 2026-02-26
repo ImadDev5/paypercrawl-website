@@ -124,7 +124,7 @@ export default function DashboardClient() {
       if (!user?.email) return;
       
       try {
-        // Generate a consistent userId from email (or use Firebase UID if available)
+        // Generate a consistent userId from email
         const userId = user.email.replace(/[^a-zA-Z0-9]/g, '_');
         
         const response = await fetch(`/api/payment/status?userId=${userId}`);

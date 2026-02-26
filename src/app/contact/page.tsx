@@ -266,19 +266,19 @@ export default function ContactPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <p className="font-medium">support@paypercrawl.tech</p>
+                  <p className="font-medium">suhailult777@gmail.com</p>
                   <p className="text-sm text-muted-foreground">
                     Technical support & plugin help
                   </p>
                 </div>
                 <div className="space-y-2 mt-4">
-                  <p className="font-medium">hello@paypercrawl.tech</p>
+                  <p className="font-medium">suhailult777@gmail.com</p>
                   <p className="text-sm text-muted-foreground">
                     General inquiries & partnerships
                   </p>
                 </div>
                 <div className="space-y-2 mt-4">
-                  <p className="font-medium">careers@paypercrawl.tech</p>
+                  <p className="font-medium">suhailult777@gmail.com</p>
                   <p className="text-sm text-muted-foreground">
                     Roles, internships, and hiring
                   </p>

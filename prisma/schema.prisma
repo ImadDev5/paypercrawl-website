@@ -10,8 +10,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model BetaApplication {
@@ -35,6 +36,7 @@ model BetaApplication {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@index([jobId], map: "beta_applications_jobId_idx")
   @@map("beta_applications")
 }
 
@@ -56,6 +58,7 @@ model JobPosting {
   // Relations
   applications BetaApplication[]
 
+  @@index([categoryId], map: "job_postings_categoryId_idx")
   @@map("job_postings")
 }
 
@@ -178,6 +181,7 @@ model Payment {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
+  @@index([userId], map: "payments_userId_idx")
   @@map("payments")
 }
 
@@ -220,6 +224,7 @@ model ApiKey {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
+  @@index([userId], map: "api_keys_userId_idx")
   @@map("api_keys")
 }
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 import { sendCareerApplicationStatusUpdate } from '@/lib/email'
 
 export async function GET(
@@ -7,10 +7,14 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const application = await db.betaApplication.findUnique({
-      where: { id: params.id }
-    })
+    const sb = getSupabaseAdmin()
+    const { data: application, error } = await sb
+      .from('beta_applications')
+      .select('*')
+      .eq('id', params.id)
+      .maybeSingle()
     
+    if (error) throw error
     if (!application) {
       return NextResponse.json(
         { error: 'Application not found' },
@@ -35,15 +39,21 @@ export async function PATCH(
   try {
     const body = await request.json()
     const { status, notes, message } = body
-    
-    const application = await db.betaApplication.update({
-      where: { id: params.id },
-      data: {
-        status: status || undefined,
-        notes: notes || undefined,
-        updatedAt: new Date()
-      }
-    })
+
+    const sb = getSupabaseAdmin()
+    const { data: application, error } = await sb
+      .from('beta_applications')
+      .update({
+        ...(status ? { status } : {}),
+        ...(notes ? { notes } : {}),
+        updatedAt: new Date().toISOString(),
+      })
+      .eq('id', params.id)
+      .select()
+      .single()
+
+    if (error) throw error
+
     // send email if status provided
     if (status && message) {
       try {
