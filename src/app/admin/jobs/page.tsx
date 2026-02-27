@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FadeIn } from "@/components/ui/fade-in";
 
 type Category = { id: string; name: string; slug: string; icon?: string | null; color?: string | null; active: boolean; position: number };
 type Job = { id: string; title: string; category?: string; categoryId?: string | null; type: string; location: string; description: string; active?: boolean };
@@ -116,11 +117,7 @@ export default function AdminJobsPage() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <div className="flex gap-2">
-        <Button variant="outline" onClick={() => (window.location.href = '/admin/applications')}>Applications</Button>
-        <Button variant="outline" onClick={() => (window.location.href = '/admin/tickets')}>Tickets</Button>
-      </div>
-
+      <FadeIn delay={0.2} direction="up">
       <Card>
         <CardHeader>
           <CardTitle>Categories</CardTitle>
@@ -156,7 +153,9 @@ export default function AdminJobsPage() {
           </div>
         </CardContent>
       </Card>
+      </FadeIn>
 
+      <FadeIn delay={0.3} direction="up">
       <Card>
         <CardHeader>
           <CardTitle>New Job</CardTitle>
@@ -194,7 +193,9 @@ export default function AdminJobsPage() {
           <Button onClick={createJob}>Create Job</Button>
         </CardContent>
       </Card>
+      </FadeIn>
 
+      <FadeIn delay={0.4} direction="up">
       <Card>
         <CardHeader>
           <CardTitle>Jobs</CardTitle>
@@ -219,6 +220,7 @@ export default function AdminJobsPage() {
           ))}
         </CardContent>
       </Card>
+      </FadeIn>
     </div>
   );
 }

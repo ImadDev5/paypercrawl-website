@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, CheckCircle2, XCircle, AlertCircle, Zap } from 'lucide-react';
+import { FadeIn } from '@/components/ui/fade-in';
 
 interface TestResult {
   success: boolean;
@@ -73,6 +74,7 @@ export default function FirecrawlTestBench() {
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
+        <FadeIn delay={0.1} direction="up">
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold flex items-center justify-center gap-2">
             <Zap className="w-8 h-8 text-orange-500" />
@@ -82,8 +84,10 @@ export default function FirecrawlTestBench() {
             Test your WordPress plugin's Firecrawl detection capabilities in real-time
           </p>
         </div>
+        </FadeIn>
 
         {/* Test Input */}
+        <FadeIn delay={0.2} direction="up">
         <Card>
           <CardHeader>
             <CardTitle>Test Configuration</CardTitle>
@@ -120,8 +124,10 @@ export default function FirecrawlTestBench() {
             </Alert>
           </CardContent>
         </Card>
+        </FadeIn>
 
         {/* Quick Test Buttons */}
+        <FadeIn delay={0.3} direction="up">
         <Card>
           <CardHeader>
             <CardTitle>Quick Tests</CardTitle>
@@ -144,9 +150,11 @@ export default function FirecrawlTestBench() {
             </Button>
           </CardContent>
         </Card>
+        </FadeIn>
 
         {/* Results */}
         {result && (
+          <FadeIn delay={0.4} direction="up">
           <Card className={result.blocked ? 'border-green-500' : 'border-red-500'}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -292,9 +300,11 @@ export default function FirecrawlTestBench() {
               )}
             </CardContent>
           </Card>
+          </FadeIn>
         )}
 
         {/* Information Card */}
+        <FadeIn delay={0.5} direction="up">
         <Card>
           <CardHeader>
             <CardTitle>How It Works</CardTitle>
@@ -318,6 +328,7 @@ export default function FirecrawlTestBench() {
             </ul>
           </CardContent>
         </Card>
+        </FadeIn>
       </div>
     </div>
   );

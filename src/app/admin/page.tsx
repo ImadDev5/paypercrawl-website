@@ -43,8 +43,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
-import { ModeToggle } from "@/components/mode-toggle";
 import Link from "next/link";
+import { FadeIn } from "@/components/ui/fade-in";
 
 interface Application {
   id: string;
@@ -358,39 +358,8 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Shield className="h-6 w-6" />
-            <span className="font-bold">PayperCrawl Admin</span>
-          </Link>
-          <div className="flex flex-1 items-center justify-end space-x-4">
-            <ModeToggle />
-            <Link href="/admin/tickets">
-              <Button variant="outline">Tickets</Button>
-            </Link>
-            <Link href="/admin/fetch-blog">
-              <Button variant="secondary">Fetch Blog</Button>
-            </Link>
-            <Button
-              variant="outline"
-              onClick={() => {
-                localStorage.removeItem("adminKey");
-                fetch("/api/admin/session", { method: "DELETE" }).finally(
-                  () => {
-                    setIsAuthenticated(false);
-                  },
-                );
-                toast.info("Logged out");
-              }}
-            >
-              Logout
-            </Button>
-          </div>
-        </div>
-      </header>
-
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
+        <FadeIn delay={0.2} direction="up">
         <Tabs defaultValue="applications">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="applications">
@@ -917,6 +886,7 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
         </Tabs>
+        </FadeIn>
       </main>
     </div>
   );

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { FadeIn } from "@/components/ui/fade-in";
 
 type Application = {
   id: string;
@@ -90,10 +91,7 @@ export default function AdminApplicationsPage() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <div className="flex gap-2">
-        <Button variant="outline" onClick={() => (window.location.href = '/admin/jobs')}>Jobs</Button>
-        <Button variant="outline" onClick={() => (window.location.href = '/admin/tickets')}>Tickets</Button>
-      </div>
+      <FadeIn delay={0.2} direction="up">
       <Card>
         <CardHeader>
           <CardTitle>Applications</CardTitle>
@@ -168,6 +166,7 @@ export default function AdminApplicationsPage() {
           </div>
         </CardContent>
       </Card>
+      </FadeIn>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Shield, Loader2, CheckCircle2, ArrowLeft } from "lucide-react";
+import { FadeIn } from "@/components/ui/fade-in";
 
 export default function AdminFetchBlogPage() {
   const [adminKey, setAdminKey] = useState("");
@@ -80,9 +81,7 @@ export default function AdminFetchBlogPage() {
   return (
     <div className="min-h-screen p-4 sm:p-8">
       <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <Link href="/admin"><Button variant="ghost"><ArrowLeft className="h-4 w-4 mr-2"/>Back to Admin</Button></Link>
-        </div>
+        <FadeIn delay={0.2} direction="up">
         <Card>
           <CardHeader>
             <CardTitle>Fetch Blog from Source URL</CardTitle>
@@ -108,6 +107,7 @@ export default function AdminFetchBlogPage() {
             </div>
           </CardContent>
         </Card>
+        </FadeIn>
       </div>
     </div>
   );

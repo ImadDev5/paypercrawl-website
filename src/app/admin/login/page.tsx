@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { FadeIn } from "@/components/ui/fade-in";
 
 export default function AdminLoginPage() {
 	const [key, setKey] = useState("");
@@ -34,6 +35,7 @@ export default function AdminLoginPage() {
 
 	return (
 		<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+			<FadeIn delay={0.1} direction="up">
 			<div style={{ width: 360, border: "1px solid var(--border)", borderRadius: 8, padding: 16 }}>
 				<h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Admin Login</h1>
 				<p style={{ color: "var(--muted-foreground)", marginBottom: 16 }}>Enter the admin key to continue.</p>
@@ -49,6 +51,7 @@ export default function AdminLoginPage() {
 					{loading ? "Signing in…" : "Sign in"}
 				</button>
 			</div>
+			</FadeIn>
 		</div>
 	);
 }

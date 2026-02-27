@@ -134,7 +134,7 @@ export function CareerApplicationForm(props: {
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>Cancel</Button>
-            <Button type="submit" disabled={submitting}>{submitting ? "Submitting…" : "Submit Application"}</Button>
+            <Button type="submit" disabled={submitting} className="disabled:opacity-100 disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none disabled:transform-none disabled:cursor-not-allowed dark:disabled:bg-slate-800 dark:disabled:text-slate-400">{submitting ? "Submitting…" : "Submit Application"}</Button>
           </div>
         </form>
       </DialogContent>

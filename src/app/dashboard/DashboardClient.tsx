@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -23,13 +22,6 @@ import {
   Download,
   Copy,
   RefreshCw,
-  Home as HomeIcon,
-  Star,
-  Info,
-  BookOpen,
-  Briefcase,
-  Mail,
-  Menu,
   LayoutDashboard,
   CheckCircle,
   Eye,
@@ -40,10 +32,14 @@ import {
   LogOut,
   CreditCard,
   Lock,
+  Info,
+  Star,
+  Mail,
 } from "lucide-react";
 import Link from "next/link";
-import { ModeToggle } from "@/components/mode-toggle";
+import { Navigation } from "@/components/ui/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { FadeIn } from "@/components/ui/fade-in";
 
 interface User {
   email: string;
@@ -93,7 +89,6 @@ export default function DashboardClient() {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [isApiKeyVisible, setIsApiKeyVisible] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -380,222 +375,30 @@ export default function DashboardClient() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b nav-blur">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-              <span className="text-lg sm:text-xl font-bold text-foreground">
-                PayPerCrawl
-              </span>
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
-              <Link
-                href="/"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Home
-              </Link>
-              <Link
-                href="/features"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Features
-              </Link>
-              <Link
-                href="/about"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                About
-              </Link>
-              <Link
-                href="/blog"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Blog
-              </Link>
-              <Link
-                href="/careers"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Careers
-              </Link>
-              <Link
-                href="/dashboard"
-                className="text-primary font-semibold hover:text-primary/80 transition-colors"
-              >
-                Dashboard
-              </Link>
-
-              {/* User Info */}
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <span>Welcome, {user?.name}</span>
-              </div>
-
-              <Button 
-                onClick={logout}
-                variant="outline"
-                size="sm"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
-              </Button>
-              <ModeToggle />
-            </div>
-
-            {/* Mobile Navigation */}
-            <div className="flex md:hidden items-center space-x-2">
-              <ModeToggle />
-              <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="sm" className="p-2">
-                    <Menu className="h-5 w-5" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  side="right"
-                  className="w-[320px] sm:w-[380px] p-0 bg-background/95 backdrop-blur-2xl border-l border-border/50 shadow-2xl"
-                >
-                  {/* Header */}
-                  <div className="flex items-center justify-between p-6 border-b border-border/30 bg-background/80 backdrop-blur-xl">
-                    <div className="flex items-center space-x-2">
-                      <Shield className="h-6 w-6 text-primary drop-shadow-sm" />
-                      <span className="text-lg font-bold text-foreground drop-shadow-sm">
-                        PayPerCrawl
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Navigation */}
-                  <div className="flex flex-col h-full bg-background/70 backdrop-blur-md">
-                    <nav className="flex-1 p-6 bg-background/50 backdrop-blur-sm">
-                      <div className="space-y-1">
-                        <Link
-                          href="/"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <HomeIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Home
-                          </span>
-                        </Link>
-                        <Link
-                          href="/features"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Star className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Features
-                          </span>
-                        </Link>
-                        <Link
-                          href="/about"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Info className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            About
-                          </span>
-                        </Link>
-                        <Link
-                          href="/blog"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <BookOpen className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Blog
-                          </span>
-                        </Link>
-                        <Link
-                          href="/careers"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Briefcase className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Careers
-                          </span>
-                        </Link>
-                        <Link
-                          href="/contact"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Mail className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Contact
-                          </span>
-                        </Link>
-                        <Link
-                          href="/dashboard"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground bg-primary/10 border border-primary/20 transition-all duration-200 group hover:bg-primary/15 hover:border-primary/30 backdrop-blur-sm shadow-lg"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <LayoutDashboard className="h-5 w-5 text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-semibold text-foreground drop-shadow-sm">
-                            Dashboard +{" "}
-                          </span>
-                        </Link>
-                      </div>
-                    </nav>
-
-                    {/* User Info Section */}
-                    <div className="p-6 border-t border-border/40 bg-accent/30 backdrop-blur-lg">
-                      <div className="space-y-3">
-                        <p className="text-sm font-medium text-foreground drop-shadow-sm">
-                          Welcome back, {user?.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {user?.email}
-                        </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full"
-                          onClick={async () => {
-                            await logout();
-                            router.push("/");
-                            setIsMenuOpen(false);
-                          }}
-                        >
-                          Logout
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-3 mb-4">
-            <LayoutDashboard className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
-              Dashboard
-            </h1>
+        <FadeIn delay={0.1} direction="up">
+          <div className="mb-8">
+            <div className="flex items-center space-x-3 mb-4">
+              <LayoutDashboard className="h-8 w-8 text-primary" />
+              <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
+                Dashboard
+              </h1>
+            </div>
+            <p className="text-lg text-muted-foreground max-w-2xl">
+              Manage your API keys and download the PayPerCrawl plugin to start
+              monetizing AI bot traffic on your website.
+            </p>
           </div>
-          <p className="text-lg text-muted-foreground max-w-2xl">
-            Manage your API keys and download the PayPerCrawl plugin to start
-            monetizing AI bot traffic on your website.
-          </p>
-        </div>
+        </FadeIn>
 
         {/* Bot Analyzer CTA */}
-        <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-primary/30 shadow-xl hover:shadow-2xl transition-all duration-300 glass-card hover-glow mb-8">
-          <CardContent className="p-8">
+        <FadeIn delay={0.2} direction="up">
+          <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-primary/30 shadow-xl hover:shadow-2xl transition-all duration-300 glass-card hover-glow mb-8">
+            <CardContent className="p-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex-1 space-y-3 text-center md:text-left">
                 <div className="flex items-center space-x-2 justify-center md:justify-start">
@@ -635,12 +438,14 @@ export default function DashboardClient() {
             </div>
           </CardContent>
         </Card>
+        </FadeIn>
 
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* API Key Generator */}
-          <Card className="bg-background/50 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 glass-card hover-glow">
-            <CardHeader className="pb-4">
+          <FadeIn delay={0.3} direction="up">
+            <Card className="bg-background/50 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 glass-card hover-glow h-full">
+              <CardHeader className="pb-4">
               <div className="flex items-center space-x-2">
                 <Key className="h-6 w-6 text-primary pulse-glow" />
                 <CardTitle className="text-xl">API Key Generator</CardTitle>
@@ -735,7 +540,7 @@ export default function DashboardClient() {
                 <Button
                   onClick={handlePayment}
                   disabled={isProcessingPayment || !razorpayLoaded}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-100 disabled:bg-none disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none disabled:transform-none disabled:cursor-not-allowed"
                 >
                   {isProcessingPayment ? (
                     <>
@@ -758,7 +563,7 @@ export default function DashboardClient() {
                 <Button
                   onClick={generateApiKey}
                   disabled={isGenerating}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 dim:shadow-2xl dim:hover:shadow-primary/20"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 dim:shadow-2xl dim:hover:shadow-primary/20 disabled:opacity-100 disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none disabled:transform-none disabled:cursor-not-allowed dark:disabled:bg-slate-800 dark:disabled:text-slate-400"
                 >
                   {isGenerating ? (
                     <>
@@ -794,10 +599,12 @@ export default function DashboardClient() {
               )}
             </CardContent>
           </Card>
+          </FadeIn>
 
           {/* Plugin Download */}
-          <Card className="bg-background/50 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 glass-card hover-glow">
-            <CardHeader className="pb-4">
+          <FadeIn delay={0.4} direction="up">
+            <Card className="bg-background/50 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 glass-card hover-glow h-full">
+              <CardHeader className="pb-4">
               <div className="flex items-center space-x-2">
                 <Download className="h-6 w-6 text-primary pulse-glow" />
                 <CardTitle className="text-xl">WordPress Plugin</CardTitle>
@@ -879,12 +686,14 @@ export default function DashboardClient() {
               </Alert>
             </CardContent>
           </Card>
+          </FadeIn>
         </div>
 
         {/* Additional Info Section */}
-        <div className="mt-12">
-          <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20 shadow-lg glass-card hover-glow">
-            <CardContent className="p-8">
+        <FadeIn delay={0.5} direction="up">
+          <div className="mt-12">
+            <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20 shadow-lg glass-card hover-glow">
+              <CardContent className="p-8">
               <div className="text-center space-y-4">
                 <div className="flex justify-center">
                   <Badge
@@ -926,7 +735,8 @@ export default function DashboardClient() {
               </div>
             </CardContent>
           </Card>
-        </div>
+          </div>
+        </FadeIn>
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
+import { FadeIn } from "@/components/ui/fade-in";
 
 type Ticket = {
   id: string;
@@ -107,10 +108,7 @@ export default function AdminTicketsPage() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <div className="flex gap-2">
-        <Button variant="outline" onClick={() => (window.location.href = '/admin/jobs')}>Jobs</Button>
-        <Button variant="outline" onClick={() => (window.location.href = '/admin/applications')}>Applications</Button>
-      </div>
+      <FadeIn delay={0.2} direction="up">
       <Card>
         <CardHeader>
           <CardTitle>Admin Tickets</CardTitle>
@@ -192,6 +190,7 @@ export default function AdminTicketsPage() {
           </div>
         </CardContent>
       </Card>
+      </FadeIn>
     </div>
   );
 }

@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { RingLoader } from "@/components/RingLoader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Shield,
   Calendar,
@@ -25,19 +24,12 @@ import {
   Twitter,
   Github,
   BookOpen,
-  Menu,
-  X,
-  Home as HomeIcon,
-  Info,
-  Briefcase,
-  Mail,
-  LayoutDashboard,
 } from "lucide-react";
 import Link from "next/link";
-import { ModeToggle } from "@/components/mode-toggle";
+import { Navigation } from "@/components/ui/navigation";
+import { FadeIn } from "@/components/ui/fade-in";
 
 export default function BlogPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const blogPosts = [
     {
@@ -178,208 +170,35 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold text-foreground">
-                PayPerCrawl
-              </span>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <Link
-                href="/"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Home
-              </Link>
-              <Link
-                href="/features"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Features
-              </Link>
-              <Link
-                href="/about"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                About
-              </Link>
-              <Link href="/blog" className="text-primary font-medium">
-                Blog
-              </Link>
-              <Link
-                href="/careers"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Careers
-              </Link>
-              <Link
-                href="/dashboard"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link href="/waitlist">
-                <Button>Join Beta</Button>
-              </Link>
-              <ModeToggle />
-            </div>
-
-            {/* Mobile Navigation */}
-            <div className="md:hidden flex items-center space-x-2">
-              <ModeToggle />
-              <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Menu className="h-6 w-6" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  side="right"
-                  className="w-[320px] sm:w-[380px] p-0 bg-background/95 backdrop-blur-2xl border-l border-border/50 shadow-2xl"
-                >
-                  {/* Header */}
-                  <div className="flex items-center justify-between p-6 border-b border-border/30 bg-background/80 backdrop-blur-xl">
-                    <div className="flex items-center space-x-2">
-                      <Shield className="h-6 w-6 text-primary drop-shadow-sm" />
-                      <span className="text-lg font-bold text-foreground drop-shadow-sm">
-                        PayPerCrawl
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Navigation */}
-                  <div className="flex flex-col h-full bg-background/70 backdrop-blur-md">
-                    <nav className="flex-1 p-6 bg-background/50 backdrop-blur-sm">
-                      <div className="space-y-1">
-                        <Link
-                          href="/"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <HomeIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Home
-                          </span>
-                        </Link>
-                        <Link
-                          href="/features"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Star className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Features
-                          </span>
-                        </Link>
-                        <Link
-                          href="/about"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Info className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            About
-                          </span>
-                        </Link>
-                        <Link
-                          href="/blog"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-primary bg-primary/10 border border-primary/20 transition-all duration-200 group backdrop-blur-sm shadow-lg"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <BookOpen className="h-5 w-5 text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-semibold drop-shadow-sm">
-                            Blog
-                          </span>
-                        </Link>
-                        <Link
-                          href="/careers"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Briefcase className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Careers
-                          </span>
-                        </Link>
-                        <Link
-                          href="/contact"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Mail className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Contact
-                          </span>
-                        </Link>
-                        <Link
-                          href="/dashboard"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <LayoutDashboard className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Dashboard
-                          </span>
-                        </Link>
-                      </div>
-                    </nav>
-
-                    {/* CTA Section */}
-                    <div className="p-6 border-t border-border/40 bg-accent/30 backdrop-blur-lg">
-                      <div className="space-y-3">
-                        <p className="text-sm font-medium text-foreground drop-shadow-sm">
-                          Ready to monetize your content?
-                        </p>
-                        <Link
-                          href="/waitlist"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Button className="w-full bg-primary/90 hover:bg-primary text-primary-foreground font-semibold shadow-xl hover:shadow-2xl transition-all duration-200 backdrop-blur-sm border border-primary/20">
-                            Join Beta Program
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-primary text-primary-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-          <div className="text-center">
-            <div className="relative inline-block mb-4">
-              <Badge variant="secondary" className="relative z-10 px-4 py-2">
-                <span className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse"></span>
-                  BETA PROGRAM
-                </span>
-                Resources & Blog • 100% Revenue Share
-              </Badge>
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <RingLoader
-                  width={400}
-                  height={50}
-                  strokeWidth={2}
-                  animationSpeed={5}
-                  borderRadius={25}
-                />
+          <FadeIn delay={0.1} direction="up">
+            <div className="text-center">
+              <div className="relative inline-block mb-4">
+                <Badge variant="secondary" className="relative z-10 px-4 py-2">
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse"></span>
+                    BETA PROGRAM
+                  </span>
+                  Resources & Blog • 100% Revenue Share
+                </Badge>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <RingLoader
+                    width={400}
+                    height={50}
+                    strokeWidth={2}
+                    animationSpeed={5}
+                    borderRadius={25}
+                  />
+                </div>
               </div>
-            </div>
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6">
-              Insights for WordPress
-              <span className="text-primary-foreground/80">
-                {" "}
+              <h1 className="text-4xl lg:text-5xl font-bold mb-6">
+                Insights for WordPress
+                <span className="text-primary-foreground/80">
+                  {" "}
                 Content Creators
               </span>
             </h1>
@@ -396,19 +215,21 @@ export default function BlogPage() {
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-primary-foreground/70" />
             </div>
           </div>
+          </FadeIn>
         </div>
       </section>
 
       {/* Featured Post */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-secondary rounded-2xl p-8 lg:p-12">
-            <div className="flex items-center gap-2 mb-4">
-              <Star className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-primary">
-                Featured Article
-              </span>
-            </div>
+          <FadeIn delay={0.2} direction="up">
+            <div className="bg-secondary rounded-2xl p-8 lg:p-12">
+              <div className="flex items-center gap-2 mb-4">
+                <Star className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium text-primary">
+                  Featured Article
+                </span>
+              </div>
             <div className="grid lg:grid-cols-2 gap-8 items-center">
               <div>
                 <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
@@ -453,24 +274,28 @@ export default function BlogPage() {
               </div>
             </div>
           </div>
+          </FadeIn>
         </div>
       </section>
 
       {/* Imported Posts (from external source via Admin → Fetch) */}
       <section className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-foreground">Imported Posts</h2>
-            <Link href="/admin/fetch-blog" className="text-sm text-primary underline">Import new</Link>
-          </div>
-          {importedLoading && <p>Loading posts…</p>}
-          {importedError && <p className="text-red-500">{importedError}</p>}
-          {!importedLoading && !importedError && importedPosts.length === 0 && (
-            <p className="text-muted-foreground">No imported posts yet. Use Admin → Fetch Blog to add one.</p>
-          )}
+          <FadeIn delay={0.3} direction="up">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-foreground">Imported Posts</h2>
+              <Link href="/admin/fetch-blog" className="text-sm text-primary underline">Import new</Link>
+            </div>
+            {importedLoading && <p>Loading posts…</p>}
+            {importedError && <p className="text-red-500">{importedError}</p>}
+            {!importedLoading && !importedError && importedPosts.length === 0 && (
+              <p className="text-muted-foreground">No imported posts yet. Use Admin → Fetch Blog to add one.</p>
+            )}
+          </FadeIn>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {importedPosts.map((post) => (
-              <Card key={post.slug} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            {importedPosts.map((post, index) => (
+              <FadeIn key={post.slug} delay={0.4 + index * 0.1} direction="up">
+              <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow h-full">
                 <CardHeader>
                   <div className="flex items-center gap-2 mb-3">
                     {(post.tags || []).slice(0, 2).map((tag, idx) => (
@@ -496,6 +321,7 @@ export default function BlogPage() {
                   </div>
                 </CardContent>
               </Card>
+              </FadeIn>
             ))}
           </div>
         </div>
@@ -508,10 +334,10 @@ export default function BlogPage() {
             {/* Blog Posts */}
             <div className="lg:col-span-3">
               <div className="grid md:grid-cols-2 gap-8">
-                {blogPosts.slice(1).map((post) => (
+                {blogPosts.slice(1).map((post, index) => (
+                  <FadeIn key={post.id} delay={0.2 + index * 0.1} direction="up">
                   <Card
-                    key={post.id}
-                    className="shadow-lg hover:shadow-xl transition-shadow dark:bg-card"
+                    className="shadow-lg hover:shadow-xl transition-shadow dark:bg-card h-full"
                   >
                     <CardHeader>
                       <CardTitle>{post.title}</CardTitle>
@@ -532,43 +358,49 @@ export default function BlogPage() {
                       </div>
                     </CardContent>
                   </Card>
+                  </FadeIn>
                 ))}
               </div>
-              <div className="mt-12 text-center">
-                <Button variant="outline">Load More Articles</Button>
-              </div>
+              <FadeIn delay={0.5} direction="up">
+                <div className="mt-12 text-center">
+                  <Button variant="outline">Load More Articles</Button>
+                </div>
+              </FadeIn>
             </div>
 
             {/* Sidebar */}
             <aside className="lg:col-span-1 space-y-8">
-              <Card className="dark:bg-card">
-                <CardHeader>
-                  <CardTitle>Categories</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {categories.map((category) => (
-                      <li
-                        key={category.name}
-                        className="flex justify-between items-center text-sm"
-                      >
-                        <Link
-                          href="#"
-                          className="text-muted-foreground hover:text-primary"
+              <FadeIn delay={0.3} direction="up">
+                <Card className="dark:bg-card">
+                  <CardHeader>
+                    <CardTitle>Categories</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {categories.map((category) => (
+                        <li
+                          key={category.name}
+                          className="flex justify-between items-center text-sm"
                         >
-                          {category.name}
-                        </Link>
-                        <Badge variant="secondary">{category.count}</Badge>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-              <Card className="dark:bg-card">
-                <CardHeader>
-                  <CardTitle>Tags</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-wrap gap-2">
+                          <Link
+                            href="#"
+                            className="text-muted-foreground hover:text-primary"
+                          >
+                            {category.name}
+                          </Link>
+                          <Badge variant="secondary">{category.count}</Badge>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </FadeIn>
+              <FadeIn delay={0.4} direction="up">
+                <Card className="dark:bg-card">
+                  <CardHeader>
+                    <CardTitle>Tags</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-wrap gap-2">
                   {blogPosts
                     .flatMap((p) => p.tags)
                     .filter((v, i, a) => a.indexOf(v) === i)
@@ -578,22 +410,25 @@ export default function BlogPage() {
                         {tag}
                       </Badge>
                     ))}
-                </CardContent>
-              </Card>
-              <Card className="bg-primary text-primary-foreground text-center p-6">
-                <CardHeader>
-                  <CardTitle>Join the Beta</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="mb-4">
-                    Get exclusive access and help shape the future of content
-                    monetization.
-                  </p>
-                  <Button variant="secondary" className="w-full">
-                    Request Invite
-                  </Button>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </FadeIn>
+              <FadeIn delay={0.5} direction="up">
+                <Card className="bg-primary text-primary-foreground text-center p-6">
+                  <CardHeader>
+                    <CardTitle>Join the Beta</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="mb-4">
+                      Get exclusive access and help shape the future of content
+                      monetization.
+                    </p>
+                    <Button variant="secondary" className="w-full">
+                      Request Invite
+                    </Button>
+                  </CardContent>
+                </Card>
+              </FadeIn>
             </aside>
           </div>
         </div>

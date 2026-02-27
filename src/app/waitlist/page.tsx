@@ -13,7 +13,6 @@ import { RingLoader } from "@/components/RingLoader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Shield,
   CheckCircle,
@@ -22,24 +21,16 @@ import {
   Mail,
   Globe,
   Zap,
-  Menu,
-  Home as HomeIcon,
-  Star,
-  Info,
-  BookOpen,
-  Briefcase,
-  Mail as MailIcon,
-  LayoutDashboard,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { ModeToggle } from "@/components/mode-toggle";
+import { Navigation } from "@/components/ui/navigation";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
+import { FadeIn } from "@/components/ui/fade-in";
 
 export default function WaitlistPage() {
   const { toast } = useToast();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -128,205 +119,28 @@ export default function WaitlistPage() {
     return (
       <div className="min-h-screen bg-background">
         {/* Navigation */}
-        <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center space-x-2">
-                <img
-                  src="/logo.svg"
-                  alt="PayPerCrawl Logo"
-                  className="h-6 w-6 sm:h-8 sm:w-8"
-                />
-                <span className="text-lg sm:text-xl font-bold text-foreground">
-                  PayPerCrawl
-                </span>
-              </div>
-
-              {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
-                <Link
-                  href="/features"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Features
-                </Link>
-                <Link
-                  href="/about"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  About
-                </Link>
-                <Link
-                  href="/blog"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Blog
-                </Link>
-                <Link
-                  href="/careers"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Careers
-                </Link>
-                <Link
-                  href="/dashboard"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Dashboard
-                </Link>
-                <Link href="/">
-                  <Button variant="outline" size="sm">
-                    Back to Home
-                  </Button>
-                </Link>
-                <ModeToggle />
-              </div>
-
-              {/* Mobile Navigation */}
-              <div className="flex md:hidden items-center space-x-2">
-                <ModeToggle />
-                <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="ghost" size="sm" className="p-2">
-                      <Menu className="h-5 w-5" />
-                      <span className="sr-only">Toggle menu</span>
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent
-                    side="right"
-                    className="w-[320px] sm:w-[380px] p-0 bg-background/95 backdrop-blur-2xl border-l border-border/50 shadow-2xl"
-                  >
-                    {/* Header */}
-                    <div className="flex items-center justify-between p-6 border-b border-border/30 bg-background/80 backdrop-blur-xl">
-                      <div className="flex items-center space-x-2">
-                        <img
-                          src="/logo.svg"
-                          alt="PayPerCrawl Logo"
-                          className="h-6 w-6"
-                        />
-                        <span className="text-lg font-bold text-foreground drop-shadow-sm">
-                          PayPerCrawl
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Navigation */}
-                    <div className="flex flex-col h-full bg-background/70 backdrop-blur-md">
-                      <nav className="flex-1 p-6 bg-background/50 backdrop-blur-sm">
-                        <div className="space-y-1">
-                          <Link
-                            href="/"
-                            className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <HomeIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                            <span className="font-medium drop-shadow-sm">
-                              Home
-                            </span>
-                          </Link>
-                          <Link
-                            href="/features"
-                            className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <Star className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                            <span className="font-medium drop-shadow-sm">
-                              Features
-                            </span>
-                          </Link>
-                          <Link
-                            href="/about"
-                            className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <Info className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                            <span className="font-medium drop-shadow-sm">
-                              About
-                            </span>
-                          </Link>
-                          <Link
-                            href="/blog"
-                            className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <BookOpen className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                            <span className="font-medium drop-shadow-sm">
-                              Blog
-                            </span>
-                          </Link>
-                          <Link
-                            href="/careers"
-                            className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <Briefcase className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                            <span className="font-medium drop-shadow-sm">
-                              Careers
-                            </span>
-                          </Link>
-                          <Link
-                            href="/contact"
-                            className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <MailIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                            <span className="font-medium drop-shadow-sm">
-                              Contact
-                            </span>
-                          </Link>
-                          <Link
-                            href="/dashboard"
-                            className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            <LayoutDashboard className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                            <span className="font-medium drop-shadow-sm">
-                              Dashboard
-                            </span>
-                          </Link>
-                          {/* Removed redundant Waitlist item on Waitlist page */}
-                        </div>
-                      </nav>
-
-                      {/* CTA Section */}
-                      <div className="p-6 border-t border-border/40 bg-accent/30 backdrop-blur-lg">
-                        <div className="space-y-3">
-                          <p className="text-sm font-medium text-foreground drop-shadow-sm">
-                            Join our exclusive beta program
-                          </p>
-                          <Button
-                            className="w-full bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 font-semibold backdrop-blur-sm shadow-lg"
-                            disabled
-                          >
-                            You're Here! 🎉
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <Navigation />
 
         {/* Success Section */}
         <section className="py-16 sm:py-20 lg:py-24">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
-            </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground mb-4 sm:mb-6">
-              Application Received!
-            </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto">
-              Thank you for your interest in PayPerCrawl's beta program. We've
-              received your application and will review it carefully.
-            </p>
-            <div className="bg-card rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
-              <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
-                What's Next?
-              </h2>
+            <FadeIn delay={0.1} direction="up">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground mb-4 sm:mb-6">
+                Application Received!
+              </h1>
+              <p className="text-lg sm:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto">
+                Thank you for your interest in PayPerCrawl's beta program. We've
+                received your application and will review it carefully.
+              </p>
+            </FadeIn>
+            <FadeIn delay={0.2} direction="up">
+              <div className="bg-card rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
+                <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-4">
+                  What's Next?
+                </h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-left">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
@@ -372,22 +186,25 @@ export default function WaitlistPage() {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/">
-                <Button size="lg" className="text-lg px-8 py-3">
-                  Return to Home
-                </Button>
-              </Link>
-              <Link href="/blog">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="text-lg px-8 py-3"
-                >
+            </FadeIn>
+            <FadeIn delay={0.3} direction="up">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/">
+                  <Button size="lg" className="text-lg px-8 py-3">
+                    Return to Home
+                  </Button>
+                </Link>
+                <Link href="/blog">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="text-lg px-8 py-3"
+                  >
                   Read Our Blog
                 </Button>
               </Link>
             </div>
+            </FadeIn>
           </div>
         </section>
       </div>
@@ -397,191 +214,42 @@ export default function WaitlistPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-              <span className="text-lg sm:text-xl font-bold text-foreground">
-                PayPerCrawl
-              </span>
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
-              <Link
-                href="/features"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Features
-              </Link>
-              <Link
-                href="/about"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                About
-              </Link>
-              <Link
-                href="/blog"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Blog
-              </Link>
-              <Link href="/">
-                <Button variant="outline" size="sm">
-                  Back to Home
-                </Button>
-              </Link>
-              <ModeToggle />
-            </div>
-
-            {/* Mobile Navigation */}
-            <div className="flex md:hidden items-center space-x-2">
-              <ModeToggle />
-              <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="sm" className="p-2">
-                    <Menu className="h-5 w-5" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  side="right"
-                  className="w-[320px] sm:w-[380px] p-0 bg-background/95 backdrop-blur-2xl border-l border-border/50 shadow-2xl"
-                >
-                  {/* Header */}
-                  <div className="flex items-center justify-between p-6 border-b border-border/30 bg-background/80 backdrop-blur-xl">
-                    <div className="flex items-center space-x-2">
-                      <Shield className="h-6 w-6 text-primary drop-shadow-sm" />
-                      <span className="text-lg font-bold text-foreground drop-shadow-sm">
-                        PayPerCrawl
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Navigation */}
-                  <div className="flex flex-col h-full bg-background/70 backdrop-blur-md">
-                    <nav className="flex-1 p-6 bg-background/50 backdrop-blur-sm">
-                      <div className="space-y-1">
-                        <Link
-                          href="/"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <HomeIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Home
-                          </span>
-                        </Link>
-                        <Link
-                          href="/features"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Star className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Features
-                          </span>
-                        </Link>
-                        <Link
-                          href="/about"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Info className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            About
-                          </span>
-                        </Link>
-                        <Link
-                          href="/blog"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <BookOpen className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Blog
-                          </span>
-                        </Link>
-                        <Link
-                          href="/careers"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <Briefcase className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Careers
-                          </span>
-                        </Link>
-                        <Link
-                          href="/contact"
-                          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-foreground hover:bg-accent/80 hover:text-accent-foreground transition-all duration-200 group backdrop-blur-sm hover:shadow-md"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <MailIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors drop-shadow-sm" />
-                          <span className="font-medium drop-shadow-sm">
-                            Contact
-                          </span>
-                        </Link>
-                        {/* Removed redundant Waitlist item on Waitlist page */}
-                      </div>
-                    </nav>
-
-                    {/* CTA Section */}
-                    <div className="p-6 border-t border-border/40 bg-accent/30 backdrop-blur-lg">
-                      <div className="space-y-3">
-                        <p className="text-sm font-medium text-foreground drop-shadow-sm">
-                          Join our exclusive beta program
-                        </p>
-                        <Button
-                          className="w-full bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 font-semibold backdrop-blur-sm shadow-lg"
-                          disabled
-                        >
-                          You're Here! 🎉
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Hero Section */}
       <section className="py-12 sm:py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Status Banners */}
-          {showPendingBanner && (
-            <div className="auth-status-banner pending p-4 mb-6 max-w-2xl mx-auto">
-              <div className="flex items-center justify-center gap-2 text-amber-800 dark:text-amber-200 text-sm">
-                <Shield className="h-4 w-4" />
-                <span className="font-medium">
-                  Application Under Review
-                </span>
+          <FadeIn delay={0.1} direction="up">
+            {/* Status Banners */}
+            {showPendingBanner && (
+              <div className="auth-status-banner pending p-4 mb-6 max-w-2xl mx-auto">
+                <div className="flex items-center justify-center gap-2 text-amber-800 dark:text-amber-200 text-sm">
+                  <Shield className="h-4 w-4" />
+                  <span className="font-medium">
+                    Application Under Review
+                  </span>
+                </div>
+                <p className="text-amber-700 dark:text-amber-300 text-xs mt-2 text-center">
+                  Your application is being reviewed by our team. You'll receive an email notification once approved for dashboard access.
+                </p>
               </div>
-              <p className="text-amber-700 dark:text-amber-300 text-xs mt-2 text-center">
-                Your application is being reviewed by our team. You'll receive an email notification once approved for dashboard access.
-              </p>
-            </div>
-          )}
-          
-          {showRejectedBanner && (
-            <div className="auth-status-banner rejected p-4 mb-6 max-w-2xl mx-auto">
-              <div className="flex items-center justify-center gap-2 text-red-800 dark:text-red-200 text-sm">
-                <Shield className="h-4 w-4" />
-                <span className="font-medium">
-                  Application Reviewed
-                </span>
+            )}
+            
+            {showRejectedBanner && (
+              <div className="auth-status-banner rejected p-4 mb-6 max-w-2xl mx-auto">
+                <div className="flex items-center justify-center gap-2 text-red-800 dark:text-red-200 text-sm">
+                  <Shield className="h-4 w-4" />
+                  <span className="font-medium">
+                    Application Reviewed
+                  </span>
+                </div>
+                <p className="text-red-700 dark:text-red-300 text-xs mt-2 text-center">
+                  Your application has been reviewed. Please contact our support team for more information about next steps.
+                </p>
               </div>
-              <p className="text-red-700 dark:text-red-300 text-xs mt-2 text-center">
-                Your application has been reviewed. Please contact our support team for more information about next steps.
-              </p>
-            </div>
-          )}
+            )}
 
-          <div className="relative inline-block mb-4">
+            <div className="relative inline-block mb-4">
             <Badge
               variant="secondary"
               className="text-xs sm:text-sm relative z-10 px-4 py-2"
@@ -625,14 +293,16 @@ export default function WaitlistPage() {
               with your unique dashboard access link.
             </p>
           </div>
+          </FadeIn>
         </div>
       </section>
 
       {/* Form Section */}
       <section className="pb-16 sm:pb-24">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Card className="shadow-lg dark:bg-card">
-            <CardHeader className="p-4 sm:p-6">
+          <FadeIn delay={0.2} direction="up">
+            <Card className="shadow-lg dark:bg-card">
+              <CardHeader className="p-4 sm:p-6">
               <CardTitle className="text-xl sm:text-2xl">
                 Beta Application
               </CardTitle>
@@ -748,7 +418,7 @@ export default function WaitlistPage() {
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full text-base sm:text-lg py-3 sm:py-4"
+                  className="w-full text-base sm:text-lg py-3 sm:py-4 disabled:opacity-100 disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none disabled:transform-none disabled:cursor-not-allowed dark:disabled:bg-slate-800 dark:disabled:text-slate-400"
                   disabled={isLoading}
                 >
                   {isLoading ? "Submitting..." : "Apply for Beta Access"}
@@ -756,32 +426,38 @@ export default function WaitlistPage() {
               </form>
             </CardContent>
           </Card>
+          </FadeIn>
         </div>
       </section>
 
       {/* Benefits Section */}
       <section className="py-16 sm:py-20 lg:py-24 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Beta Program Perks
-            </h2>
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
-              As a beta participant, you'll receive exclusive benefits.
-            </p>
-          </div>
+          <FadeIn delay={0.1} direction="up">
+            <div className="text-center mb-12 sm:mb-16">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-4">
+                Beta Program Perks
+              </h2>
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
+                As a beta participant, you'll receive exclusive benefits.
+              </p>
+            </div>
+          </FadeIn>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
-            <div className="text-center">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2">
-                Early Access
-              </h3>
+            <FadeIn delay={0.2} direction="up">
+              <div className="text-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Zap className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2">
+                  Early Access
+                </h3>
               <p className="text-sm sm:text-base text-muted-foreground">
                 Be the first to use our groundbreaking AI monetization tools.
               </p>
             </div>
+            </FadeIn>
+            <FadeIn delay={0.3} direction="up">
             <div className="text-center">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -793,6 +469,8 @@ export default function WaitlistPage() {
                 Get priority support and directly influence the product roadmap.
               </p>
             </div>
+            </FadeIn>
+            <FadeIn delay={0.4} direction="up">
             <div className="text-center">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Globe className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -804,6 +482,7 @@ export default function WaitlistPage() {
                 Keep every dollar you earn during the entire beta period.
               </p>
             </div>
+            </FadeIn>
           </div>
         </div>
       </section>

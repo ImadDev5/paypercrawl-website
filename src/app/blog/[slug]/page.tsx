@@ -22,7 +22,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ModeToggle } from "@/components/mode-toggle";
+import { Navigation } from "@/components/ui/navigation";
+import { FadeIn } from "@/components/ui/fade-in";
 
 // Blog post data with full content
 const blogPosts = {
@@ -259,45 +260,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold text-foreground">
-                PayPerCrawl
-              </span>
-            </Link>
-            <div className="hidden md:flex items-center space-x-8">
-              <Link
-                href="/"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Home
-              </Link>
-              <Link
-                href="/features"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Features
-              </Link>
-              <Link
-                href="/about"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                About
-              </Link>
-              <Link href="/blog" className="text-primary font-medium">
-                Blog
-              </Link>
-              <Link href="/waitlist">
-                <Button>Join Beta</Button>
-              </Link>
-              <ModeToggle />
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Breadcrumb */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -316,6 +279,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
       {/* Article Header */}
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <FadeIn delay={0.1} direction="up">
         <header className="mb-12">
           <div className="flex items-center gap-2 mb-4">
             {(post.tags || []).map((tag: string, index: number) => (
@@ -365,8 +329,10 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             </div>
           </div>
         </header>
+        </FadeIn>
 
         {/* Article Content */}
+        <FadeIn delay={0.2} direction="up">
         <div
           className="prose prose-lg md:prose-xl max-w-none mb-20 md:mb-24
                        prose-headings:text-foreground prose-headings:font-bold
@@ -389,6 +355,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="space-y-4 [&_h1]:text-3xl [&_h2]:text-2xl [&_h3]:text-xl [&_img]:rounded-lg [&_img]:shadow [&_p]:leading-7" dangerouslySetInnerHTML={{ __html: post.content }} />
           )}
         </div>
+        </FadeIn>
 
         {/* Article Footer */}
         <footer className="border-t border-border pt-12 mb-16">
@@ -415,17 +382,19 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       {/* Related Articles */}
       <section className="bg-muted/30 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeIn delay={0.3} direction="up">
           <h2 className="text-2xl font-bold text-foreground mb-8">
             Related Articles
           </h2>
+          </FadeIn>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Object.values(blogPosts)
               .filter((p) => p.id !== post.id)
               .slice(0, 3)
-              .map((relatedPost) => (
+              .map((relatedPost, index) => (
+                <FadeIn key={relatedPost.id} delay={0.4 + index * 0.1} direction="up">
                 <Card
-                  key={relatedPost.id}
-                  className="border-0 shadow-lg hover:shadow-xl transition-shadow"
+                  className="border-0 shadow-lg hover:shadow-xl transition-shadow h-full"
                 >
                   <CardHeader>
                     <div className="flex items-center gap-2 mb-3">
@@ -460,6 +429,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                     </div>
                   </CardContent>
                 </Card>
+                </FadeIn>
               ))}
           </div>
         </div>
@@ -468,6 +438,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       {/* CTA Section */}
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <FadeIn delay={0.5} direction="up">
           <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-12 text-primary-foreground">
             <BookOpen className="h-12 w-12 mx-auto mb-6 text-primary-foreground/80" />
             <h2 className="text-3xl font-bold mb-4">
@@ -482,6 +453,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               </Button>
             </Link>
           </div>
+          </FadeIn>
         </div>
       </section>
 
