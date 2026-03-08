@@ -440,6 +440,31 @@ export default function DashboardClient() {
         </Card>
         </FadeIn>
 
+        <FadeIn delay={0.25} direction="up">
+          <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-primary/30 shadow-xl hover:shadow-2xl transition-all duration-300 glass-card hover-glow mb-8">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="space-y-1 text-center md:text-left">
+                  <h3 className="text-xl font-bold text-foreground">Watermarkity Converter</h3>
+                  <p className="text-muted-foreground">
+                    Protect images entirely in the browser with live stage tracking, visible attribution, and embedded verification.
+                  </p>
+                </div>
+                <Link href="/dashboard/watermarkity">
+                  <Button
+                    size="lg"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <Shield className="mr-2 h-5 w-5" />
+                    Open Watermarkity
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </FadeIn>
+
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* API Key Generator */}

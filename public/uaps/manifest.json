@@ -1,0 +1,206 @@
+{
+  "version": 2,
+  "description": "Gradient-optimised UAPs (MI-DI-TI-FGSM ensemble)",
+  "patchSize": 224,
+  "channels": 3,
+  "dtype": "int8",
+  "bytesPerUAP": 150528,
+  "note": "Gradient-trained assets generated from repo-local imagery. The base 4x12 set used 16/255, and the shipped general profile was retuned to 8/255 to preserve robust-mode PSNR.",
+  "placeholder": false,
+  "models": [
+    "clip_vit_b16"
+  ],
+  "blendProfiles": {
+    "robust": [
+      {
+        "id": "general",
+        "weight": 1.0
+      }
+    ],
+    "balanced": [
+      {
+        "id": "general",
+        "weight": 0.7
+      },
+      {
+        "id": "urban",
+        "weight": 0.18
+      },
+      {
+        "id": "product",
+        "weight": 0.12
+      }
+    ],
+    "forensic": [
+      {
+        "id": "general",
+        "weight": 0.45
+      },
+      {
+        "id": "text",
+        "weight": 0.25
+      },
+      {
+        "id": "abstract",
+        "weight": 0.3
+      }
+    ],
+    "textHeavy": [
+      {
+        "id": "general",
+        "weight": 0.45
+      },
+      {
+        "id": "text",
+        "weight": 0.4
+      },
+      {
+        "id": "product",
+        "weight": 0.15
+      }
+    ],
+    "vivid": [
+      {
+        "id": "general",
+        "weight": 0.4
+      },
+      {
+        "id": "art",
+        "weight": 0.35
+      },
+      {
+        "id": "abstract",
+        "weight": 0.25
+      }
+    ],
+    "structured": [
+      {
+        "id": "general",
+        "weight": 0.5
+      },
+      {
+        "id": "urban",
+        "weight": 0.3
+      },
+      {
+        "id": "product",
+        "weight": 0.2
+      }
+    ],
+    "soft": [
+      {
+        "id": "general",
+        "weight": 0.55
+      },
+      {
+        "id": "landscape",
+        "weight": 0.3
+      },
+      {
+        "id": "face",
+        "weight": 0.15
+      }
+    ]
+  },
+  "training": {
+    "device": "cpu",
+    "epochs": 4,
+    "epsilon": 0.06274509803921569,
+    "batchSize": 1,
+    "maxImagesPerCategory": 12,
+    "seed": 1337,
+    "cpuThreads": 1,
+    "imageDir": "/workspaces/paypercrawl-website/public/watermarkity/input",
+    "trainedAt": "2026-03-08T05:21:06.744962+00:00"
+  },
+  "categories": [
+    {
+      "id": "general",
+      "file": "general.bin",
+      "label": "General purpose",
+      "epsilon": 0.03137254901960784,
+      "epochs": 4,
+      "imageCount": 12,
+      "models": [
+        "clip_vit_b16"
+      ]
+    },
+    {
+      "id": "landscape",
+      "file": "landscape.bin",
+      "label": "Landscapes & nature",
+      "epsilon": 0.06274509803921569,
+      "epochs": 4,
+      "imageCount": 12,
+      "models": [
+        "clip_vit_b16"
+      ]
+    },
+    {
+      "id": "face",
+      "file": "face.bin",
+      "label": "Portraits & faces",
+      "epsilon": 0.06274509803921569,
+      "epochs": 4,
+      "imageCount": 12,
+      "models": [
+        "clip_vit_b16"
+      ]
+    },
+    {
+      "id": "text",
+      "file": "text.bin",
+      "label": "Documents & text",
+      "epsilon": 0.06274509803921569,
+      "epochs": 4,
+      "imageCount": 12,
+      "models": [
+        "clip_vit_b16"
+      ]
+    },
+    {
+      "id": "product",
+      "file": "product.bin",
+      "label": "Products & objects",
+      "epsilon": 0.06274509803921569,
+      "epochs": 4,
+      "imageCount": 12,
+      "models": [
+        "clip_vit_b16"
+      ]
+    },
+    {
+      "id": "art",
+      "file": "art.bin",
+      "label": "Art & illustrations",
+      "epsilon": 0.06274509803921569,
+      "epochs": 4,
+      "imageCount": 12,
+      "models": [
+        "clip_vit_b16"
+      ]
+    },
+    {
+      "id": "urban",
+      "file": "urban.bin",
+      "label": "Urban & architecture",
+      "epsilon": 0.06274509803921569,
+      "epochs": 4,
+      "imageCount": 12,
+      "models": [
+        "clip_vit_b16"
+      ]
+    },
+    {
+      "id": "abstract",
+      "file": "abstract.bin",
+      "label": "Abstract & patterns",
+      "epsilon": 0.06274509803921569,
+      "epochs": 4,
+      "imageCount": 12,
+      "models": [
+        "clip_vit_b16"
+      ]
+    }
+  ]
+}

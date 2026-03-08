@@ -116,6 +116,14 @@ Full API docs: See `docs/` folder
 
 ---
 
+## 🧭 Watermarkity Operations
+
+- Release Runbook: `WATERMARKITY_RELEASE_RUNBOOK.md`
+- Ops Checklist: `WATERMARKITY_OPERATIONS_CHECKLIST.md`
+- Claims Policy: `WATERMARKITY_PRODUCT_CLAIMS_POLICY.md`
+
+---
+
 ## 🎨 Theme System
 
 - **Modes:** Light, Dark, GitHub Dark Dimmed

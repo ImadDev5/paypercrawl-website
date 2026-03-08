@@ -18,7 +18,7 @@ class CrawlGuard_JS_Challenge {
     /**
      * Check if request should be challenged
      */
-    public static function maybe_challenge_request($bot_info, $user_agent, $ip_address) {
+    public static function maybe_challenge_request($bot_info, $user_agent, $ip_address, $policy_mode = 'moderate') {
         // JavaScript Challenge is always-on when plugin is activated
         
         // Skip challenge for admin and AJAX
@@ -32,11 +32,17 @@ class CrawlGuard_JS_Challenge {
             return false;
         }
         
-        // If it's a detected bot, challenge it
+        // If it's a detected bot, challenge it according to configured policy mode
         if ($bot_info['is_bot']) {
+            if ($policy_mode === 'minimum' && (($bot_info['confidence'] ?? 0) < 80)) {
+                error_log('CrawlGuard JS Challenge: Minimum mode and low confidence, skipping challenge');
+                return false;
+            }
+
             error_log('CrawlGuard JS Challenge: Bot detected, requiring challenge');
             error_log('CrawlGuard JS Challenge: Bot type = ' . $bot_info['bot_type']);
             error_log('CrawlGuard JS Challenge: Confidence = ' . $bot_info['confidence'] . '%');
+            error_log('CrawlGuard JS Challenge: Policy mode = ' . $policy_mode);
             return true;
         }
         

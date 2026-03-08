@@ -356,6 +356,14 @@ class CrawlGuard_Admin {
             'crawlguard_settings',
             'crawlguard_main_section'
         );
+
+        add_settings_field(
+            'policy_mode',
+            'Watermarkityfier Policy',
+            array($this, 'policy_mode_callback'),
+            'crawlguard_settings',
+            'crawlguard_main_section'
+        );
     }
     
     public function main_section_callback() {
@@ -404,6 +412,19 @@ class CrawlGuard_Admin {
             echo '<p class="description">JS Challenge will activate automatically when you save a valid API key.</p>';
         }
     }
+
+    public function policy_mode_callback() {
+        $options = get_option('crawlguard_options');
+        $policy_mode = $options['watermarkity']['policy_mode'] ?? 'moderate';
+        ?>
+        <select name="crawlguard_options[watermarkity][policy_mode]">
+            <option value="minimum" <?php selected($policy_mode, 'minimum'); ?>>Minimum (evidence-first)</option>
+            <option value="moderate" <?php selected($policy_mode, 'moderate'); ?>>Moderate (balanced)</option>
+            <option value="maximum" <?php selected($policy_mode, 'maximum'); ?>>Maximum (aggressive deterrence)</option>
+        </select>
+        <p class="description">Controls enforcement strength for detected crawler traffic.</p>
+        <?php
+    }
     
     public function validate_options($input) {
         $current_options = get_option('crawlguard_options');
@@ -441,10 +462,33 @@ class CrawlGuard_Admin {
                 );
             }
         }
+
+        if (isset($input['watermarkity']) && is_array($input['watermarkity'])) {
+            $policy_mode = sanitize_text_field($input['watermarkity']['policy_mode'] ?? 'moderate');
+            if (!in_array($policy_mode, array('minimum', 'moderate', 'maximum'), true)) {
+                $policy_mode = 'moderate';
+            }
+            $output['watermarkity']['policy_mode'] = $policy_mode;
+        }
         
         // Preserve other settings
         if ($current_options) {
             $output = array_merge($current_options, $output);
+        }
+
+        if ($current_options && isset($current_options['watermarkity']) && is_array($current_options['watermarkity'])) {
+            $incoming = $output['watermarkity'] ?? array();
+            $output['watermarkity'] = array_merge($current_options['watermarkity'], $incoming);
+        }
+
+        if (!isset($output['watermarkity']) || !is_array($output['watermarkity'])) {
+            $output['watermarkity'] = array();
+        }
+        if (!isset($output['watermarkity']['policy_mode'])) {
+            $output['watermarkity']['policy_mode'] = 'moderate';
+        }
+        if (!isset($output['watermarkity']['inject_content_markers'])) {
+            $output['watermarkity']['inject_content_markers'] = true;
         }
         
         return $output;

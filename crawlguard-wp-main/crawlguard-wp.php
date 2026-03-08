@@ -37,6 +37,9 @@ class CrawlGuardWP {
     public function init() {
         // Load text domain for translations
         load_plugin_textdomain('crawlguard-wp', false, dirname(plugin_basename(__FILE__)) . '/languages');
+
+        // Ensure schema updates are applied for existing installs
+        $this->migrate_schema();
         
         // Ensure options are migrated (adds new fields if missing)
         $this->migrate_options();
@@ -142,6 +145,8 @@ class CrawlGuardWP {
             bot_detected tinyint(1) DEFAULT 0 NOT NULL,
             bot_type varchar(50),
             action_taken varchar(20) DEFAULT 'allowed' NOT NULL,
+            policy_mode varchar(20) DEFAULT 'moderate' NOT NULL,
+            challenge_outcome varchar(50) DEFAULT 'not_attempted' NOT NULL,
             revenue_generated decimal(10,4) DEFAULT 0.00,
             http_headers text,
             fingerprint_hash varchar(128),
@@ -197,6 +202,14 @@ class CrawlGuardWP {
         ) $charset_collate;";
         dbDelta($sql_fp);
     }
+
+    private function migrate_schema() {
+        $schema_version = get_option('crawlguard_schema_version', '2.0.0');
+        if (version_compare($schema_version, '2.1.0', '<')) {
+            $this->create_tables();
+            update_option('crawlguard_schema_version', '2.1.0');
+        }
+    }
     
     /**
      * Migrate options to add new fields if missing.
@@ -240,6 +253,24 @@ class CrawlGuardWP {
                 $updated = true;
             }
         }
+
+        if (!isset($options['watermarkity']) || !is_array($options['watermarkity'])) {
+            $options['watermarkity'] = array(
+                'policy_mode' => 'moderate',
+                'inject_content_markers' => true,
+            );
+            $updated = true;
+        }
+
+        if (!array_key_exists('policy_mode', $options['watermarkity'])) {
+            $options['watermarkity']['policy_mode'] = 'moderate';
+            $updated = true;
+        }
+
+        if (!array_key_exists('inject_content_markers', $options['watermarkity'])) {
+            $options['watermarkity']['inject_content_markers'] = true;
+            $updated = true;
+        }
         
         if ($updated) {
             update_option('crawlguard_options', $options);
@@ -275,6 +306,11 @@ class CrawlGuardWP {
                 'provider' => 'none', // 'none' | 'ipinfo' | 'maxmind'
                 'ipinfo_token' => '',
                 'maxmind_account' => ''
+            ),
+            // Watermarkityfier controls
+            'watermarkity' => array(
+                'policy_mode' => 'moderate', // minimum | moderate | maximum
+                'inject_content_markers' => true,
             ),
             // Live Sync settings (for Live RAG Tool API)
             'live_sync' => array(

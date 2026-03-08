@@ -349,16 +349,23 @@ class CrawlGuard_Bot_Detector {
     
     private function handle_bot_request($bot_info, $user_agent, $ip_address) {
         $options = get_option('crawlguard_options');
+        $policy_mode = $this->get_policy_mode($options);
+        $action_taken = 'allowed';
+        $challenge_outcome = 'not_attempted';
         
         error_log('CrawlGuard: handle_bot_request() called');
         error_log('CrawlGuard: Monetization enabled = ' . ($options['monetization_enabled'] ? 'YES' : 'NO'));
+        error_log('CrawlGuard: Policy mode = ' . $policy_mode);
         
         // STEP 1: JavaScript Challenge (happens BEFORE monetization check)
         // This slows down bots significantly and blocks headless browsers
         if (class_exists('CrawlGuard_JS_Challenge')) {
             error_log('CrawlGuard: Checking if JS Challenge should be shown...');
-            if (CrawlGuard_JS_Challenge::maybe_challenge_request($bot_info, $user_agent, $ip_address)) {
+            if (CrawlGuard_JS_Challenge::maybe_challenge_request($bot_info, $user_agent, $ip_address, $policy_mode)) {
                 error_log('CrawlGuard: SHOWING JAVASCRIPT CHALLENGE PAGE');
+                $action_taken = 'challenged';
+                $challenge_outcome = 'issued';
+                $this->set_request_action_context($action_taken, $policy_mode, $challenge_outcome);
                 CrawlGuard_JS_Challenge::show_challenge($bot_info);
                 // show_challenge() exits execution - code below won't run
             }
@@ -367,6 +374,8 @@ class CrawlGuard_Bot_Detector {
         // If monetization is not enabled, just log and continue
         if (!$options['monetization_enabled']) {
             error_log('CrawlGuard: MONETIZATION DISABLED - Not blocking, just logging');
+            $action_taken = 'logged';
+            $this->set_request_action_context($action_taken, $policy_mode, $challenge_outcome);
             return;
         }
         
@@ -377,6 +386,8 @@ class CrawlGuard_Bot_Detector {
         // Check if this bot is in the allowed list
         if (in_array(strtolower($bot_info['bot_type']), $options['allowed_bots'])) {
             error_log('CrawlGuard: Bot is in ALLOWED list - not blocking');
+            $action_taken = 'allowed';
+            $this->set_request_action_context($action_taken, $policy_mode, $challenge_outcome);
             return;
         }
         
@@ -384,6 +395,15 @@ class CrawlGuard_Bot_Detector {
         
         // For AI bots, implement monetization logic
         if ($bot_info['is_ai_bot']) {
+            if ($policy_mode === 'maximum' && (($bot_info['confidence'] ?? 0) >= 75)) {
+                $action_taken = 'blocked';
+                $challenge_outcome = $challenge_outcome === 'not_attempted' ? 'skipped_maximum' : $challenge_outcome;
+                $this->set_request_action_context($action_taken, $policy_mode, $challenge_outcome);
+                $this->block_request('Blocked by Watermarkityfier maximum mode');
+            }
+
+            $action_taken = 'monetized';
+            $this->set_request_action_context($action_taken, $policy_mode, $challenge_outcome);
             $this->monetize_request($bot_info, $user_agent, $ip_address);
         }
     }
@@ -475,6 +495,10 @@ class CrawlGuard_Bot_Detector {
         global $wpdb;
         
         $table_name = $wpdb->prefix . 'crawlguard_logs';
+        $options = get_option('crawlguard_options');
+        $policy_mode = $this->get_policy_mode($options);
+        $action_taken = $_SERVER['X_CRAWLGUARD_ACTION'] ?? 'logged';
+        $challenge_outcome = $_SERVER['X_CRAWLGUARD_CHALLENGE_OUTCOME'] ?? 'not_attempted';
 
         // Optional: IP Intelligence (log-only)
         $ip_reputation = null;
@@ -483,10 +507,9 @@ class CrawlGuard_Bot_Detector {
         }
         
         // Optional: fingerprint headers (log-only)
-        $opts = get_option('crawlguard_options');
         $headers = '';
         $fp_hash = '';
-        if (!empty($opts['feature_flags']['enable_fingerprinting_log'])) {
+        if (!empty($options['feature_flags']['enable_fingerprinting_log'])) {
             $interesting = array('HTTP_ACCEPT','HTTP_ACCEPT_LANGUAGE','HTTP_ACCEPT_ENCODING','HTTP_DNT','HTTP_SEC_CH_UA','HTTP_SEC_CH_UA_PLATFORM');
             $data = array();
             foreach ($interesting as $h) { if (!empty($_SERVER[$h])) { $data[$h] = $_SERVER[$h]; } }
@@ -501,14 +524,30 @@ class CrawlGuard_Bot_Detector {
                 'user_agent' => $user_agent,
                 'bot_detected' => $bot_info['is_bot'] ? 1 : 0,
                 'bot_type' => $bot_info['bot_type'],
-                'action_taken' => 'logged',
+                'action_taken' => $action_taken,
+                'policy_mode' => $policy_mode,
+                'challenge_outcome' => $challenge_outcome,
                 'http_headers' => $headers,
                 'fingerprint_hash' => $fp_hash,
                 'rate_limited' => (isset($_SERVER['X_CRAWLGUARD_RATE_LIMITED']) && $_SERVER['X_CRAWLGUARD_RATE_LIMITED']) ? 1 : 0,
                 'ip_reputation' => $ip_reputation,
             ),
-            array('%s','%s','%d','%s','%s','%s','%d','%s')
+            array('%s','%s','%d','%s','%s','%s','%s','%s','%d','%s')
         );
+    }
+
+    private function get_policy_mode($options) {
+        $policy_mode = $options['watermarkity']['policy_mode'] ?? 'moderate';
+        if (!in_array($policy_mode, array('minimum', 'moderate', 'maximum'), true)) {
+            return 'moderate';
+        }
+        return $policy_mode;
+    }
+
+    private function set_request_action_context($action_taken, $policy_mode, $challenge_outcome) {
+        $_SERVER['X_CRAWLGUARD_ACTION'] = $action_taken;
+        $_SERVER['X_CRAWLGUARD_POLICY_MODE'] = $policy_mode;
+        $_SERVER['X_CRAWLGUARD_CHALLENGE_OUTCOME'] = $challenge_outcome;
     }
     
     private function log_revenue($amount) {
